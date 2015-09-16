@@ -60,13 +60,13 @@ gulp.task('html',function(){
 
 //react 编译
 
-gulp.task('react', function () {
+/*gulp.task('react', function () {
     return gulp.src('./src/login/js/main.js')
         .pipe(browserify({
             transform: 'reactify',
         }))
         .pipe(gulp.dest('./dist/login/js'));
-});
+});*/
 
 // reload Js
 gulp.task('js',function(){
@@ -80,9 +80,9 @@ gulp.task('common', function() {
         .pipe(sass({ style: 'expanded' }))
         .pipe(autoprefixer('last 2 version', 'safari 5', 'ie 8', 'ie 9', 'opera 12.1', 'ios 6', 'android 4'))
         .pipe(gulp.dest('dist/common/css'))
-        .pipe(rename({suffix: '.min'}))
+        .pipe(rename( 'layer.css'))
         .pipe(minifycss())
-        .pipe(gulp.dest('dist/common/css'))
+        .pipe(gulp.dest('dist/common/js/skin'))
         .pipe( connect.reload() )
         .pipe(notify({ message: 'Styles Common task complete' }));
         /* gulp.src('./src/login/scss/!*.scss')
@@ -157,11 +157,10 @@ gulp.task('watch', function() {
 
     // 看守所有.js档
     gulp.watch('src/**/js/*.js', ['js']);
-    // 看守所有. react
-    gulp.watch('./src/login/js/*.js', ['react']);
+
     // 看守所有.html
     gulp.watch('./*.html',['html']);
 
 });
 
-gulp.task('serve',['react','connect','watch']);
+gulp.task('serve',['connect','watch']);

@@ -4,10 +4,34 @@
     <meta charset="UTF-8">
     <link rel="shortcut icon" href="./dist/images/favicon.ico"></head>
     <title>panLi 组件库</title>
-    <script src="./dist/js/panli.min.js"></script>
+    <!--<script src="http://sf.panli.com/Public/jQuery/jquery-1.7.2.min.js"></script>-->
+    <script src="http://lib.sinaapp.com/js/jquery/1.9.1/jquery-1.9.1.min.js"></script>
+    <script src="./dist/common/js/panli.js"></script>
+    <!--<script src="http://res.layui.com/lay/lib/layer/src/layer.js?v=2.0"></script>-->
+
 </head>
 <body>
     <h1>panLi 组件库</h1>
-<s>s</s>
 </body>
+<script type="text/javascript">
+
+//    Pan.ready(function () {
+
+
+
+        Pan.open({
+            type: 2,
+            //skin: 'layui-layer-lan',
+            title: 'Pan弹层组件',
+            fix: false,
+            shadeClose: true,
+            area: ['1100px', '600px'],
+            content: 'http://zan3.com',
+            end: function () {
+                Pan.tips('试试相册模块？', '#photosDemo', {tips: 1})
+            }
+        });
+//    });
+
+</script>
 </html>

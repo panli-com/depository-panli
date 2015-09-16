@@ -1,271 +1,798 @@
 
-;!function(window){
+;!function(window, undefined){
     "use strict";
-    var _HostUrlUed = 'http://sf.panli.com/Ued';
-    var doc = document, query = 'querySelectorAll',
-        claname = 'getElementsByClassName',
-        S = function(s){
-            return doc[query](s);
-        };
 
-    var path = ''; //所在路径，如果非模块加载不用配置
-    path = path ? path : doc.scripts[doc.scripts.length-1].src.match(/[\s\S]*\//)[0];
+    var $, win, ready = {
+        getPath: function(){
+            var js = document.scripts, script = js[js.length - 1], jsPath = script.src;
+            if(script.getAttribute('merge')) return;
+            return jsPath.substring(0, jsPath.lastIndexOf("/") + 1);
+        }(),
 
-    var head = doc.head;
-
-    var metaHtml = '' +
-        '<meta content="yes" name="apple-mobile-web-app-capable" /> '+
-        '<meta content="black" name="apple-mobile-web-app-status-bar-style" /> '+
-        '<meta content="telephone=no" name="format-detection" /> '+
-        '<meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0, user-scalable=0" />' ;
-
-    head.innerHTML += metaHtml;
-
-
-     /* 插入 公共组件  css */
-    doc.head.appendChild((function(){
-        var link = doc.createElement('link');
-        link.href = _HostUrlUed+'/dist/common/css/panli.min.css';
-        link.type = 'text/css';
-        link.rel = 'styleSheet'
-        link.id = 'panlimcss';
-
-        console.log(link);
-        return link;
-    }()));
-
-    /* 默认配置 */
-    var config = {
-        type : 2,
-        shade :true,
-        shadeCloss:true,
-        fixed:true,
-        anim:true
-    };
-
-    window.ready = {
-        extend:function(obj){
-            var newObj = JSON.parse(JSON.stringify(config));
-            for(var i in obj){
-                newObj[i] = obj[i];
-            }
-            return newObj;
+        //屏蔽Enter触发弹层
+        enter: function(e){
+            if(e.keyCode === 13) e.preventDefault();
         },
-        timer:{},
-        end:{}
+        config: {}, end: {},
+        btn: ['&#x786E;&#x5B9A;','&#x53D6;&#x6D88;'],
+
+        //五种原始层模式
+        type: ['dialog', 'page', 'iframe', 'loading', 'tips']
     };
 
-    /* 点击事件 */
-    ready.touch =function(elem,func){
-        var move;
-        elem.addEventListener('touchmove',function(){
-            move= true;
-        },false);
-        elem.addEventListener('touchend',function(e){
-            e.preventDefault();
-            move || func.call(this,e);
-            move = false;
-        },false);
+//默认内置方法。
+    var Pan = {
+        v: '2.0',
+        ie6: !!window.ActiveXObject&&!window.XMLHttpRequest,
+        index: 0,
+        path: ready.getPath,
+        config: function(options, fn){
+            var item = 0;
+            options = options || {};
+            Pan.cache = ready.config = $.extend(ready.config, options);
+            Pan.path = ready.config.path || Pan.path;
+            typeof options.extend === 'string' && (options.extend = [options.extend]);
+            Pan.use('skin/layer.css', (options.extend && options.extend.length > 0) ? (function loop(){
+                console.log("222wwww");
+                console.log(options.extend.length);
+
+                var ext = options.extend;
+                Pan.use(ext[ext[item] ? item : item-1], item < ext.length ? function(){
+                    ++item;
+                    return loop;
+                }() : fn);
+            }()) : fn);
+            return this;
+        },
+
+        //载入配件
+        use: function(module, fn, readyMethod){
+            console.log(module);
+
+            var i = 0, head = $('head')[0];
+            var module = module.replace(/\s/g, '');
+            var iscss = /\.css$/.test(module);
+            var node = document.createElement(iscss ? 'link' : 'script');
+            var id = 'layui_layer_' + module.replace(/\.|\//g, '');
+            if(!Pan.path) return;
+            if(iscss){
+                node.rel = 'stylesheet';
+            }
+            node[iscss ? 'href' : 'src'] = /^http:\/\//.test(module) ? module : Pan.path + module;
+            node.id = id;
+            if(!$('#'+ id)[0]){
+                head.appendChild(node);
+            }
+
+            console.log(Pan.path+"999");
+            console.log(iscss);
+            //轮询加载就绪
+            ;(function poll() {
+                ;(iscss ? parseInt($('#'+id).css('width')) === 1989 : Pan[readyMethod||id]) ? function(){
+                    fn && fn();
+                    try { iscss || head.removeChild(node); } catch(e){};
+                }() : setTimeout(poll, 100);
+            }());
+            return this;
+        },
+
+        ready: function(path, fn){
+            var type = typeof path === 'function';
+            if(type) fn = path;
+            Pan.config($.extend(ready.config, function(){
+                return type ? {} : {path: path};
+            }()), fn);
+            return this;
+        },
+
+        //各种快捷引用
+        alert: function(content, options, yes){
+            var type = typeof options === 'function';
+            if(type) yes = options;
+            return Pan.open($.extend({
+                content: content,
+                yes: yes
+            }, type ? {} : options));
+        },
+
+        confirm: function(content, options, yes, cancel){
+            var type = typeof options === 'function';
+            if(type){
+                cancel = yes;
+                yes = options;
+            }
+            return Pan.open($.extend({
+                content: content,
+                btn: ready.btn,
+                yes: yes,
+                cancel: cancel
+            }, type ? {} : options));
+        },
+
+        msg: function(content, options, end){ //最常用提示层
+            var type = typeof options === 'function', rskin = ready.config.skin;
+            var skin = (rskin ? rskin + ' ' + rskin + '-msg' : '')||'layui-layer-msg';
+            var shift = doms.anim.length - 1;
+            if(type) end = options;
+            return Pan.open($.extend({
+                content: content,
+                time: 3000,
+                shade: false,
+                skin: skin,
+                title: false,
+                closeBtn: false,
+                btn: false,
+                end: end
+            }, (type && !ready.config.skin) ? {
+                skin: skin + ' layui-layer-hui',
+                shift: shift
+            } : function(){
+                options = options || {};
+                if(options.icon === -1 || options.icon === undefined && !ready.config.skin){
+                    options.skin = skin + ' ' + (options.skin||'layui-layer-hui');
+                }
+                return options;
+            }()));
+        },
+
+        load: function(icon, options){
+            return Pan.open($.extend({
+                type: 3,
+                icon: icon || 0,
+                shade: 0.01
+            }, options));
+        },
+
+        tips: function(content, follow, options){
+            return Pan.open($.extend({
+                type: 4,
+                content: [content, follow],
+                closeBtn: false,
+                time: 3000,
+                maxWidth: 210
+            }, options));
+        }
     };
 
-    var index = 0,
-        classs = ['panAltermbox'],
-        Pan = function(options){
-            var that = this;
-            that.config = ready.extend(options);
-            that.view();
-        };
-
-    Pan.prototype.view = function () {
-        var that = this,
-            config = that.config,
-            panBox = doc.createElement('div');
-
-        that.id = panBox.id = classs[0] + index;
-        panBox.setAttribute('class', classs[0] + ' ' + classs[0]+(config.type || 0));
-        panBox.setAttribute('index', index);
-
-        var title = (function(){
-            var titype = typeof config.title === 'object';
-            return config.title
-                ? '<h3 style="'+ (titype ? config.title[1] : '') +'">'+ (titype ? config.title[0] : config.title)  +'</h3><button class="panAltermend"></button>'
-                : '';
-        }());
-
-        var button = (function(){
-            var btns = (config.btn || []).length, btndom;
-            if(btns === 0 || !config.btn){
-                return '';
-            }
-            btndom = '<span type="1">'+ config.btn[0] +'</span>'
-            if(btns === 2){
-                btndom = '<span type="0">'+ config.btn[1] +'</span>' + btndom;
-            }
-            return '<div class="panAltermbtn">'+ btndom + '</div>';
-        }());
-
-        if(!config.fixed){
-            config.top = config.hasOwnProperty('top') ?  config.top : 100;
-            config.style = config.style || '';
-            config.style += ' top:'+ ( doc.body.scrollTop + config.top) + 'px';
-        }
-
-        if(config.type === 2){
-            config.content = '<i></i><i class="laymloadtwo"></i><i></i><div>' + (config.content||'') + '</div>';
-        }
-
-        panBox.innerHTML = (config.shade ? '<div '+ (typeof config.shade === 'string' ? 'style="'+ config.shade +'"' : '') +' class="panAltermshade"></div>' : '')
-            +'<div class="panAltermmain" '+ (!config.fixed ? 'style="position:static;"' : '') +'>'
-            +'<div class="section">'
-            +'<div class="panAltermchild '+ (config.className ? config.className : '') +' '+ ((!config.type && !config.shade) ? 'panAltermborder ' : '') + (config.anim ? 'panAltermanim' : '') +'" ' + ( config.style ? 'style="'+config.style+'"' : '' ) +'>'
-            + title
-            +'<div class="panAltermcont">'+ config.content +'</div>'
-            + button
-            +'</div>'
-            +'</div>'
-            +'</div>';
-
-        if(!config.type || config.type === 2){
-            var dialogs = doc[claname](classs[0] + config.type), dialen = dialogs.length;
-            if(dialen >= 1){
-                pan.close(dialogs[0].getAttribute('index'))
-            }
-        }
-
-        document.body.appendChild(panBox);
-        var elem = that.elem = S('#'+that.id)[0];
-        config.success && config.success(elem);
-
-        that.index = index++;
-        that.action(config, elem);
-    };
-
-    Pan.prototype.action = function(config,elem){
+    var Class = function(setings){
         var that = this;
+        that.index = ++Pan.index;
+        that.config = $.extend({}, that.config, ready.config, setings);
+        that.creat();
+    };
 
-        //自动关闭
-        if(config.time){
-            ready.timer[that.index] = setTimeout(function(){
-                pan.close(that.index);
-            }, config.time*1000);
+    Class.pt = Class.prototype;
+
+//缓存常用字符
+    var doms = ['layui-layer', '.layui-layer-title', '.layui-layer-main', '.layui-layer-dialog', 'layui-layer-iframe', 'layui-layer-content', 'layui-layer-btn', 'layui-layer-close'];
+    doms.anim = ['layui-anim', 'layui-anim-01', 'layui-anim-02', 'layui-anim-03', 'layui-anim-04', 'layui-anim-05', 'layui-anim-06'];
+
+//默认配置
+    Class.pt.config = {
+        type: 0,
+        shade: 0.3,
+        fix: true,
+        move: doms[1],
+        title: '&#x4FE1;&#x606F;',
+        offset: 'auto',
+        area: 'auto',
+        closeBtn: 1,
+        time: 0, //0表示不自动关闭
+        zIndex: 19891014,
+        maxWidth: 360,
+        shift: 0,
+        icon: -1,
+        scrollbar: true, //是否允许浏览器滚动条
+        tips: 2
+    };
+
+//容器
+    Class.pt.vessel = function(conType, callback){
+        var that = this, times = that.index, config = that.config;
+        var zIndex = config.zIndex + times, titype = typeof config.title === 'object';
+        var ismax = config.maxmin && (config.type === 1 || config.type === 2);
+        var titleHTML = (config.title ? '<div class="layui-layer-title" style="'+ (titype ? config.title[1] : '') +'">'
+        + (titype ? config.title[0] : config.title)
+        + '</div>' : '');
+
+        config.zIndex = zIndex;
+        callback([
+            //遮罩
+            config.shade ? ('<div class="layui-layer-shade" id="layui-layer-shade'+ times +'" times="'+ times +'" style="'+ ('z-index:'+ (zIndex-1) +'; background-color:'+ (config.shade[1]||'#000') +'; opacity:'+ (config.shade[0]||config.shade) +'; filter:alpha(opacity='+ (config.shade[0]*100||config.shade*100) +');') +'"></div>') : '',
+
+            //主体
+            '<div class="'+ doms[0] +' '+ (doms.anim[config.shift]||'') + (' layui-layer-'+ready.type[config.type]) + (((config.type == 0 || config.type == 2) && !config.shade) ? ' layui-layer-border' : '') + ' ' + (config.skin||'') +'" id="'+ doms[0] + times +'" type="'+ ready.type[config.type] +'" times="'+ times +'" showtime="'+ config.time +'" conType="'+ (conType ? 'object' : 'string') +'" style="z-index: '+ zIndex +'; width:'+ config.area[0] + ';height:' + config.area[1] + (config.fix ? '' : ';position:absolute;') +'">'
+            + (conType && config.type != 2 ? '' : titleHTML)
+            +'<div class="layui-layer-content'+ ((config.type == 0 && config.icon !== -1) ? ' layui-layer-padding' :'') + (config.type == 3 ? ' layui-layer-loading'+config.icon : '') +'">'
+            + (config.type == 0 && config.icon !== -1 ? '<i class="layui-layer-ico layui-layer-ico'+ config.icon +'"></i>' : '')
+            + (config.type == 1 && conType ? '' : (config.content||''))
+            +'</div>'
+            + '<span class="layui-layer-setwin">'+ function(){
+                var closebtn = ismax ? '<a class="layui-layer-min" href="javascript:;"><cite></cite></a><a class="layui-layer-ico layui-layer-max" href="javascript:;"></a>' : '';
+                config.closeBtn && (closebtn += '<a class="layui-layer-ico '+ doms[7] +' '+ doms[7] + (config.title ? config.closeBtn : (config.type == 4 ? '1' : '2')) +'" href="javascript:;"></a>');
+                return closebtn;
+            }() + '</span>'
+            + (config.btn ? function(){
+                var button = '';
+                typeof config.btn === 'string' && (config.btn = [config.btn]);
+                for(var i = 0, len = config.btn.length; i < len; i++){
+                    button += '<a class="'+ doms[6] +''+ i +'">'+ config.btn[i] +'</a>'
+                }
+                return '<div class="'+ doms[6] +'">'+ button +'</div>'
+            }() : '')
+            +'</div>'
+        ], titleHTML);
+        return that;
+    };
+
+//创建骨架
+    Class.pt.creat = function(){
+        var that = this, config = that.config, times = that.index, nodeIndex;
+        var content = config.content, conType = typeof content === 'object';
+
+        if(typeof config.area === 'string'){
+            config.area = config.area === 'auto' ? ['', ''] : [config.area, ''];
         }
 
-        //关闭按钮
-        if(config.title){
-            var end = elem[claname]('panAltermend')[0], endfn = function(){
-                config.cancel && config.cancel();
-                pan.close(that.index);
-            };
-            ready.touch(end, endfn);
-            end.onclick = endfn;
+        switch(config.type){
+            case 0:
+                config.btn = ('btn' in config) ? config.btn : ready.btn[0];
+                Pan.closeAll('dialog');
+                break;
+            case 2:
+                var content = config.content = conType ? config.content : [config.content||'http://sentsin.com?from=Pan', 'auto'];
+                config.content = '<iframe scrolling="'+ (config.content[1]||'auto') +'" allowtransparency="true" id="'+ doms[4] +''+ times +'" name="'+ doms[4] +''+ times +'" onload="this.className=\'\';" class="layui-layer-load" frameborder="0" src="' + config.content[0] + '"></iframe>';
+                break;
+            case 3:
+                config.title = false;
+                config.closeBtn = false;
+                config.icon === -1 && (config.icon === 0);
+                Pan.closeAll('loading');
+                break;
+            case 4:
+                conType || (config.content = [config.content, 'body']);
+                config.follow = config.content[1];
+                config.content = config.content[0] + '<i class="layui-layer-TipsG"></i>';
+                config.title = false;
+                config.shade = false;
+                config.fix = false;
+                config.tips = typeof config.tips === 'object' ? config.tips : [config.tips, true];
+                config.tipsMore || Pan.closeAll('tips');
+                break;
         }
 
-        //确认取消
-        var btn = function(){
-            var type = this.getAttribute('type');
-            if(type == 0){
-                config.no && config.no();
-                pan.close(that.index);
+        //建立容器
+        that.vessel(conType, function(html, titleHTML){
+            $('body').append(html[0]);
+            conType ? function(){
+                (config.type == 2 || config.type == 4) ? function(){
+                    $('body').append(html[1]);
+                }() : function(){
+                    if(!content.parents('.'+doms[0])[0]){
+                        content.show().addClass('layui-layer-wrap').wrap(html[1]);
+                        $('#'+ doms[0] + times).find('.'+doms[5]).before(titleHTML);
+                    }
+                }();
+            }() : $('body').append(html[1]);
+            that.layero = $('#'+ doms[0] + times);
+            config.scrollbar || doms.html.css('overflow', 'hidden').attr('layer-full', times);
+        }).auto(times);
+
+        config.type == 2 && Pan.ie6 && that.layero.find('iframe').attr('src', content[0]);
+        $(document).off('keydown', ready.enter).on('keydown', ready.enter);
+
+        //坐标自适应浏览器窗口尺寸
+        config.type == 4 ? that.tips() : that.offset();
+        if(config.fix){
+            win.on('resize', function(){
+                that.offset();
+                (/^\d+%$/.test(config.area[0]) || /^\d+%$/.test(config.area[1])) && that.auto(times);
+                config.type == 4 && that.tips();
+            });
+        }
+
+        config.time <= 0 || setTimeout(function(){
+            Pan.close(that.index)
+        }, config.time);
+        that.move().callback();
+    };
+
+//自适应
+    Class.pt.auto = function(index){
+        var that = this, config = that.config, layero = $('#'+ doms[0] + index);
+        if(config.area[0] === '' && config.maxWidth > 0){
+            //为了修复IE7下一个让人难以理解的bug
+            if(/MSIE 7/.test(navigator.userAgent) && config.btn){
+                layero.width(layero.innerWidth());
+            }
+            layero.outerWidth() > config.maxWidth && layero.width(config.maxWidth);
+        }
+        var area = [layero.innerWidth(), layero.innerHeight()];
+        var titHeight = layero.find(doms[1]).outerHeight() || 0;
+        var btnHeight = layero.find('.'+doms[6]).outerHeight() || 0;
+        function setHeight(elem){
+            elem = layero.find(elem);
+            elem.height(area[1] - titHeight - btnHeight - 2*(parseFloat(elem.css('padding'))|0));
+        }
+        switch(config.type){
+            case 2:
+                setHeight('iframe');
+                break;
+            default:
+                if(config.area[1] === ''){
+                    if(config.fix && area[1] >= win.height()){
+                        area[1] = win.height();
+                        setHeight('.'+doms[5]);
+                    }
+                } else {
+                    setHeight('.'+doms[5]);
+                }
+                break;
+        }
+        return that;
+    };
+
+//计算坐标
+    Class.pt.offset = function(){
+        var that = this, config = that.config, layero = that.layero;
+        var area = [layero.outerWidth(), layero.outerHeight()];
+        var type = typeof config.offset === 'object';
+        that.offsetTop = (win.height() - area[1])/2;
+        that.offsetLeft = (win.width() - area[0])/2;
+        if(type){
+            that.offsetTop = config.offset[0];
+            that.offsetLeft = config.offset[1]||that.offsetLeft;
+        } else if(config.offset !== 'auto'){
+            that.offsetTop = config.offset;
+            if(config.offset === 'rb'){ //右下角
+                that.offsetTop = win.height() - area[1];
+                that.offsetLeft = win.width() - area[0];
+            }
+        }
+        if(!config.fix){
+            that.offsetTop = /%$/.test(that.offsetTop) ?
+            win.height()*parseFloat(that.offsetTop)/100
+                : parseFloat(that.offsetTop);
+            that.offsetLeft = /%$/.test(that.offsetLeft) ?
+            win.width()*parseFloat(that.offsetLeft)/100
+                : parseFloat(that.offsetLeft);
+            that.offsetTop += win.scrollTop();
+            that.offsetLeft += win.scrollLeft();
+        }
+        layero.css({top: that.offsetTop, left: that.offsetLeft});
+    };
+
+//Tips
+    Class.pt.tips = function(){
+        var that = this, config = that.config, layero = that.layero;
+        var layArea = [layero.outerWidth(), layero.outerHeight()], follow = $(config.follow);
+        if(!follow[0]) follow = $('body');
+        var goal = {
+            width: follow.outerWidth(),
+            height: follow.outerHeight(),
+            top: follow.offset().top,
+            left: follow.offset().left
+        }, tipsG = layero.find('.layui-layer-TipsG');
+
+        var guide = config.tips[0];
+        config.tips[1] || tipsG.remove();
+
+        goal.autoLeft = function(){
+            if(goal.left + layArea[0] - win.width() > 0){
+                goal.tipLeft = goal.left + goal.width - layArea[0];
+                tipsG.css({right: 12, left: 'auto'});
             } else {
-                config.yes ? config.yes(that.index) : pan.close(that.index);
+                goal.tipLeft = goal.left;
+            };
+        };
+
+        //辨别tips的方位
+        goal.where = [function(){ //上
+            goal.autoLeft();
+            goal.tipTop = goal.top - layArea[1] - 10;
+            tipsG.removeClass('layui-layer-TipsB').addClass('layui-layer-TipsT').css('border-right-color', config.tips[1]);
+        }, function(){ //右
+            goal.tipLeft = goal.left + goal.width + 10;
+            goal.tipTop = goal.top;
+            tipsG.removeClass('layui-layer-TipsL').addClass('layui-layer-TipsR').css('border-bottom-color', config.tips[1]);
+        }, function(){ //下
+            goal.autoLeft();
+            goal.tipTop = goal.top + goal.height + 10;
+            tipsG.removeClass('layui-layer-TipsT').addClass('layui-layer-TipsB').css('border-right-color', config.tips[1]);
+        }, function(){ //左
+            goal.tipLeft = goal.left - layArea[0] - 10;
+            goal.tipTop = goal.top;
+            tipsG.removeClass('layui-layer-TipsR').addClass('layui-layer-TipsL').css('border-bottom-color', config.tips[1]);
+        }];
+        goal.where[guide-1]();
+
+        /* 8*2为小三角形占据的空间 */
+        if(guide === 1){
+            goal.top - (win.scrollTop() + layArea[1] + 8*2) < 0 && goal.where[2]();
+        } else if(guide === 2){
+            win.width() - (goal.left + goal.width + layArea[0] + 8*2) > 0 || goal.where[3]()
+        } else if(guide === 3){
+            (goal.top - win.scrollTop() + goal.height + layArea[1] + 8*2) - win.height() > 0 && goal.where[0]();
+        } else if(guide === 4){
+            layArea[0] + 8*2 - goal.left > 0 && goal.where[1]()
+        }
+
+        layero.find('.'+doms[5]).css({
+            'background-color': config.tips[1],
+            'padding-right': (config.closeBtn ? '30px' : '')
+        });
+        layero.css({left: goal.tipLeft, top: goal.tipTop});
+    }
+
+//拖拽层
+    Class.pt.move = function(){
+        var that = this, config = that.config, conf = {
+            setY: 0,
+            moveLayer: function(){
+                var layero = conf.layero, mgleft = parseInt(layero.css('margin-left'));
+                var lefts = parseInt(conf.move.css('left'));
+                mgleft === 0 || (lefts = lefts - mgleft);
+                if(layero.css('position') !== 'fixed'){
+                    lefts = lefts - layero.parent().offset().left;
+                    conf.setY = 0;
+                }
+                layero.css({left: lefts, top: parseInt(conf.move.css('top')) - conf.setY});
             }
         };
 
+        var movedom = that.layero.find(config.move);
+        config.move && movedom.attr('move', 'ok');
+        movedom.css({cursor: config.move ? 'move' : 'auto'});
 
-        if(config.btn){
-            var btns = elem[claname]('panAltermbtn')[0].children, btnlen = btns.length;
-            for(var ii = 0; ii < btnlen; ii++){
-                ready.touch(btns[ii], btn);
-                btns[ii].onclick = btn;
+        $(config.move).on('mousedown', function(M){
+            M.preventDefault();
+            if($(this).attr('move') === 'ok'){
+                conf.ismove = true;
+                conf.layero = $(this).parents('.'+ doms[0]);
+                var xx = conf.layero.offset().left, yy = conf.layero.offset().top, ww = conf.layero.outerWidth() - 6, hh = conf.layero.outerHeight() - 6;
+                if(!$('#layui-layer-moves')[0]){
+                    $('body').append('<div id="layui-layer-moves" class="layui-layer-moves" style="left:'+ xx +'px; top:'+ yy +'px; width:'+ ww +'px; height:'+ hh +'px; z-index:2147483584"></div>');
+                }
+                conf.move = $('#layui-layer-moves');
+                config.moveType && conf.move.css({visibility: 'hidden'});
+
+                conf.moveX = M.pageX - conf.move.position().left;
+                conf.moveY = M.pageY - conf.move.position().top;
+                conf.layero.css('position') !== 'fixed' || (conf.setY = win.scrollTop());
+            }
+        });
+
+        $(document).mousemove(function(M){
+            if(conf.ismove){
+                var offsetX = M.pageX - conf.moveX, offsetY = M.pageY - conf.moveY;
+                M.preventDefault();
+
+                //控制元素不被拖出窗口外
+                if(!config.moveOut){
+                    conf.setY = win.scrollTop();
+                    var setRig = win.width() - conf.move.outerWidth(), setTop = conf.setY;
+                    offsetX < 0 && (offsetX = 0);
+                    offsetX > setRig && (offsetX = setRig);
+                    offsetY < setTop && (offsetY = setTop);
+                    offsetY > win.height() - conf.move.outerHeight() + conf.setY && (offsetY = win.height() - conf.move.outerHeight() + conf.setY);
+                }
+
+                conf.move.css({left: offsetX, top: offsetY});
+                config.moveType && conf.moveLayer();
+
+                offsetX = offsetY = setRig = setTop = null;
+            }
+        }).mouseup(function(){
+            try{
+                if(conf.ismove){
+                    conf.moveLayer();
+                    conf.move.remove();
+                    config.moveEnd && config.moveEnd();
+                }
+                conf.ismove = false;
+            }catch(e){
+                conf.ismove = false;
+            }
+        });
+        return that;
+    };
+
+    Class.pt.callback = function(){
+        var that = this, layero = that.layero, config = that.config;
+        that.openLayer();
+        if(config.success){
+            if(config.type == 2){
+                layero.find('iframe')[0].onload = function(){
+                    this.className = '';
+                    config.success(layero, that.index);
+                };
+            } else {
+                config.success(layero, that.index);
             }
         }
+        Pan.ie6 && that.IE6(layero);
+
+        //按钮
+        layero.find('.'+ doms[6]).children('a').on('click', function(){
+            var index = $(this).index();
+            config['btn'+(index+1)] && config['btn'+(index+1)](that.index, layero);
+            if(index === 0){
+                config.yes ? config.yes(that.index, layero) : Pan.close(that.index);
+            } else if(index === 1){
+                cancel();
+            } else {
+                config['btn'+(index+1)] || Pan.close(that.index);
+            }
+        });
+
+        //取消
+        function cancel(){
+            var close = config.cancel && config.cancel(that.index);
+            close === false || Pan.close(that.index);
+        }
+
+        //右上角关闭回调
+        layero.find('.'+ doms[7]).on('click', cancel);
 
         //点遮罩关闭
-        if(config.shade && config.shadeClose){
-            var shade = elem[claname]('panAltermshade')[0];
-            ready.touch(shade, function(){
-                pan.close(that.index, config.end);
+        if(config.shadeClose){
+            $('#layui-layer-shade'+ that.index).on('click', function(){
+                Pan.close(that.index);
             });
-            shade.onclick = function(){
-                pan.close(that.index, config.end);
-            };
         }
+
+        //最小化
+        layero.find('.layui-layer-min').on('click', function(){
+            Pan.min(that.index, config);
+            config.min && config.min(layero);
+        });
+
+        //全屏/还原
+        layero.find('.layui-layer-max').on('click', function(){
+            if($(this).hasClass('layui-layer-maxmin')){
+                Pan.restore(that.index);
+                config.restore && config.restore(layero);
+            } else {
+                Pan.full(that.index, config);
+                config.full && config.full(layero);
+            }
+        });
 
         config.end && (ready.end[that.index] = config.end);
-
     };
 
-    var panV = {
-        v : 'panli.com 组件库 0.0.1',
-        index:index,
-        author:'zan',
-        /*主要方法*/
-        open:function(options){
-            var i = new Pan(options || {});
-            return i
-        },
-        close:function(index){
-            var ibox = S('#'+classs[0]+index)[0];
-            if(!ibox) return;
-            ibox.innerHTML = '';
-            doc.body.removeChild(ibox);
-            clearTimeout(ready.timer[index]);
-            delete ready.timer[index];
-            typeof ready.end[index] === 'function' && ready.end[index]();
-            delete ready.end[index];
-        },
-        /* 关闭所有窗口 */
-        closeAll: function(){
-            var boxs = doc[claname](classs[0]);
-            for(var i = 0, len = boxs.length; i < len; i++){
-                pan.close((boxs[0].getAttribute('index')|0));
+//for ie6 恢复select
+    ready.reselect = function(){
+        $.each($('select'), function(index , value){
+            var sthis = $(this);
+            if(!sthis.parents('.'+doms[0])[0]){
+                (sthis.attr('pan') == 1 && $('.'+doms[0]).length < 1) && sthis.removeAttr('pan').show();
             }
-        },
-        /* 谷歌统计代码 */
-        googleCount:function(){
-            (function (i, s, o, g, r, a, m) {
-                i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
-                        (i[r].q = i[r].q || []).push(arguments)
-                    }, i[r].l = 1 * new Date(); a = s.createElement(o),
-                    m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
-            })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+            sthis = null;
+        });
+    };
 
-            ga('create', 'UA-436090-2', 'auto');ga('require', 'displayfeatures');
-            ga('send', 'pageview');
-        },
-        /* rem 字体转换 */
-        remFontSize:function(){
-            var fontsize = function () {
-                var W = document.body.getBoundingClientRect().width, defaultW = 720, defaultSize = 40;
-                W = W > defaultW ? defaultW : W < 320 ? 320 : W;
-                window.W = W; document.documentElement.style.fontSize = (W / defaultW * defaultSize).toFixed(2) + 'px';
+    Class.pt.IE6 = function(layero){
+        var that = this, _ieTop = layero.offset().top;
+
+        //ie6的固定与相对定位
+        function ie6Fix(){
+            layero.css({top : _ieTop + (that.config.fix ? win.scrollTop() : 0)});
+        };
+        ie6Fix();
+        win.scroll(ie6Fix);
+
+        //隐藏select
+        $('select').each(function(index , value){
+            var sthis = $(this);
+            if(!sthis.parents('.'+doms[0])[0]){
+                sthis.css('display') === 'none' || sthis.attr({'pan' : '1'}).hide();
+            }
+            sthis = null;
+        });
+    };
+
+//需依赖原型的对外方法
+    Class.pt.openLayer = function(){
+        var that = this;
+
+        //置顶当前窗口
+        Pan.zIndex = that.config.zIndex;
+        Pan.setTop = function(layero){
+            var setZindex = function(){
+                Pan.zIndex++;
+                layero.css('z-index', Pan.zIndex + 1);
             };
-            var fontset = setTimeout(fontsize, 300);
-            window.addEventListener('resize', function () { clearTimeout(fontset); fontset = setTimeout(fontsize, 300) });
-            window.addEventListener("DOMContentLoaded", fontsize);
-            setTimeout(fontsize, 300);
+            Pan.zIndex = parseInt(layero[0].style.zIndex);
+            layero.on('mousedown', setZindex);
+            return Pan.zIndex;
+        };
+    };
 
+    ready.record = function(layero){
+        var area = [
+            layero.outerWidth(),
+            layero.outerHeight(),
+            layero.position().top,
+            layero.position().left + parseFloat(layero.css('margin-left'))
+        ];
+        layero.find('.layui-layer-max').addClass('layui-layer-maxmin');
+        layero.attr({area: area});
+    };
+
+    ready.rescollbar = function(index){
+        if(doms.html.attr('layer-full') == index){
+            if(doms.html[0].style.removeProperty){
+                doms.html[0].style.removeProperty('overflow');
+            } else {
+                doms.html[0].style.removeAttribute('overflow');
+            }
+            doms.html.removeAttr('layer-full');
         }
-    }
+    };
 
+    /*! 内置成员 */
 
+//获取子iframe的DOM
+    Pan.getChildFrame = function(selector, index){
+        index = index || $('.'+doms[4]).attr('times');
+        return $('#'+ doms[0] + index).find('iframe').contents().find(selector);
+    };
 
-    'function' === typeof define ? define(function() {
-        return pan;
-    }) : window.pan = panV;
+//得到当前iframe层的索引，子iframe时使用
+    Pan.getFrameIndex = function(name){
+        return $('#'+ name).parents('.'+doms[4]).attr('times');
+    };
 
-    //panV.googleCount();
-    if(!is_pc){
-        panV.remFontSize();
-        console.log('NOpc')
-    }
+//iframe层自适应宽高
+    Pan.iframeAuto = function(index){
+        if(!index) return;
+        var heg = Pan.getChildFrame('body', index).outerHeight();
+        var layero = $('#'+ doms[0] + index);
+        var titHeight = layero.find(doms[1]).outerHeight() || 0;
+        var btnHeight = layero.find('.'+doms[6]).outerHeight() || 0;
+        layero.css({height: heg + titHeight + btnHeight});
+        layero.find('iframe').css({height: heg});
+    };
 
+//重置iframe url
+    Pan.iframeSrc = function(index, url){
+        $('#'+ doms[0] + index).find('iframe').attr('src', url);
+    };
+
+//设定层的样式
+    Pan.style = function(index, options){
+        var layero = $('#'+ doms[0] + index), type = layero.attr('type');
+        var titHeight = layero.find(doms[1]).outerHeight() || 0;
+        var btnHeight = layero.find('.'+doms[6]).outerHeight() || 0;
+        if(type === ready.type[1] || type === ready.type[2]){
+            layero.css(options);
+            if(type === ready.type[2]){
+                layero.find('iframe').css({
+                    height: parseFloat(options.height) - titHeight - btnHeight
+                });
+            }
+        }
+    };
+
+//最小化
+    Pan.min = function(index, options){
+        var layero = $('#'+ doms[0] + index);
+        var titHeight = layero.find(doms[1]).outerHeight() || 0;
+        ready.record(layero);
+        Pan.style(index, {width: 180, height: titHeight, overflow: 'hidden'});
+        layero.find('.layui-layer-min').hide();
+        layero.attr('type') === 'page' && layero.find(doms[4]).hide();
+        ready.rescollbar(index);
+    };
+
+//还原
+    Pan.restore = function(index){
+        var layero = $('#'+ doms[0] + index), area = layero.attr('area').split(',');
+        var type = layero.attr('type');
+        Pan.style(index, {
+            width: parseFloat(area[0]),
+            height: parseFloat(area[1]),
+            top: parseFloat(area[2]),
+            left: parseFloat(area[3]),
+            overflow: 'visible'
+        });
+        layero.find('.layui-layer-max').removeClass('layui-layer-maxmin');
+        layero.find('.layui-layer-min').show();
+        layero.attr('type') === 'page' && layero.find(doms[4]).show();
+        ready.rescollbar(index);
+    };
+
+//全屏
+    Pan.full = function(index){
+        var layero = $('#'+ doms[0] + index), timer;
+        ready.record(layero);
+        if(!doms.html.attr('layer-full')){
+            doms.html.css('overflow','hidden').attr('layer-full', index);
+        }
+        clearTimeout(timer);
+        timer = setTimeout(function(){
+            var isfix = layero.css('position') === 'fixed';
+            Pan.style(index, {
+                top: isfix ? 0 : win.scrollTop(),
+                left: isfix ? 0 : win.scrollLeft(),
+                width: win.width(),
+                height: win.height()
+            });
+            layero.find('.layui-layer-min').hide();
+        }, 100);
+    };
+
+//改变title
+    Pan.title = function(name, index){
+        var title = $('#'+ doms[0] + (index||Pan.index)).find(doms[1]);
+        title.html(name);
+    };
+
+//关闭layer总方法
+    Pan.close = function(index){
+        var layero = $('#'+ doms[0] + index), type = layero.attr('type');
+        if(!layero[0]) return;
+        if(type === ready.type[1] && layero.attr('conType') === 'object'){
+            layero.children(':not(.'+ doms[5] +')').remove();
+            for(var i = 0; i < 2; i++){
+                layero.find('.layui-layer-wrap').unwrap().hide();
+            }
+        } else {
+            //低版本IE 回收 iframe
+            if(type === ready.type[2]){
+                try {
+                    var iframe = $('#'+doms[4]+index)[0];
+                    iframe.contentWindow.document.write('');
+                    iframe.contentWindow.close();
+                    layero.find('.'+doms[5])[0].removeChild(iframe);
+                } catch(e){}
+            }
+            layero[0].innerHTML = '';
+            layero.remove();
+        }
+        $('#layui-layer-moves, #layui-layer-shade' + index).remove();
+        Pan.ie6 && ready.reselect();
+        ready.rescollbar(index);
+        $(document).off('keydown', ready.enter);
+        typeof ready.end[index] === 'function' && ready.end[index]();
+        delete ready.end[index];
+    };
+
+//关闭所有层
+    Pan.closeAll = function(type){
+        $.each($('.'+doms[0]), function(){
+            var othis = $(this);
+            var is = type ? (othis.attr('type') === type) : 1;
+            is && Pan.close(othis.attr('times'));
+            is = null;
+        });
+    };
+
+//主入口
+    ready.run = function(){
+        $ = jQuery;
+        win = $(window);
+        doms.html = $('html');
+        Pan.open = function(deliver){
+            var o = new Class(deliver);
+            return o.index;
+        };
+    };
+
+    'function' === typeof define ? define(function(){
+        ready.run();
+        return Pan;
+    }) : function(){
+        window.Pan = Pan;
+        ready.run();
+        Pan.use('../css/panli.min.css');
+    }();
 
 }(window);
 /*
 * 判断是否是pc
 * */
-var _HostUrlUed = 'http://sf.panli.com/Ued';
 
 function is_pc(){
     var os = new Array("Android","iPhone","Windows Phone","iPod","BlackBerry","MeeGo","SymbianOS");  // 其他类型的移动操作系统类型，自行添加
@@ -285,7 +812,7 @@ function getCookie(name)
         return unescape(arr[2]);
     else
         return null;
-}
+};
 function delCookie(name)
 {
     var exp = new Date();
@@ -293,7 +820,7 @@ function delCookie(name)
     var cval=getCookie(name);
     if(cval!=null)
         document.cookie= name + "="+cval+";expires="+exp.toGMTString();
-}
+};
 
 function setCookie(name,value,time)
 {
@@ -301,7 +828,7 @@ function setCookie(name,value,time)
     var exp = new Date();
     exp.setTime(exp.getTime() + strsec*1);
     document.cookie = name + "="+ escape (value) + ";expires=" + exp.toGMTString();
-}
+};
 function getsec(str)
 {
 
@@ -319,7 +846,7 @@ function getsec(str)
     {
         return str1*24*60*60*1000;
     }
-}
+};
 //这是有设定过期时间的使用示例：
 //s20是代表20秒
 //s20是代表20秒
@@ -355,7 +882,7 @@ function getsec(str)
 
 function removeEle(removeObj) {
     removeObj.parentNode.removeChild(removeObj);
-}
+};
 
 /**
  * Created by Administrator on 2015/9/11.
@@ -364,81 +891,3 @@ function removeEle(removeObj) {
 * 2015年9月14日15:29:04
 * 首页弹出框
 * */
-;(function(jQuery){
-
-
-    var PanBoxDoing = function(){
-        var self = this;
-
-        this.myDate = new Date();
-        this._month = this.myDate.getMonth()+1;
-        this._date = this.myDate.getDate();
-        this._year = this.myDate.getFullYear();
-
-        this.DoingDateStart = 2015917;
-        this.DoingDateEnd = 2015922;
-        this._tayDate = parseInt(this._year.toString()+this._month.toString()+this._date.toString());
-
-        this.ifAlter();
-
-
-    };
-
-    PanBoxDoing.prototype = {
-        ifAlter:function(){
-
-            if(this._tayDate >= this.DoingDateStart && this._tayDate <= this.DoingDateEnd){
-
-                this.bodyNode = $(document.body);
-                //创建遮罩和弹出框
-                this._mask = $('<div id="panDoing_mask" class="panDoing_mask">');
-                this._wrap  = $('<div id="panDoing_wrap" class="panDoing_wrap">');
-
-                var indexAlter = getCookie('indexAlter');
-                console.log(indexAlter);
-                if(indexAlter = null || indexAlter != this._tayDate){
-                    this.renderDOM();
-                    console.log("活动时间内1次");
-                }
-
-            }
-        },
-        closeAlter:function () {
-            this._mask.fadeOut();
-            this._wrap.fadeOut();
-        },
-        renderDOM:function(){
-            var loadNum = 0;
-            // 渲染DOM
-            var imgInfo = [{w:663,h:524,src:_HostUrlUed+'/images/20150927/doing_001.png',a:'http://www.panli.com/Special/shippingsale_201509.html'},
-                {w:494,h:664,src:_HostUrlUed+'/images/20150927/doing_002.png',a:'http://www.panli.com/Special/shippingsale_201509.html'},
-                {w:480,h:689,src:_HostUrlUed+'/images/20150927/doing_003.png',a:'http://www.panli.com/Special/shippingsale_201509.html'}
-            ];
-
-            var _boxTop = imgInfo[loadNum].h/2,
-             _boxRight = imgInfo[loadNum].w/2,
-             _boxA = imgInfo[loadNum].a,
-             _boxImg = imgInfo[loadNum].src;
-
-            var boxHtml =   '<span class="closePanDoing" title="残忍的关闭"></span>'+
-            '<img src="'+ _boxImg +'" alt=""/>' +
-                '<a href="'+ _boxA +'" target="_blank" >'+
-                '</a>';
-            this._wrap.html(boxHtml);
-            this.bodyNode.append(this._mask,this._wrap);
-            this._wrap.css({marginTop:-_boxTop,marginRight:-_boxRight});
-            this._mask.fadeIn('50');
-            this._wrap.fadeIn('50');
-
-            setCookie("indexAlter",this._tayDate,"d30");
-
-            this.bodyNode.on('click','.closePanDoing,a',function(){
-               $("#panDoing_mask").fadeOut('50');
-               $("#panDoing_wrap").fadeOut('50');
-            });
-
-        }
-    }
-
-    window['PanBoxDoing'] = PanBoxDoing;
-})(jQuery);

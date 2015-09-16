@@ -232,8 +232,8 @@ button {
 }
 
 /**
- * Address inconsistent `text-transform` inheritance for `button` and `select`.
- * All other form control elements do not inherit `text-transform` values.
+ * Address inconsistent `test-transform` inheritance for `button` and `select`.
+ * All other form control elements do not inherit `test-transform` values.
  * Correct `button` style inheritance in Firefox, IE 8/9/10/11, and Opera.
  * Correct `select` style inheritance in Firefox.
  */
@@ -304,7 +304,7 @@ input[type="radio"] {
 /**
  * Fix the cursor style for Chrome's increment/decrement buttons. For certain
  * `font-size` values of the `input`, it causes the cursor style of the
- * decrement button to change from `default` to `text`.
+ * decrement button to change from `default` to `test`.
  */
 
 input[type="number"]::-webkit-inner-spin-button,

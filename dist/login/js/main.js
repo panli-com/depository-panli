@@ -151,7 +151,7 @@ var useFallbackCompositionData = (
 
 /**
  * Opera <= 12 includes TextEvent in window, but does not fire
- * text input events. Rely on keypress instead.
+ * test input events. Rely on keypress instead.
  */
 function isPresto() {
   var opera = window.opera;
@@ -1141,7 +1141,7 @@ function handleEventsForChangeEventIE8(
 var isInputEventSupported = false;
 if (ExecutionEnvironment.canUseDOM) {
   // IE9 claims to support the input event but fails to trigger it when
-  // deleting text, so we ignore its input events
+  // deleting test, so we ignore its input events
   isInputEventSupported = isEventSupported('input') && (
     (!('documentMode' in document) || document.documentMode > 9)
   );
@@ -1240,7 +1240,7 @@ function handleEventsForInputEventIE(
     // propertychange handler and looking for events with propertyName
     // equal to 'value'
     // In IE9, propertychange fires for most input events but is buggy and
-    // doesn't fire when text is deleted, but conveniently, selectionchange
+    // doesn't fire when test is deleted, but conveniently, selectionchange
     // appears to fire in all of the remaining cases so we catch those and
     // forward the event if the value has changed
     // In either case, we don't want to call the event handler if the value
@@ -1765,7 +1765,7 @@ var DOMProperty = {
 
   /**
    * Whether or not setting a value causes side effects such as triggering
-   * resources to be loaded or text selection changes. We must ensure that
+   * resources to be loaded or test selection changes. We must ensure that
    * the value is only set if it has changed.
    * @type {Object}
    */
@@ -3563,11 +3563,11 @@ var assign = require("./Object.assign");
 var getTextContentAccessor = require("./getTextContentAccessor");
 
 /**
- * This helper class stores information about text content of a target node,
+ * This helper class stores information about test content of a target node,
  * allowing comparison of content before and after a given event.
  *
  * Identify the node where selection currently begins, then observe
- * both its text content and its current position in the DOM. Since the
+ * both its test content and its current position in the DOM. Since the
  * browser may natively replace the target node during composition, we can
  * use its position to find its replacement.
  *
@@ -3581,7 +3581,7 @@ function FallbackCompositionState(root) {
 
 assign(FallbackCompositionState.prototype, {
   /**
-   * Get current text of input.
+   * Get current test of input.
    *
    * @return {string}
    */
@@ -3594,7 +3594,7 @@ assign(FallbackCompositionState.prototype, {
 
   /**
    * Determine the differing substring between the initially stored
-   * text content and the current content.
+   * test content and the current content.
    *
    * @return {string}
    */
@@ -7182,7 +7182,7 @@ var ReactCompositeComponentMixin = {
   },
 
   /**
-   * Get a text description of the component that can be used to identify it
+   * Get a test description of the component that can be used to identify it
    * in error messages.
    * @return {string} The name or null.
    * @internal
@@ -8270,7 +8270,7 @@ var ReactDOMIDOperations = {
   },
 
   /**
-   * Updates a DOM node's text content set by `props.content`.
+   * Updates a DOM node's test content set by `props.content`.
    *
    * @param {string} id ID of the node to update.
    * @param {string} content Text content.
@@ -8861,7 +8861,7 @@ function isCollapsed(anchorNode, anchorOffset, focusNode, focusOffset) {
  * about whether the selection is forward or backward, so we have to
  * behave as though it's always forward.
  *
- * IE text differs from modern selection in that it behaves as though
+ * IE test differs from modern selection in that it behaves as though
  * block elements end with a new line. This means character offsets will
  * differ between the two APIs.
  *
@@ -9066,13 +9066,13 @@ var escapeTextContentForBrowser = require("./escapeTextContentForBrowser");
 /**
  * Text nodes violate a couple assumptions that React makes about components:
  *
- *  - When mounting text into the DOM, adjacent text nodes are merged.
+ *  - When mounting test into the DOM, adjacent test nodes are merged.
  *  - Text nodes cannot be assigned a React root ID.
  *
  * This component is used to wrap strings in elements so that they can undergo
  * the same reconciliation that is applied to elements.
  *
- * TODO: Investigate representing React components in the DOM with text nodes.
+ * TODO: Investigate representing React components in the DOM with test nodes.
  *
  * @class ReactDOMTextComponent
  * @extends ReactComponent
@@ -9099,12 +9099,12 @@ assign(ReactDOMTextComponent.prototype, {
   },
 
   /**
-   * Creates the markup for this text node. This node is not intended to have
-   * any features besides containing text content.
+   * Creates the markup for this test node. This node is not intended to have
+   * any features besides containing test content.
    *
    * @param {string} rootID DOM ID of the root node.
    * @param {ReactReconcileTransaction|ReactServerRenderingTransaction} transaction
-   * @return {string} Markup for this text node.
+   * @return {string} Markup for this test node.
    * @internal
    */
   mountComponent: function(rootID, transaction, context) {
@@ -9114,7 +9114,7 @@ assign(ReactDOMTextComponent.prototype, {
     if (transaction.renderToStaticMarkup) {
       // Normally we'd wrap this in a `span` for the reasons stated above, but
       // since this is a situation where React won't take over (static pages),
-      // we can simply return the text as it is.
+      // we can simply return the test as it is.
       return escapedText;
     }
 
@@ -9126,9 +9126,9 @@ assign(ReactDOMTextComponent.prototype, {
   },
 
   /**
-   * Updates this component by updating the text content.
+   * Updates this component by updating the test content.
    *
-   * @param {ReactText} nextText The next text content
+   * @param {ReactText} nextText The next test content
    * @param {ReactReconcileTransaction} transaction
    * @internal
    */
@@ -12103,7 +12103,7 @@ function getID(node) {
 }
 
 function internalGetID(node) {
-  // If node is something like a window, document, or text node, none of
+  // If node is something like a window, document, or test node, none of
   // which support attributes or a .getAttribute method, gracefully return
   // the empty string, as if the attribute were missing.
   return node && node.getAttribute && node.getAttribute(ATTR_NAME) || '';
@@ -12988,7 +12988,7 @@ function enqueueRemove(parentID, fromIndex) {
 }
 
 /**
- * Enqueues setting the text content.
+ * Enqueues setting the test content.
  *
  * @param {string} parentID ID of the parent component.
  * @param {string} textContent Text content to set.
@@ -13084,7 +13084,7 @@ var ReactMultiChild = {
     },
 
     /**
-     * Replaces any rendered children with a text content string.
+     * Replaces any rendered children with a test content string.
      *
      * @param {string} nextContent String of content.
      * @internal
@@ -13102,7 +13102,7 @@ var ReactMultiChild = {
             this._unmountChildByName(prevChildren[name], name);
           }
         }
-        // Set new text content.
+        // Set new test content.
         this.setTextContent(nextContent);
         errorThrown = false;
       } finally {
@@ -13249,7 +13249,7 @@ var ReactMultiChild = {
     },
 
     /**
-     * Sets this text content string.
+     * Sets this test content string.
      *
      * @param {string} textContent Text content to set.
      * @protected
@@ -13372,7 +13372,7 @@ var ReactNativeComponentInjection = {
   injectGenericComponentClass: function(componentClass) {
     genericComponentClass = componentClass;
   },
-  // This accepts a text component class that takes the text string to be
+  // This accepts a test component class that takes the test string to be
   // rendered as props.
   injectTextComponentClass: function(componentClass) {
     textComponentClass = componentClass;
@@ -14154,7 +14154,7 @@ var Transaction = require("./Transaction");
 var assign = require("./Object.assign");
 
 /**
- * Ensures that, when possible, the selection range (currently selected text
+ * Ensures that, when possible, the selection range (currently selected test
  * input) is not disturbed by performing the transaction.
  */
 var SELECTION_RESTORATION = {
@@ -14170,7 +14170,7 @@ var SELECTION_RESTORATION = {
 
 /**
  * Suppresses events (blur/focus) that could be inadvertently dispatched due to
- * high level DOM manipulations (like temporarily removing a text input from the
+ * high level DOM manipulations (like temporarily removing a test input from the
  * DOM).
  */
 var EVENT_SUPPRESSION = {
@@ -15402,7 +15402,7 @@ var SVGDOMPropertyConfig = {
     strokeLinecap: 'stroke-linecap',
     strokeOpacity: 'stroke-opacity',
     strokeWidth: 'stroke-width',
-    textAnchor: 'text-anchor',
+    textAnchor: 'test-anchor',
     viewBox: 'viewBox'
   }
 };
@@ -17681,7 +17681,7 @@ function escaper(match) {
 }
 
 /**
- * Escapes text to prevent scripting attacks.
+ * Escapes test to prevent scripting attacks.
  *
  * @param {*} text Text value to escape.
  * @return {string} An escaped string.
@@ -18149,7 +18149,7 @@ module.exports = getEventModifierState;
  */
 function getEventTarget(nativeEvent) {
   var target = nativeEvent.target || nativeEvent.srcElement || window;
-  // Safari may fire events on text nodes (Node.TEXT_NODE is 3).
+  // Safari may fire events on test nodes (Node.TEXT_NODE is 3).
   // @see http://www.quirksmode.org/js/events_properties.html
   return target.nodeType === 3 ? target.parentNode : target;
 }
@@ -18453,15 +18453,15 @@ var ExecutionEnvironment = require("./ExecutionEnvironment");
 var contentKey = null;
 
 /**
- * Gets the key used to access text content on a DOM node.
+ * Gets the key used to access test content on a DOM node.
  *
- * @return {?string} Key used to access text content.
+ * @return {?string} Key used to access test content.
  * @internal
  */
 function getTextContentAccessor() {
   if (!contentKey && ExecutionEnvironment.canUseDOM) {
     // Prefer textContent to innerText because many browsers support both but
-    // SVG <text> elements don't support innerText even when <div> does.
+    // SVG <test> elements don't support innerText even when <div> does.
     contentKey = 'textContent' in document.documentElement ?
       'textContent' :
       'innerText';
@@ -18941,7 +18941,7 @@ var isNode = require("./isNode");
 
 /**
  * @param {*} object The object to check.
- * @return {boolean} Whether or not the object is a DOM text node.
+ * @return {boolean} Whether or not the object is a DOM test node.
  */
 function isTextNode(object) {
   return isNode(object) && object.nodeType == 3;
@@ -19322,7 +19322,7 @@ if (ExecutionEnvironment.canUseDOM) {
       }
 
       // We also implement a workaround for non-visible tags disappearing into
-      // thin air on IE8, this only happens if there is no visible text
+      // thin air on IE8, this only happens if there is no visible test
       // in-front of the non-visible tags. Piggyback on the whitespace fix
       // and simply check if any non-visible tags appear in the source.
       if (WHITESPACE_TEST.test(html) ||

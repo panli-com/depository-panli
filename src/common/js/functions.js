@@ -1,7 +1,6 @@
 /*
 * 判断是否是pc
 * */
-var _HostUrlUed = 'http://sf.panli.com/Ued';
 
 function is_pc(){
     var os = new Array("Android","iPhone","Windows Phone","iPod","BlackBerry","MeeGo","SymbianOS");  // 其他类型的移动操作系统类型，自行添加
@@ -21,7 +20,7 @@ function getCookie(name)
         return unescape(arr[2]);
     else
         return null;
-}
+};
 function delCookie(name)
 {
     var exp = new Date();
@@ -29,7 +28,7 @@ function delCookie(name)
     var cval=getCookie(name);
     if(cval!=null)
         document.cookie= name + "="+cval+";expires="+exp.toGMTString();
-}
+};
 
 function setCookie(name,value,time)
 {
@@ -37,7 +36,7 @@ function setCookie(name,value,time)
     var exp = new Date();
     exp.setTime(exp.getTime() + strsec*1);
     document.cookie = name + "="+ escape (value) + ";expires=" + exp.toGMTString();
-}
+};
 function getsec(str)
 {
 
@@ -55,7 +54,7 @@ function getsec(str)
     {
         return str1*24*60*60*1000;
     }
-}
+};
 //这是有设定过期时间的使用示例：
 //s20是代表20秒
 //s20是代表20秒
@@ -91,4 +90,4 @@ function getsec(str)
 
 function removeEle(removeObj) {
     removeObj.parentNode.removeChild(removeObj);
-}
+};
