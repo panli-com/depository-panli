@@ -22,7 +22,7 @@
 
 //默认内置方法。
     var Pan = {
-        v: '2.0',
+        v: '0.1',
         ie6: !!window.ActiveXObject&&!window.XMLHttpRequest,
         index: 0,
         path: ready.getPath,
@@ -33,8 +33,8 @@
             Pan.path = ready.config.path || Pan.path;
             typeof options.extend === 'string' && (options.extend = [options.extend]);
             Pan.use('skin/layer.css', (options.extend && options.extend.length > 0) ? (function loop(){
-                console.log("222wwww");
-                console.log(options.extend.length);
+
+
 
                 var ext = options.extend;
                 Pan.use(ext[ext[item] ? item : item-1], item < ext.length ? function(){
@@ -47,7 +47,7 @@
 
         //载入配件
         use: function(module, fn, readyMethod){
-            console.log(module);
+
 
             var i = 0, head = $('head')[0];
             var module = module.replace(/\s/g, '');
@@ -64,8 +64,7 @@
                 head.appendChild(node);
             }
 
-            console.log(Pan.path+"999");
-            console.log(iscss);
+
             //轮询加载就绪
             ;(function poll() {
                 ;(iscss ? parseInt($('#'+id).css('width')) === 1989 : Pan[readyMethod||id]) ? function(){
@@ -786,10 +785,11 @@
     }) : function(){
         window.Pan = Pan;
         ready.run();
-        Pan.use('../css/panli.min.css');
+        Pan.use('skin/layer.css');
     }();
 
 }(window);
+
 /*
 * 判断是否是pc
 * */
@@ -805,7 +805,28 @@ function is_pc(){
     }
     return true;
 };
-function getCookie(name)
+
+// 获取服务器时间
+function getServerTime(callback){
+  $.ajax({
+       type: "POST",
+       cache: false,
+       async: false,
+       url: "/App_Services/wsDefault.asmx/GetDateTime",
+       dataType: "json",
+       contentType: "application/json;utf-8",
+       timeout: 10000,
+       error: function () {
+       },
+       success: function (data) {
+           if(data){
+             callback(data);
+           }
+       }
+    });
+}
+
+function get_Cookie(name)
 {
     var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)");
     if(arr=document.cookie.match(reg))
@@ -813,7 +834,7 @@ function getCookie(name)
     else
         return null;
 };
-function delCookie(name)
+function del_Cookie(name)
 {
     var exp = new Date();
     exp.setTime(exp.getTime() - 1);
@@ -822,11 +843,11 @@ function delCookie(name)
         document.cookie= name + "="+cval+";expires="+exp.toGMTString();
 };
 
-function setCookie(name,value,time)
+function set_Cookie(name,value,time)
 {
-    var strsec = getsec(time);
+
     var exp = new Date();
-    exp.setTime(exp.getTime() + strsec*1);
+    exp.setTime(time);
     document.cookie = name + "="+ escape (value) + ";expires=" + exp.toGMTString();
 };
 function getsec(str)
@@ -847,6 +868,14 @@ function getsec(str)
         return str1*24*60*60*1000;
     }
 };
+// 今日 结束时间
+function getDateEnd(date) {
+    var _date = new Date(date);
+    var year = _date.getFullYear(),
+       month = _date.getMonth(),
+       day = _date.getDate();
+    return new Date(year, month, day, 23, 59, 59);
+}
 //这是有设定过期时间的使用示例：
 //s20是代表20秒
 //s20是代表20秒
@@ -883,6 +912,7 @@ function getsec(str)
 function removeEle(removeObj) {
     removeObj.parentNode.removeChild(removeObj);
 };
+
 
 /**
  * Created by Administrator on 2015/9/11.

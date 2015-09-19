@@ -22,7 +22,7 @@
 
 //默认内置方法。
     var Pan = {
-        v: '2.0',
+        v: '0.1',
         ie6: !!window.ActiveXObject&&!window.XMLHttpRequest,
         index: 0,
         path: ready.getPath,
@@ -33,8 +33,8 @@
             Pan.path = ready.config.path || Pan.path;
             typeof options.extend === 'string' && (options.extend = [options.extend]);
             Pan.use('skin/layer.css', (options.extend && options.extend.length > 0) ? (function loop(){
-                console.log("222wwww");
-                console.log(options.extend.length);
+
+
 
                 var ext = options.extend;
                 Pan.use(ext[ext[item] ? item : item-1], item < ext.length ? function(){
@@ -47,7 +47,7 @@
 
         //载入配件
         use: function(module, fn, readyMethod){
-            console.log(module);
+
 
             var i = 0, head = $('head')[0];
             var module = module.replace(/\s/g, '');
@@ -64,8 +64,7 @@
                 head.appendChild(node);
             }
 
-            console.log(Pan.path+"999");
-            console.log(iscss);
+
             //轮询加载就绪
             ;(function poll() {
                 ;(iscss ? parseInt($('#'+id).css('width')) === 1989 : Pan[readyMethod||id]) ? function(){
@@ -786,7 +785,7 @@
     }) : function(){
         window.Pan = Pan;
         ready.run();
-        Pan.use('../css/panli.min.css');
+        Pan.use('skin/layer.css');
     }();
 
 }(window);

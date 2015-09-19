@@ -349,8 +349,7 @@ html #layui_layer_skinlayercss {
   margin: 0;
   padding: 0;
   background-color: #fff;
-  -webkit-background-clip: content;
-  box-shadow: 1px 1px 50px rgba(0, 0, 0, 0.3); }
+  -webkit-background-clip: content; }
 
 .layui-layer-close {
   position: absolute; }
@@ -373,10 +372,10 @@ html #layui_layer_skinlayercss {
   filter: alpha(opacity=50); }
 
 .layui-layer-load {
-  background: url(../js/skin/default/loading-0.gif) #fff center center no-repeat; }
+  background: url(default/loading-0.gif) #fff center center no-repeat; }
 
 .layui-layer-ico {
-  background: url(../js/skin/default/icon.png) no-repeat; }
+  background: url(default/icon.png) no-repeat; }
 
 .layui-layer-dialog .layui-layer-ico, .layui-layer-setwin a, .layui-layer-btn a {
   display: inline-block;
@@ -800,17 +799,17 @@ html #layui_layer_skinlayercss {
 .layui-layer-loading .layui-layer-content {
   width: 60px;
   height: 24px;
-  background: url(../js/skin/default/loading-0.gif) no-repeat; }
+  background: url(default/loading-0.gif) no-repeat; }
 
 .layui-layer-loading .layui-layer-loading1 {
   width: 37px;
   height: 37px;
-  background: url(../js/skin/default/loading-1.gif) no-repeat; }
+  background: url(default/loading-1.gif) no-repeat; }
 
 .layui-layer-loading .layui-layer-loading2, .layui-layer-ico16 {
   width: 32px;
   height: 32px;
-  background: url(../js/skin/default/loading-2.gif) no-repeat; }
+  background: url(default/loading-2.gif) no-repeat; }
 
 .layui-layer-tips {
   background: none;
@@ -896,3 +895,32 @@ html #layui_layer_skinlayercss {
 
 .layui-layer-molv .layui-layer-btn .layui-layer-btn1 {
   background: #92B8B1; }
+
+.PanAlterWrap {
+  position: relative; }
+  .PanAlterWrap img {
+    z-index: 0; }
+  .PanAlterWrap .closePanOpen {
+    position: absolute;
+    right: 166px;
+    top: 10px;
+    width: 60px;
+    height: 63px;
+    cursor: pointer;
+    z-index: 100;
+    background-color: #fff;
+    filter: Alpha(opacity=0);
+    background-color: rgba(0, 0, 0, 0.01);
+    /* IE9、标准浏览器、IE6和部分IE7内核的浏览器(如QQ浏览器)会读懂 */ }
+  .PanAlterWrap a {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: block;
+    height: 80px;
+    z-index: 100;
+    background-color: #fff;
+    filter: Alpha(opacity=0);
+    background-color: rgba(0, 0, 0, 0.01);
+    /* IE9、标准浏览器、IE6和部分IE7内核的浏览器(如QQ浏览器)会读懂 */ }
