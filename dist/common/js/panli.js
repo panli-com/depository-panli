@@ -107,13 +107,12 @@ PanD.fn = PanD.prototype = {
 		ret.prevObject = this;
 		ret.context = this.context;
 
-		// Return the newly-formed element set
+		// 返回新组建的元素集合
 		return ret;
 	},
 
-	// Execute a callback for every element in the matched set.
-	// (You can seed the arguments with an array of args, but this is
-	// only used internally.)
+	// 在匹配的集合中的每个元素执行一个回调。
+	// (你可以在 array of args 设置要参数, 但是这仅在内部使用.)
 	each: function( callback, args ) {
 		return PanD.each( this, callback, args );
 	},
@@ -146,8 +145,8 @@ PanD.fn = PanD.prototype = {
 		return this.prevObject || this.constructor(null);
 	},
 
-	// For internal use only.
-	// Behaves like an Array's method, not like a PanD method.
+	// 仅供内部使用。
+	// 如同一个数组的方法, 不像一个 PanD 的方法.
 	push: push,
 	sort: deletedIds.sort,
 	splice: deletedIds.splice
@@ -160,40 +159,40 @@ PanD.extend = PanD.fn.extend = function() {
 		length = arguments.length,
 		deep = false;
 
-	// Handle a deep copy situation
+	// 处理深拷贝状态
 	if ( typeof target === "boolean" ) {
 		deep = target;
 
-		// skip the boolean and the target
+		// 跳过布尔和目标
 		target = arguments[ i ] || {};
 		i++;
 	}
 
-	// Handle case when target is a string or something (possible in deep copy)
+	// 处理情况下，当目标是一个字符串或东西(可能是深拷贝)
 	if ( typeof target !== "object" && !PanD.isFunction(target) ) {
 		target = {};
 	}
 
-	// extend PanD itself if only one argument is passed
+	//扩展 PanD 如果只有一个参数传递本身
 	if ( i === length ) {
 		target = this;
 		i--;
 	}
 
 	for ( ; i < length; i++ ) {
-		// Only deal with non-null/undefined values
+		// 只处理非空/未定义的值
 		if ( (options = arguments[ i ]) != null ) {
-			// Extend the base object
+			// 扩展基本对象
 			for ( name in options ) {
 				src = target[ name ];
 				copy = options[ name ];
 
-				// Prevent never-ending loop
+				// 防止无限循环
 				if ( target === copy ) {
 					continue;
 				}
 
-				// Recurse if we're merging plain objects or arrays
+				// 递归 如果我们合并纯对象或数组
 				if ( deep && copy && ( PanD.isPlainObject(copy) || (copyIsArray = PanD.isArray(copy)) ) ) {
 					if ( copyIsArray ) {
 						copyIsArray = false;
@@ -203,10 +202,10 @@ PanD.extend = PanD.fn.extend = function() {
 						clone = src && PanD.isPlainObject(src) ? src : {};
 					}
 
-					// Never move original objects, clone them
+					// 切勿将原来的对象，克隆它们
 					target[ name ] = PanD.extend( deep, clone, copy );
 
-				// Don't bring in undefined values
+				// 请不要带来不确定的值
 				} else if ( copy !== undefined ) {
 					target[ name ] = copy;
 				}
@@ -214,15 +213,15 @@ PanD.extend = PanD.fn.extend = function() {
 		}
 	}
 
-	// Return the modified object
+	// 返回修改的对象
 	return target;
 };
 
 PanD.extend({
-	// Unique for each copy of PanD on the page
+	// Unique for each copy of PanD on the page 每个页面
 	expando: "PanD" + ( version + Math.random() ).replace( /\D/g, "" ),
 
-	// Assume PanD is ready without the ready module
+	// 设想 PanD 是 没有准备模块
 	isReady: true,
 
 	error: function( msg ) {
@@ -231,9 +230,8 @@ PanD.extend({
 
 	noop: function() {},
 
-	// See test/unit/core.js for details concerning isFunction.
-	// Since version 1.3, DOM methods and functions like alert
-	// aren't supported. They return false on IE (#2968).
+	// 请参阅测试/单位/ core.js的有关isFunction细节。
+
 	isFunction: function( obj ) {
 		return PanD.type(obj) === "function";
 	},
@@ -265,27 +263,27 @@ PanD.extend({
 	isPlainObject: function( obj ) {
 		var key;
 
-		// Must be an Object.
-		// Because of IE, we also have to check the presence of the constructor property.
-		// Make sure that DOM nodes and window objects don't pass through, as well
+		// 必须是一个对象.
+		// 由于IE浏览器，我们也必须检查constructor属性的存在。
+		// 确保DOM节点和窗口对象不通过
 		if ( !obj || PanD.type(obj) !== "object" || obj.nodeType || PanD.isWindow( obj ) ) {
 			return false;
 		}
 
 		try {
-			// Not own constructor property must be Object
+			// 没有自己的constructor属性必须是对象
 			if ( obj.constructor &&
 				!hasOwn.call(obj, "constructor") &&
 				!hasOwn.call(obj.constructor.prototype, "isPrototypeOf") ) {
 				return false;
 			}
 		} catch ( e ) {
-			// IE8,9 Will throw exceptions on certain host objects #9897
+			// IE8,9 将抛出某些主机对象异常
 			return false;
 		}
 
-		// Support: IE<9
-		// Handle iteration over inherited properties before own properties.
+		// 支撑: IE<9
+		// 处理迭代自己的属性之前继承的属性。
 		if ( support.ownLast ) {
 			for ( key in obj ) {
 				return hasOwn.call( obj, key );
@@ -6126,11 +6124,11 @@ if ( window.getComputedStyle ) {
 				minWidth = style.minWidth;
 				maxWidth = style.maxWidth;
 
-				// Put in the new values to get a computed value out
+				// 放入新的值来获得计算值超出
 				style.minWidth = style.maxWidth = style.width = ret;
 				ret = computed.width;
 
-				// Revert the changed values
+				// 还原更改的值
 				style.width = width;
 				style.minWidth = minWidth;
 				style.maxWidth = maxWidth;
@@ -8895,57 +8893,57 @@ PanD.extend({
 	// Main method
 	ajax: function( url, options ) {
 
-		// If url is an object, simulate pre-1.5 signature
+		// 如果url为对象，模拟预1.5签名
 		if ( typeof url === "object" ) {
 			options = url;
 			url = undefined;
 		}
 
-		// Force options to be an object
+		// 强制选项是一个对象
 		options = options || {};
 
-		var // Cross-domain detection vars
+		var // 跨域检测 vars
 			parts,
-			// Loop variable
+			// 循环变量
 			i,
-			// URL without anti-cache param
+			// 不含抗缓存参数的URL
 			cacheURL,
-			// Response headers as string
+			// 响应头字符串
 			responseHeadersString,
-			// timeout handle
+			// 超时处理
 			timeoutTimer,
 
-			// To know if global events are to be dispatched
+			// 要知道，如果全局事件要被分派
 			fireGlobals,
 
 			transport,
-			// Response headers
+			// 响应头
 			responseHeaders,
-			// Create the final options object
+			// 创建最终的选择对象
 			s = PanD.ajaxSetup( {}, options ),
-			// Callbacks context
+			// 回调上下文
 			callbackContext = s.context || s,
-			// Context for global events is callbackContext if it is a DOM node or PanD collection
+			// 上下文全局事件是callbackContext如果是DOM节点或PanD集合
 			globalEventContext = s.context && ( callbackContext.nodeType || callbackContext.PanD ) ?
 				PanD( callbackContext ) :
 				PanD.event,
 			// Deferreds
 			deferred = PanD.Deferred(),
 			completeDeferred = PanD.Callbacks("once memory"),
-			// Status-dependent callbacks
+			// 取决于状态的回调
 			statusCode = s.statusCode || {},
 			// Headers (they are sent all at once)
 			requestHeaders = {},
 			requestHeadersNames = {},
-			// The jqXHR state
+			// The XHR state
 			state = 0,
-			// Default abort message
+			// 默认中止消息
 			strAbort = "canceled",
 			// Fake xhr
 			jqXHR = {
 				readyState: 0,
 
-				// Builds headers hashtable if needed
+				// 构建必要时头hashtable中
 				getResponseHeader: function( key ) {
 					var match;
 					if ( state === 2 ) {
@@ -9707,7 +9705,7 @@ function createActiveXHR() {
 
 
 
-// Install script dataType
+// 安装脚本的dataType
 PanD.ajaxSetup({
 	accepts: {
 		script: "text/javascript, application/javascript, application/ecmascript, application/x-ecmascript"
@@ -9723,7 +9721,7 @@ PanD.ajaxSetup({
 	}
 });
 
-// Handle cache's special case and global
+// 处理缓存的特殊情况
 PanD.ajaxPrefilter( "script", function( s ) {
 	if ( s.cache === undefined ) {
 		s.cache = false;
@@ -9734,10 +9732,10 @@ PanD.ajaxPrefilter( "script", function( s ) {
 	}
 });
 
-// Bind script tag hack transport
+// 绑定脚本标记破解交通
 PanD.ajaxTransport( "script", function(s) {
 
-	// This transport only deals with cross domain requests
+	// 这种传输只涉及跨域请求
 	if ( s.crossDomain ) {
 
 		var script,
@@ -9757,23 +9755,23 @@ PanD.ajaxTransport( "script", function(s) {
 
 				script.src = s.url;
 
-				// Attach handlers for all browsers
+				// 附加处理程序所有的浏览器
 				script.onload = script.onreadystatechange = function( _, isAbort ) {
 
 					if ( isAbort || !script.readyState || /loaded|complete/.test( script.readyState ) ) {
 
-						// Handle memory leak in IE
+						//处理在IE浏览器的内存泄漏
 						script.onload = script.onreadystatechange = null;
 
-						// Remove the script
+						// 删除脚本
 						if ( script.parentNode ) {
 							script.parentNode.removeChild( script );
 						}
 
-						// Dereference the script
+						// 取消引用脚本
 						script = null;
 
-						// Callback if not abort
+						// 如果不中止回调
 						if ( !isAbort ) {
 							callback( 200, "success" );
 						}
@@ -9800,7 +9798,7 @@ PanD.ajaxTransport( "script", function(s) {
 var oldCallbacks = [],
 	rjsonp = /(=)\?(?=&|P)|\?\?/;
 
-// Default jsonp settings
+// 默认JSONP设置
 PanD.ajaxSetup({
 	jsonp: "callback",
 	jsonpCallback: function() {
@@ -9810,7 +9808,7 @@ PanD.ajaxSetup({
 	}
 });
 
-// Detect, normalize options and install callbacks for jsonp requests
+// 检测，规范化的选择和安装回调JSONP请求
 PanD.ajaxPrefilter( "json jsonp", function( s, originalSettings, jqXHR ) {
 
 	var callbackName, overwritten, responseContainer,
@@ -9819,22 +9817,22 @@ PanD.ajaxPrefilter( "json jsonp", function( s, originalSettings, jqXHR ) {
 			typeof s.data === "string" && !( s.contentType || "" ).indexOf("application/x-www-form-urlencoded") && rjsonp.test( s.data ) && "data"
 		);
 
-	// Handle iff the expected data type is "jsonp" or we have a parameter to set
+	// 处理敌我识别预期的数据类型是“JSONP”或者我们有一个参数来设置
 	if ( jsonProp || s.dataTypes[ 0 ] === "jsonp" ) {
 
-		// Get callback name, remembering preexisting value associated with it
+		// 获取回调的名字，记住与之相关的预先存在的值
 		callbackName = s.jsonpCallback = PanD.isFunction( s.jsonpCallback ) ?
 			s.jsonpCallback() :
 			s.jsonpCallback;
 
-		// Insert callback into url or form data
+		//将回调到URL或表单数据
 		if ( jsonProp ) {
 			s[ jsonProp ] = s[ jsonProp ].replace( rjsonp, "P1" + callbackName );
 		} else if ( s.jsonp !== false ) {
 			s.url += ( rquery.test( s.url ) ? "&" : "?" ) + s.jsonp + "=" + callbackName;
 		}
 
-		// Use data converter to retrieve json after script execution
+		// 使用数据转换器，脚本执行后取回JSON
 		s.converters["script json"] = function() {
 			if ( !responseContainer ) {
 				PanD.error( callbackName + " was not called" );
@@ -9842,18 +9840,18 @@ PanD.ajaxPrefilter( "json jsonp", function( s, originalSettings, jqXHR ) {
 			return responseContainer[ 0 ];
 		};
 
-		// force json dataType
+		// 强 json 数据类型
 		s.dataTypes[ 0 ] = "json";
 
-		// Install callback
+		// 安装回调
 		overwritten = window[ callbackName ];
 		window[ callbackName ] = function() {
 			responseContainer = arguments;
 		};
 
-		// Clean-up function (fires after converters)
+		// 清理功能 (fires after converters)
 		jqXHR.always(function() {
-			// Restore preexisting value
+			// 恢复先前存在的价值
 			window[ callbackName ] = overwritten;
 
 			// Save back as free
@@ -10135,7 +10133,7 @@ PanD.fn.extend({
 	}
 });
 
-// Create scrollLeft and scrollTop methods
+// 创建scrollLeft和scrollTop的方法
 PanD.each( { scrollLeft: "pageXOffset", scrollTop: "pageYOffset" }, function( method, prop ) {
 	var top = /Y/.test( prop );
 
@@ -10165,7 +10163,7 @@ PanD.each( { scrollLeft: "pageXOffset", scrollTop: "pageYOffset" }, function( me
 // Add the top/left cssHooks using PanD.fn.position
 // Webkit bug: https://bugs.webkit.org/show_bug.cgi?id=29084
 // getComputedStyle returns percent when specified for top/left/bottom/right
-// rather than make the css module depend on the offset module, we just check for it here
+// 而不是让CSS模块依赖于偏移模块，我们只是检查在这里
 PanD.each( [ "top", "left" ], function( i, prop ) {
 	PanD.cssHooks[ prop ] = addGetHookIf( support.pixelPosition,
 		function( elem, computed ) {
@@ -10181,7 +10179,7 @@ PanD.each( [ "top", "left" ], function( i, prop ) {
 });
 
 
-// Create innerHeight, innerWidth, height, width, outerHeight and outerWidth methods
+// 创建innerHeight，innerWidth，高度，宽度，outerHeight和outerWidth方法
 PanD.each( { Height: "height", Width: "width" }, function( name, type ) {
 	PanD.each( { padding: "inner" + name, content: type, "": "outer" + name }, function( defaultExtra, funcName ) {
 		// margin is only for outerHeight, outerWidth
@@ -10193,18 +10191,16 @@ PanD.each( { Height: "height", Width: "width" }, function( name, type ) {
 				var doc;
 
 				if ( PanD.isWindow( elem ) ) {
-					// As of 5/8/2012 this will yield incorrect results for Mobile Safari, but there
-					// isn't a whole lot we can do. See pull request at this URL for discussion:
-					// https://github.com/PanD/PanD/pull/764
+			       //移动Safari浏览器
 					return elem.document.documentElement[ "client" + name ];
 				}
 
-				// Get document width or height
+				// 获取文档宽度或高度
 				if ( elem.nodeType === 9 ) {
 					doc = elem.documentElement;
 
-					// Either scroll[Width/Height] or offset[Width/Height] or client[Width/Height], whichever is greatest
-					// unfortunately, this causes bug #3838 in IE6/8 only, but there is currently no good, small way to fix it.
+					// 无论是滚动[宽/高]或偏移宽/高]或客户端[宽度/高度]，取最大
+					// 不幸的是，这会导致错误＃3838在IE6/8只，但目前还没有很很的方式来解决它。
 					return Math.max(
 						elem.body[ "scroll" + name ], doc[ "scroll" + name ],
 						elem.body[ "offset" + name ], doc[ "offset" + name ],
@@ -10213,10 +10209,10 @@ PanD.each( { Height: "height", Width: "width" }, function( name, type ) {
 				}
 
 				return value === undefined ?
-					// Get width or height on the element, requesting but not forcing parseFloat
+					// 获取宽度或高度的元素，要求但不强迫parseFloat
 					PanD.css( elem, type, extra ) :
 
-					// Set width or height on the element
+					// 设置宽度或高度的元素
 					PanD.style( elem, type, value, extra );
 			}, type, chainable ? margin : undefined, chainable, null );
 		};
@@ -10224,28 +10220,14 @@ PanD.each( { Height: "height", Width: "width" }, function( name, type ) {
 });
 
 
-// The number of elements contained in the matched element set
+// 元件中所包含的匹配元素组的数量
 PanD.fn.size = function() {
 	return this.length;
 };
 
 PanD.fn.andSelf = PanD.fn.addBack;
 
-
-
-
-// Register as a named AMD module, since PanD can be concatenated with other
-// files that may use define, but not via a proper concatenation script that
-// understands anonymous AMD modules. A named AMD is safest and most robust
-// way to register. Lowercase PanD is used because AMD module names are
-// derived from file names, and PanD is normally delivered in a lowercase
-// file name. Do this after creating the global so that if an AMD module wants
-// to call noConflict to hide this version of PanD, it will work.
-
-// Note that for maximum portability, libraries that are not PanD should
-// declare themselves as anonymous modules, and avoid setting a global if an
-// AMD loader is present. PanD is a special case. For more information, see
-// https://github.com/jrburke/requirejs/wiki/Updating-existing-libraries#wiki-anon
+// 注册为命名的AMD模块
 
 if ( typeof define === "function" && define.amd ) {
 	define( "PanD", [], function() {
@@ -10253,14 +10235,11 @@ if ( typeof define === "function" && define.amd ) {
 	});
 }
 
-
-
-
 var
-	// Map over PanD in case of overwrite
+	// PanD的情况下覆盖
 	_PanD = window.PanD,
 
-	// Map over the P in case of overwrite
+	// 通过P的情况下覆盖
 	_P = window.P;
 
 PanD.noConflict = function( deep ) {
@@ -10275,9 +10254,8 @@ PanD.noConflict = function( deep ) {
 	return PanD;
 };
 
-// Expose PanD and P identifiers, even in
-// AMD (#7102#comment:10, https://github.com/PanD/PanD/pull/557)
-// and CommonJS for browser emulators (#13566)
+// Expose PanD and P 身份标识, even in
+
 if ( typeof noGlobal === strundefined ) {
 	window.PanD = window.P = PanD;
 }
@@ -10416,7 +10394,7 @@ function removeEle(removeObj) {
 };
 
 /*
-* 需要先引入 dom.js 
+* 需要先引入 dom.js
 * */
 
 
@@ -10443,7 +10421,7 @@ function removeEle(removeObj) {
 
 //默认内置方法。
     var Pan = {
-        v: '0.1',
+        v: '0.0.1',
         ie6: !!window.ActiveXObject&&!window.XMLHttpRequest,
         index: 0,
         path: ready.getPath,
@@ -10453,7 +10431,7 @@ function removeEle(removeObj) {
             Pan.cache = ready.config = P.extend(ready.config, options);
             Pan.path = ready.config.path || Pan.path;
             typeof options.extend === 'string' && (options.extend = [options.extend]);
-            Pan.use('skin/layer.css', (options.extend && options.extend.length > 0) ? (function loop(){
+            Pan.use('skin/layer2.css', (options.extend && options.extend.length > 0) ? (function loop(){
 
 
 
@@ -11215,7 +11193,7 @@ function removeEle(removeObj) {
 
 //主入口
     ready.run = function(){
-        P = PanD;
+        P = jQuery;
         win = P(window);
         doms.html = P('html');
         Pan.open = function(deliver){
@@ -11230,7 +11208,7 @@ function removeEle(removeObj) {
     }) : function(){
         window.Pan = Pan;
         ready.run();
-        Pan.use('skin/layer.css');
+        Pan.use('skin/pan.css');
     }();
 
 }(window);

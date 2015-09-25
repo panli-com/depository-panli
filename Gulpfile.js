@@ -19,7 +19,7 @@ var sass = require('gulp-sass'),
     jshint = require('gulp-jshint'),
     autoprefixer = require('gulp-autoprefixer'),
     livereload = require('gulp-livereload'),
-    port = process.env.port || 5000;
+    port = process.env.port || 8080;
 
 // 检查脚本
 //gulp.task('lint', function() {
@@ -72,7 +72,7 @@ gulp.task('common', function() {
         .pipe(sass({ style: 'expanded' }))
         .pipe(autoprefixer('last 2 version', 'safari 5', 'ie 8', 'ie 9', 'opera 12.1', 'ios 6', 'android 4'))
         .pipe(gulp.dest('dist/common/css'))
-        .pipe(rename( 'layer.css'))
+        .pipe(rename( 'pan.css'))
         .pipe(minifycss())
         .pipe(gulp.dest('dist/common/js/skin'))
         .pipe( connect.reload() )

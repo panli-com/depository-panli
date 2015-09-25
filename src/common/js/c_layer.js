@@ -1,5 +1,5 @@
 /*
-* 需要先引入 dom.js 
+* 需要先引入 dom.js
 * */
 
 
@@ -26,7 +26,7 @@
 
 //默认内置方法。
     var Pan = {
-        v: '0.1',
+        v: '0.0.1',
         ie6: !!window.ActiveXObject&&!window.XMLHttpRequest,
         index: 0,
         path: ready.getPath,
@@ -36,7 +36,7 @@
             Pan.cache = ready.config = P.extend(ready.config, options);
             Pan.path = ready.config.path || Pan.path;
             typeof options.extend === 'string' && (options.extend = [options.extend]);
-            Pan.use('skin/layer.css', (options.extend && options.extend.length > 0) ? (function loop(){
+            Pan.use('skin/layer2.css', (options.extend && options.extend.length > 0) ? (function loop(){
 
 
 
@@ -798,7 +798,7 @@
 
 //主入口
     ready.run = function(){
-        P = PanD;
+        P = jQuery;
         win = P(window);
         doms.html = P('html');
         Pan.open = function(deliver){
@@ -813,7 +813,7 @@
     }) : function(){
         window.Pan = Pan;
         ready.run();
-        Pan.use('skin/layer.css');
+        Pan.use('skin/pan.css');
     }();
 
 }(window);
