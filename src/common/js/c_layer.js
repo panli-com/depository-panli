@@ -1,8 +1,12 @@
+/*
+* 需要先引入 dom.js 
+* */
+
 
 ;!function(window, undefined){
     "use strict";
 
-    var $, win, ready = {
+    var P, win, ready = {
         getPath: function(){
             var js = document.scripts, script = js[js.length - 1], jsPath = script.src;
             if(script.getAttribute('merge')) return;
@@ -29,7 +33,7 @@
         config: function(options, fn){
             var item = 0;
             options = options || {};
-            Pan.cache = ready.config = $.extend(ready.config, options);
+            Pan.cache = ready.config = P.extend(ready.config, options);
             Pan.path = ready.config.path || Pan.path;
             typeof options.extend === 'string' && (options.extend = [options.extend]);
             Pan.use('skin/layer.css', (options.extend && options.extend.length > 0) ? (function loop(){
@@ -49,7 +53,7 @@
         use: function(module, fn, readyMethod){
 
 
-            var i = 0, head = $('head')[0];
+            var i = 0, head = P('head')[0];
             var module = module.replace(/\s/g, '');
             var iscss = /\.css$/.test(module);
             var node = document.createElement(iscss ? 'link' : 'script');
@@ -60,14 +64,14 @@
             }
             node[iscss ? 'href' : 'src'] = /^http:\/\//.test(module) ? module : Pan.path + module;
             node.id = id;
-            if(!$('#'+ id)[0]){
+            if(!P('#'+ id)[0]){
                 head.appendChild(node);
             }
 
 
             //轮询加载就绪
             ;(function poll() {
-                ;(iscss ? parseInt($('#'+id).css('width')) === 1989 : Pan[readyMethod||id]) ? function(){
+                ;(iscss ? parseInt(P('#'+id).css('width')) === 1989 : Pan[readyMethod||id]) ? function(){
                     fn && fn();
                     try { iscss || head.removeChild(node); } catch(e){};
                 }() : setTimeout(poll, 100);
@@ -78,7 +82,7 @@
         ready: function(path, fn){
             var type = typeof path === 'function';
             if(type) fn = path;
-            Pan.config($.extend(ready.config, function(){
+            Pan.config(P.extend(ready.config, function(){
                 return type ? {} : {path: path};
             }()), fn);
             return this;
@@ -112,7 +116,7 @@
         alert: function(content, options, yes){
             var type = typeof options === 'function';
             if(type) yes = options;
-            return Pan.open($.extend({
+            return Pan.open(P.extend({
                 content: content,
                 yes: yes
             }, type ? {} : options));
@@ -124,7 +128,7 @@
                 cancel = yes;
                 yes = options;
             }
-            return Pan.open($.extend({
+            return Pan.open(P.extend({
                 content: content,
                 btn: ready.btn,
                 yes: yes,
@@ -137,7 +141,7 @@
             var skin = (rskin ? rskin + ' ' + rskin + '-msg' : '')||'layui-layer-msg';
             var shift = doms.anim.length - 1;
             if(type) end = options;
-            return Pan.open($.extend({
+            return Pan.open(P.extend({
                 content: content,
                 time: 3000,
                 shade: false,
@@ -159,7 +163,7 @@
         },
 
         load: function(icon, options){
-            return Pan.open($.extend({
+            return Pan.open(P.extend({
                 type: 3,
                 icon: icon || 0,
                 shade: 0.01
@@ -167,7 +171,7 @@
         },
 
         tips: function(content, follow, options){
-            return Pan.open($.extend({
+            return Pan.open(P.extend({
                 type: 4,
                 content: [content, follow],
                 closeBtn: false,
@@ -180,7 +184,7 @@
     var Class = function(setings){
         var that = this;
         that.index = ++Pan.index;
-        that.config = $.extend({}, that.config, ready.config, setings);
+        that.config = P.extend({}, that.config, ready.config, setings);
         that.creat();
     };
 
@@ -286,23 +290,23 @@
 
         //建立容器
         that.vessel(conType, function(html, titleHTML){
-            $('body').append(html[0]);
+            P('body').append(html[0]);
             conType ? function(){
                 (config.type == 2 || config.type == 4) ? function(){
-                    $('body').append(html[1]);
+                    P('body').append(html[1]);
                 }() : function(){
                     if(!content.parents('.'+doms[0])[0]){
                         content.show().addClass('layui-layer-wrap').wrap(html[1]);
-                        $('#'+ doms[0] + times).find('.'+doms[5]).before(titleHTML);
+                        P('#'+ doms[0] + times).find('.'+doms[5]).before(titleHTML);
                     }
                 }();
-            }() : $('body').append(html[1]);
-            that.layero = $('#'+ doms[0] + times);
+            }() : P('body').append(html[1]);
+            that.layero = P('#'+ doms[0] + times);
             config.scrollbar || doms.html.css('overflow', 'hidden').attr('layer-full', times);
         }).auto(times);
 
         config.type == 2 && Pan.ie6 && that.layero.find('iframe').attr('src', content[0]);
-        $(document).off('keydown', ready.enter).on('keydown', ready.enter);
+        P(document).off('keydown', ready.enter).on('keydown', ready.enter);
 
         //坐标自适应浏览器窗口尺寸
         config.type == 4 ? that.tips() : that.offset();
@@ -322,7 +326,7 @@
 
 //自适应
     Class.pt.auto = function(index){
-        var that = this, config = that.config, layero = $('#'+ doms[0] + index);
+        var that = this, config = that.config, layero = P('#'+ doms[0] + index);
         if(config.area[0] === '' && config.maxWidth > 0){
             //为了修复IE7下一个让人难以理解的bug
             if(/MSIE 7/.test(navigator.userAgent) && config.btn){
@@ -388,8 +392,8 @@
 //Tips
     Class.pt.tips = function(){
         var that = this, config = that.config, layero = that.layero;
-        var layArea = [layero.outerWidth(), layero.outerHeight()], follow = $(config.follow);
-        if(!follow[0]) follow = $('body');
+        var layArea = [layero.outerWidth(), layero.outerHeight()], follow = P(config.follow);
+        if(!follow[0]) follow = P('body');
         var goal = {
             width: follow.outerWidth(),
             height: follow.outerHeight(),
@@ -467,16 +471,16 @@
         config.move && movedom.attr('move', 'ok');
         movedom.css({cursor: config.move ? 'move' : 'auto'});
 
-        $(config.move).on('mousedown', function(M){
+        P(config.move).on('mousedown', function(M){
             M.preventDefault();
-            if($(this).attr('move') === 'ok'){
+            if(P(this).attr('move') === 'ok'){
                 conf.ismove = true;
-                conf.layero = $(this).parents('.'+ doms[0]);
+                conf.layero = P(this).parents('.'+ doms[0]);
                 var xx = conf.layero.offset().left, yy = conf.layero.offset().top, ww = conf.layero.outerWidth() - 6, hh = conf.layero.outerHeight() - 6;
-                if(!$('#layui-layer-moves')[0]){
-                    $('body').append('<div id="layui-layer-moves" class="layui-layer-moves" style="left:'+ xx +'px; top:'+ yy +'px; width:'+ ww +'px; height:'+ hh +'px; z-index:2147483584"></div>');
+                if(!P('#layui-layer-moves')[0]){
+                    P('body').append('<div id="layui-layer-moves" class="layui-layer-moves" style="left:'+ xx +'px; top:'+ yy +'px; width:'+ ww +'px; height:'+ hh +'px; z-index:2147483584"></div>');
                 }
-                conf.move = $('#layui-layer-moves');
+                conf.move = P('#layui-layer-moves');
                 config.moveType && conf.move.css({visibility: 'hidden'});
 
                 conf.moveX = M.pageX - conf.move.position().left;
@@ -485,7 +489,7 @@
             }
         });
 
-        $(document).mousemove(function(M){
+        P(document).mousemove(function(M){
             if(conf.ismove){
                 var offsetX = M.pageX - conf.moveX, offsetY = M.pageY - conf.moveY;
                 M.preventDefault();
@@ -537,7 +541,7 @@
 
         //按钮
         layero.find('.'+ doms[6]).children('a').on('click', function(){
-            var index = $(this).index();
+            var index = P(this).index();
             config['btn'+(index+1)] && config['btn'+(index+1)](that.index, layero);
             if(index === 0){
                 config.yes ? config.yes(that.index, layero) : Pan.close(that.index);
@@ -559,7 +563,7 @@
 
         //点遮罩关闭
         if(config.shadeClose){
-            $('#layui-layer-shade'+ that.index).on('click', function(){
+            P('#layui-layer-shade'+ that.index).on('click', function(){
                 Pan.close(that.index);
             });
         }
@@ -572,7 +576,7 @@
 
         //全屏/还原
         layero.find('.layui-layer-max').on('click', function(){
-            if($(this).hasClass('layui-layer-maxmin')){
+            if(P(this).hasClass('layui-layer-maxmin')){
                 Pan.restore(that.index);
                 config.restore && config.restore(layero);
             } else {
@@ -586,10 +590,10 @@
 
 //for ie6 恢复select
     ready.reselect = function(){
-        $.each($('select'), function(index , value){
-            var sthis = $(this);
+        P.each(P('select'), function(index , value){
+            var sthis = P(this);
             if(!sthis.parents('.'+doms[0])[0]){
-                (sthis.attr('pan') == 1 && $('.'+doms[0]).length < 1) && sthis.removeAttr('pan').show();
+                (sthis.attr('pan') == 1 && P('.'+doms[0]).length < 1) && sthis.removeAttr('pan').show();
             }
             sthis = null;
         });
@@ -606,8 +610,8 @@
         win.scroll(ie6Fix);
 
         //隐藏select
-        $('select').each(function(index , value){
-            var sthis = $(this);
+        P('select').each(function(index , value){
+            var sthis = P(this);
             if(!sthis.parents('.'+doms[0])[0]){
                 sthis.css('display') === 'none' || sthis.attr({'pan' : '1'}).hide();
             }
@@ -658,20 +662,20 @@
 
 //获取子iframe的DOM
     Pan.getChildFrame = function(selector, index){
-        index = index || $('.'+doms[4]).attr('times');
-        return $('#'+ doms[0] + index).find('iframe').contents().find(selector);
+        index = index || P('.'+doms[4]).attr('times');
+        return P('#'+ doms[0] + index).find('iframe').contents().find(selector);
     };
 
 //得到当前iframe层的索引，子iframe时使用
     Pan.getFrameIndex = function(name){
-        return $('#'+ name).parents('.'+doms[4]).attr('times');
+        return P('#'+ name).parents('.'+doms[4]).attr('times');
     };
 
 //iframe层自适应宽高
     Pan.iframeAuto = function(index){
         if(!index) return;
         var heg = Pan.getChildFrame('body', index).outerHeight();
-        var layero = $('#'+ doms[0] + index);
+        var layero = P('#'+ doms[0] + index);
         var titHeight = layero.find(doms[1]).outerHeight() || 0;
         var btnHeight = layero.find('.'+doms[6]).outerHeight() || 0;
         layero.css({height: heg + titHeight + btnHeight});
@@ -680,12 +684,12 @@
 
 //重置iframe url
     Pan.iframeSrc = function(index, url){
-        $('#'+ doms[0] + index).find('iframe').attr('src', url);
+        P('#'+ doms[0] + index).find('iframe').attr('src', url);
     };
 
 //设定层的样式
     Pan.style = function(index, options){
-        var layero = $('#'+ doms[0] + index), type = layero.attr('type');
+        var layero = P('#'+ doms[0] + index), type = layero.attr('type');
         var titHeight = layero.find(doms[1]).outerHeight() || 0;
         var btnHeight = layero.find('.'+doms[6]).outerHeight() || 0;
         if(type === ready.type[1] || type === ready.type[2]){
@@ -700,7 +704,7 @@
 
 //最小化
     Pan.min = function(index, options){
-        var layero = $('#'+ doms[0] + index);
+        var layero = P('#'+ doms[0] + index);
         var titHeight = layero.find(doms[1]).outerHeight() || 0;
         ready.record(layero);
         Pan.style(index, {width: 180, height: titHeight, overflow: 'hidden'});
@@ -711,7 +715,7 @@
 
 //还原
     Pan.restore = function(index){
-        var layero = $('#'+ doms[0] + index), area = layero.attr('area').split(',');
+        var layero = P('#'+ doms[0] + index), area = layero.attr('area').split(',');
         var type = layero.attr('type');
         Pan.style(index, {
             width: parseFloat(area[0]),
@@ -728,7 +732,7 @@
 
 //全屏
     Pan.full = function(index){
-        var layero = $('#'+ doms[0] + index), timer;
+        var layero = P('#'+ doms[0] + index), timer;
         ready.record(layero);
         if(!doms.html.attr('layer-full')){
             doms.html.css('overflow','hidden').attr('layer-full', index);
@@ -748,13 +752,13 @@
 
 //改变title
     Pan.title = function(name, index){
-        var title = $('#'+ doms[0] + (index||Pan.index)).find(doms[1]);
+        var title = P('#'+ doms[0] + (index||Pan.index)).find(doms[1]);
         title.html(name);
     };
 
 //关闭layer总方法
     Pan.close = function(index){
-        var layero = $('#'+ doms[0] + index), type = layero.attr('type');
+        var layero = P('#'+ doms[0] + index), type = layero.attr('type');
         if(!layero[0]) return;
         if(type === ready.type[1] && layero.attr('conType') === 'object'){
             layero.children(':not(.'+ doms[5] +')').remove();
@@ -765,7 +769,7 @@
             //低版本IE 回收 iframe
             if(type === ready.type[2]){
                 try {
-                    var iframe = $('#'+doms[4]+index)[0];
+                    var iframe = P('#'+doms[4]+index)[0];
                     iframe.contentWindow.document.write('');
                     iframe.contentWindow.close();
                     layero.find('.'+doms[5])[0].removeChild(iframe);
@@ -774,18 +778,18 @@
             layero[0].innerHTML = '';
             layero.remove();
         }
-        $('#layui-layer-moves, #layui-layer-shade' + index).remove();
+        P('#layui-layer-moves, #layui-layer-shade' + index).remove();
         Pan.ie6 && ready.reselect();
         ready.rescollbar(index);
-        $(document).off('keydown', ready.enter);
+        P(document).off('keydown', ready.enter);
         typeof ready.end[index] === 'function' && ready.end[index]();
         delete ready.end[index];
     };
 
 //关闭所有层
     Pan.closeAll = function(type){
-        $.each($('.'+doms[0]), function(){
-            var othis = $(this);
+        P.each(P('.'+doms[0]), function(){
+            var othis = P(this);
             var is = type ? (othis.attr('type') === type) : 1;
             is && Pan.close(othis.attr('times'));
             is = null;
@@ -794,9 +798,9 @@
 
 //主入口
     ready.run = function(){
-        $ = jQuery;
-        win = $(window);
-        doms.html = $('html');
+        P = PanD;
+        win = P(window);
+        doms.html = P('html');
         Pan.open = function(deliver){
             var o = new Class(deliver);
             return o.index;

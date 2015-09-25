@@ -58,15 +58,7 @@ gulp.task('html',function(){
         .pipe( connect.reload() )
 });
 
-//react 编译
 
-/*gulp.task('react', function () {
-    return gulp.src('./src/login/js/main.js')
-        .pipe(browserify({
-            transform: 'reactify',
-        }))
-        .pipe(gulp.dest('./dist/login/js'));
-});*/
 
 // reload Js
 gulp.task('js',function(){
@@ -85,29 +77,10 @@ gulp.task('common', function() {
         .pipe(gulp.dest('dist/common/js/skin'))
         .pipe( connect.reload() )
         .pipe(notify({ message: 'Styles Common task complete' }));
-        /* gulp.src('./src/login/scss/!*.scss')
-        .pipe(sass({ style: 'expanded' }))
-        .pipe(autoprefixer('last 2 version', 'safari 5', 'ie 8', 'ie 9', 'opera 12.1', 'ios 6', 'android 4'))
-        .pipe(gulp.dest('dist/login/css'))
-        .pipe(rename({suffix: '.min'}))
-        .pipe(minifycss())
-        .pipe(gulp.dest('dist/login/css'))
-        .pipe(notify({ message: 'Styles task complete' }));*/
-});
-
-//编译Sass，Autoprefix及缩小化
-gulp.task('login', function() {
-    return gulp.src('./src/login/scss/login.scss')
-        .pipe(sass({ style: 'expanded' }))
-        .pipe(autoprefixer('last 2 version', 'safari 5', 'ie 8', 'ie 9', 'opera 12.1', 'ios 6', 'android 4'))
-        .pipe(gulp.dest('dist/login/css'))
-        .pipe(rename({suffix: '.min'}))
-        .pipe(minifycss())
-        .pipe(gulp.dest('dist/login/css'))
-        .pipe( connect.reload() )
-        .pipe(notify({ message: 'Styles Login task complete' }));
 
 });
+
+
 
 gulp.task('scripts', function() {
      gulp.src('./src/common/js/*.js')
@@ -119,17 +92,6 @@ gulp.task('scripts', function() {
         .pipe(notify({ message: 'Scripts common task complete' }));
 
 
-});
-
-gulp.task('indexJs',function(){
-    gulp.src('./src/index/js/*.js')
-        .pipe(concat('panIndex.js'))
-        .pipe(gulp.dest('dist/common/js'))
-        .pipe(rename({suffix: '.min'}))
-        .pipe(uglify())
-        .pipe(gulp.dest('dist/common/js'))
-        .pipe( connect.reload() )
-        .pipe(notify({ message: 'Scripts index task complete' }));
 });
 
 // 合并，压缩文件
