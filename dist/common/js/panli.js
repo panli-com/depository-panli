@@ -83,7 +83,31 @@
             }()), fn);
             return this;
         },
+        /* 谷歌统计代码 */
+        googleCount:function(){
+            (function (i, s, o, g, r, a, m) {
+                i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+                        (i[r].q = i[r].q || []).push(arguments)
+                    }, i[r].l = 1 * new Date(); a = s.createElement(o),
+                    m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+            })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
 
+            ga('create', 'UA-436090-2', 'auto');ga('require', 'displayfeatures');
+            ga('send', 'pageview');
+        },
+        /* rem 字体转换 */
+        remFontSize:function(){
+            var fontsize = function () {
+                var W = document.body.getBoundingClientRect().width, defaultW = 720, defaultSize = 40;
+                W = W > defaultW ? defaultW : W < 320 ? 320 : W;
+                window.W = W; document.documentElement.style.fontSize = (W / defaultW * defaultSize).toFixed(2) + 'px';
+            };
+            var fontset = setTimeout(fontsize, 300);
+            window.addEventListener('resize', function () { clearTimeout(fontset); fontset = setTimeout(fontsize, 300) });
+            window.addEventListener("DOMContentLoaded", fontsize);
+            setTimeout(fontsize, 300);
+
+        },
         //各种快捷引用
         alert: function(content, options, yes){
             var type = typeof options === 'function';
@@ -820,7 +844,7 @@ function getServerTime(callback){
        },
        success: function (data) {
            if(data){
-             callback(data);
+             callback(parseInt(data.d));
            }
        }
     });

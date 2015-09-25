@@ -28,7 +28,7 @@ function getServerTime(callback){
        },
        success: function (data) {
            if(data){
-             callback(data);
+             callback(parseInt(data.d));
            }
        }
     });

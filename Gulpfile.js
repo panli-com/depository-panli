@@ -110,16 +110,27 @@ gulp.task('login', function() {
 });
 
 gulp.task('scripts', function() {
-    return gulp.src('./src/common/js/*.js')
+     gulp.src('./src/common/js/*.js')
         .pipe(concat('panli.js'))
         .pipe(gulp.dest('dist/common/js'))
         .pipe(rename({suffix: '.min'}))
         .pipe(uglify())
         .pipe(gulp.dest('dist/common/js'))
-        .pipe( connect.reload() )
-        .pipe(notify({ message: 'Scripts task complete' }));
+        .pipe(notify({ message: 'Scripts common task complete' }));
+
+
 });
 
+gulp.task('indexJs',function(){
+    gulp.src('./src/index/js/*.js')
+        .pipe(concat('panIndex.js'))
+        .pipe(gulp.dest('dist/common/js'))
+        .pipe(rename({suffix: '.min'}))
+        .pipe(uglify())
+        .pipe(gulp.dest('dist/common/js'))
+        .pipe( connect.reload() )
+        .pipe(notify({ message: 'Scripts index task complete' }));
+});
 
 // 合并，压缩文件
 /*gulp.task('js', function() {
@@ -154,6 +165,9 @@ gulp.task('watch', function() {
 
     // 看守所有.组件
     gulp.watch('src/common/js/*.js', ['scripts']);
+
+    // 看守 index.js档
+    gulp.watch('src/index/js/*.js', ['indexJs']);
 
     // 看守所有.js档
     gulp.watch('src/**/js/*.js', ['js']);
