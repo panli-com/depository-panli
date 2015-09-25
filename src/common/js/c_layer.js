@@ -798,7 +798,7 @@
 
 //主入口
     ready.run = function(){
-        P = jQuery;
+        P = PanLi;
         win = P(window);
         doms.html = P('html');
         Pan.open = function(deliver){

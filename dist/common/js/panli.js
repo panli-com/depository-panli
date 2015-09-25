@@ -5,12 +5,12 @@
 	if ( typeof module === "object" && typeof module.exports === "object" ) {
 		// 对于CommonJS的和CommonJS的类似环境中，适当的窗口存在，
 		//  继承这个工厂 可以用 PanD
-		// e.g. var PanD = require("PanD")(window);
+		// e.g. var PanD = require("PanLi")(window);
 		module.exports = global.document ?
 			factory( global, true ) :
 			function( w ) {
 				if ( !w.document ) {
-					throw new Error( "PanD requires a window with a document" );
+					throw new Error( "PanLi requires a window with a document" );
 				}
 				return factory( w );
 			};
@@ -22,9 +22,9 @@
 }(typeof window !== "undefined" ? window : this, function( window, noGlobal ) {
 
 
+
 // 您尝试跟踪过“使用严格的”调用链
 //
-
 var deletedIds = [];
 
 var slice = deletedIds.slice;
@@ -46,79 +46,80 @@ var support = {};
 
 
 var
-	version = "0.0.1",
+	version = "0.0.5",
 
 
-	PanD = function( selector, context ) {
+	PanLi = function( selector, context ) {
 		// 该 PanD 对象实际上只是在init构造'增强'
 		//需要初始化，如果PanD被称为（只允许被抛出的错误，如果不包括在内）
-		return new PanD.fn.init( selector, context );
+		return new PanLi.fn.init( selector, context );
 	},
 
 	// 支撑: Android<4.1, IE<9
 	// 确保我们 trim BOM and NBSP
-	rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+P/g,
+	rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g,
 
 	// 匹配虚线字符串骆驼
 	rmsPrefix = /^-ms-/,
 	rdashAlpha = /-([\da-z])/gi,
 
-	// 使用 PanD.camelCase as callback to replace()
+	// Used by PanLi.camelCase as callback to replace()
 	fcamelCase = function( all, letter ) {
 		return letter.toUpperCase();
 	};
 
-PanD.fn = PanD.prototype = {
-	// 当前版本
-	PanD: version,
+PanLi.fn = PanLi.prototype = {
+// 当前版本
+	PanLi: version,
 
-	constructor: PanD,
+	constructor: PanLi,
 
 	// 从一个空的选择开始
 	selector: "",
 
-	// 一个PanD对象的默认长度为0
+	// 对象的默认长度为 0
 	length: 0,
 
 	toArray: function() {
 		return slice.call( this );
 	},
 
-	// 获取匹配的元素集合中的第N个元素
-	// 得到整体匹配的元素设置为一个干净的数组
+	// Get the Nth element in the matched element set OR
+	// Get the whole matched element set as a clean array
 	get: function( num ) {
 		return num != null ?
 
-			// 只返回一个元素的集合
+			// Return just the one element from the set
 			( num < 0 ? this[ num + this.length ] : this[ num ] ) :
 
-			// 返回的所有元素在干净的数组
+			// Return all the elements in a clean array
 			slice.call( this );
 	},
 
-	// 以元素的数组并将其推入堆栈
-	// (返回新的匹配元素集合)
+	// Take an array of elements and push it onto the stack
+	// (returning the new matched element set)
 	pushStack: function( elems ) {
 
-		// 建立一个新的PanD匹配的元素集
-		var ret = PanD.merge( this.constructor(), elems );
+		// Build a new PanLi matched element set
+		var ret = PanLi.merge( this.constructor(), elems );
 
-		// 添加旧的对象入堆栈 (作为参考)
+		// Add the old object onto the stack (as a reference)
 		ret.prevObject = this;
 		ret.context = this.context;
 
-		// 返回新组建的元素集合
+		// Return the newly-formed element set
 		return ret;
 	},
 
-	// 在匹配的集合中的每个元素执行一个回调。
-	// (你可以在 array of args 设置要参数, 但是这仅在内部使用.)
+	// Execute a callback for every element in the matched set.
+	// (You can seed the arguments with an array of args, but this is
+	// only used internally.)
 	each: function( callback, args ) {
-		return PanD.each( this, callback, args );
+		return PanLi.each( this, callback, args );
 	},
 
 	map: function( callback ) {
-		return this.pushStack( PanD.map(this, function( elem, i ) {
+		return this.pushStack( PanLi.map(this, function( elem, i ) {
 			return callback.call( elem, i, elem );
 		}));
 	},
@@ -145,67 +146,67 @@ PanD.fn = PanD.prototype = {
 		return this.prevObject || this.constructor(null);
 	},
 
-	// 仅供内部使用。
-	// 如同一个数组的方法, 不像一个 PanD 的方法.
+	// For internal use only.
+	// Behaves like an Array's method, not like a PanLi method.
 	push: push,
 	sort: deletedIds.sort,
 	splice: deletedIds.splice
 };
 
-PanD.extend = PanD.fn.extend = function() {
+PanLi.extend = PanLi.fn.extend = function() {
 	var src, copyIsArray, copy, name, options, clone,
 		target = arguments[0] || {},
 		i = 1,
 		length = arguments.length,
 		deep = false;
 
-	// 处理深拷贝状态
+	// Handle a deep copy situation
 	if ( typeof target === "boolean" ) {
 		deep = target;
 
-		// 跳过布尔和目标
+		// skip the boolean and the target
 		target = arguments[ i ] || {};
 		i++;
 	}
 
-	// 处理情况下，当目标是一个字符串或东西(可能是深拷贝)
-	if ( typeof target !== "object" && !PanD.isFunction(target) ) {
+	// Handle case when target is a string or something (possible in deep copy)
+	if ( typeof target !== "object" && !PanLi.isFunction(target) ) {
 		target = {};
 	}
 
-	//扩展 PanD 如果只有一个参数传递本身
+	// extend PanLi itself if only one argument is passed
 	if ( i === length ) {
 		target = this;
 		i--;
 	}
 
 	for ( ; i < length; i++ ) {
-		// 只处理非空/未定义的值
+		// Only deal with non-null/undefined values
 		if ( (options = arguments[ i ]) != null ) {
-			// 扩展基本对象
+			// Extend the base object
 			for ( name in options ) {
 				src = target[ name ];
 				copy = options[ name ];
 
-				// 防止无限循环
+				// Prevent never-ending loop
 				if ( target === copy ) {
 					continue;
 				}
 
-				// 递归 如果我们合并纯对象或数组
-				if ( deep && copy && ( PanD.isPlainObject(copy) || (copyIsArray = PanD.isArray(copy)) ) ) {
+				// Recurse if we're merging plain objects or arrays
+				if ( deep && copy && ( PanLi.isPlainObject(copy) || (copyIsArray = PanLi.isArray(copy)) ) ) {
 					if ( copyIsArray ) {
 						copyIsArray = false;
-						clone = src && PanD.isArray(src) ? src : [];
+						clone = src && PanLi.isArray(src) ? src : [];
 
 					} else {
-						clone = src && PanD.isPlainObject(src) ? src : {};
+						clone = src && PanLi.isPlainObject(src) ? src : {};
 					}
 
-					// 切勿将原来的对象，克隆它们
-					target[ name ] = PanD.extend( deep, clone, copy );
+					// Never move original objects, clone them
+					target[ name ] = PanLi.extend( deep, clone, copy );
 
-				// 请不要带来不确定的值
+				// Don't bring in undefined values
 				} else if ( copy !== undefined ) {
 					target[ name ] = copy;
 				}
@@ -213,15 +214,15 @@ PanD.extend = PanD.fn.extend = function() {
 		}
 	}
 
-	// 返回修改的对象
+	// Return the modified object
 	return target;
 };
 
-PanD.extend({
-	// Unique for each copy of PanD on the page 每个页面
-	expando: "PanD" + ( version + Math.random() ).replace( /\D/g, "" ),
+PanLi.extend({
+	// Unique for each copy of PanLi on the page
+	expando: "PanLi" + ( version + Math.random() ).replace( /\D/g, "" ),
 
-	// 设想 PanD 是 没有准备模块
+	// Assume PanLi is ready without the ready module
 	isReady: true,
 
 	error: function( msg ) {
@@ -230,14 +231,15 @@ PanD.extend({
 
 	noop: function() {},
 
-	// 请参阅测试/单位/ core.js的有关isFunction细节。
-
+	// See test/unit/core.js for details concerning isFunction.
+	// Since version 1.3, DOM methods and functions like alert
+	// aren't supported. They return false on IE (#2968).
 	isFunction: function( obj ) {
-		return PanD.type(obj) === "function";
+		return PanLi.type(obj) === "function";
 	},
 
 	isArray: Array.isArray || function( obj ) {
-		return PanD.type(obj) === "array";
+		return PanLi.type(obj) === "array";
 	},
 
 	isWindow: function( obj ) {
@@ -249,7 +251,8 @@ PanD.extend({
 		// parseFloat NaNs numeric-cast false positives (null|true|false|"")
 		// ...but misinterprets leading-number strings, particularly hex literals ("0x...")
 		// subtraction forces infinities to NaN
-		return !PanD.isArray( obj ) && obj - parseFloat( obj ) >= 0;
+		// adding 1 corrects loss of precision from parseFloat (#15100)
+		return !PanLi.isArray( obj ) && (obj - parseFloat( obj ) + 1) >= 0;
 	},
 
 	isEmptyObject: function( obj ) {
@@ -263,27 +266,27 @@ PanD.extend({
 	isPlainObject: function( obj ) {
 		var key;
 
-		// 必须是一个对象.
-		// 由于IE浏览器，我们也必须检查constructor属性的存在。
-		// 确保DOM节点和窗口对象不通过
-		if ( !obj || PanD.type(obj) !== "object" || obj.nodeType || PanD.isWindow( obj ) ) {
+		// Must be an Object.
+		// Because of IE, we also have to check the presence of the constructor property.
+		// Make sure that DOM nodes and window objects don't pass through, as well
+		if ( !obj || PanLi.type(obj) !== "object" || obj.nodeType || PanLi.isWindow( obj ) ) {
 			return false;
 		}
 
 		try {
-			// 没有自己的constructor属性必须是对象
+			// Not own constructor property must be Object
 			if ( obj.constructor &&
 				!hasOwn.call(obj, "constructor") &&
 				!hasOwn.call(obj.constructor.prototype, "isPrototypeOf") ) {
 				return false;
 			}
 		} catch ( e ) {
-			// IE8,9 将抛出某些主机对象异常
+			// IE8,9 Will throw exceptions on certain host objects #9897
 			return false;
 		}
 
-		// 支撑: IE<9
-		// 处理迭代自己的属性之前继承的属性。
+		// Support: IE<9
+		// Handle iteration over inherited properties before own properties.
 		if ( support.ownLast ) {
 			for ( key in obj ) {
 				return hasOwn.call( obj, key );
@@ -310,10 +313,10 @@ PanD.extend({
 	// Workarounds based on findings by Jim Driscoll
 	// http://weblogs.java.net/blog/driscoll/archive/2009/09/08/eval-javascript-global-context
 	globalEval: function( data ) {
-		if ( data && PanD.trim( data ) ) {
+		if ( data && PanLi.trim( data ) ) {
 			// We use execScript on Internet Explorer
 			// We use an anonymous function so that context is window
-			// rather than PanD in Firefox
+			// rather than PanLi in Firefox
 			( window.execScript || function( data ) {
 				window[ "eval" ].call( window, data );
 			} )( data );
@@ -393,7 +396,7 @@ PanD.extend({
 
 		if ( arr != null ) {
 			if ( isArraylike( Object(arr) ) ) {
-				PanD.merge( ret,
+				PanLi.merge( ret,
 					typeof arr === "string" ?
 					[ arr ] : arr
 				);
@@ -517,7 +520,7 @@ PanD.extend({
 
 		// Quick check to determine if target is callable, in the spec
 		// this throws a TypeError, but we will just return undefined.
-		if ( !PanD.isFunction( fn ) ) {
+		if ( !PanLi.isFunction( fn ) ) {
 			return undefined;
 		}
 
@@ -528,7 +531,7 @@ PanD.extend({
 		};
 
 		// Set the guid of unique handler to the same of original handler, so it can be removed
-		proxy.guid = fn.guid = fn.guid || PanD.guid++;
+		proxy.guid = fn.guid = fn.guid || PanLi.guid++;
 
 		return proxy;
 	},
@@ -537,21 +540,21 @@ PanD.extend({
 		return +( new Date() );
 	},
 
-	// PanD.support is not used in Core but other projects attach their
+	// PanLi.support is not used in Core but other projects attach their
 	// properties to it so it needs to exist.
 	support: support
 });
 
 // Populate the class2type map
-PanD.each("Boolean Number String Function Array Date RegExp Object Error".split(" "), function(i, name) {
+PanLi.each("Boolean Number String Function Array Date RegExp Object Error".split(" "), function(i, name) {
 	class2type[ "[object " + name + "]" ] = name.toLowerCase();
 });
 
 function isArraylike( obj ) {
 	var length = obj.length,
-		type = PanD.type( obj );
+		type = PanLi.type( obj );
 
-	if ( type === "function" || PanD.isWindow( obj ) ) {
+	if ( type === "function" || PanLi.isWindow( obj ) ) {
 		return false;
 	}
 
@@ -564,14 +567,14 @@ function isArraylike( obj ) {
 }
 var Sizzle =
 /*!
- * Sizzle CSS Selector Engine v1.10.19
+ * Sizzle CSS Selector Engine v2.2.0-pre
  * http://sizzlejs.com/
  *
- * Copyright 2013 PanD Foundation, Inc. and other contributors
+ * Copyright 2008, 2014 PanLi Foundation, Inc. and other contributors
  * Released under the MIT license
- * http://PanD.org/license
+ * http://PanLi.org/license
  *
- * Date: 2014-04-18
+ * Date: 2014-12-16
  */
 (function( window ) {
 
@@ -598,7 +601,7 @@ var i,
 	contains,
 
 	// Instance-specific data
-	expando = "sizzle" + -(new Date()),
+	expando = "sizzle" + 1 * new Date(),
 	preferredDoc = window.document,
 	dirruns = 0,
 	done = 0,
@@ -613,7 +616,6 @@ var i,
 	},
 
 	// General-purpose constants
-	strundefined = typeof undefined,
 	MAX_NEGATIVE = 1 << 31,
 
 	// Instance methods
@@ -623,12 +625,13 @@ var i,
 	push_native = arr.push,
 	push = arr.push,
 	slice = arr.slice,
-	// Use a stripped-down indexOf if we can't use a native one
-	indexOf = arr.indexOf || function( elem ) {
+	// Use a stripped-down indexOf as it's faster than native
+	// http://jsperf.com/thor-indexof-vs-for/5
+	indexOf = function( list, elem ) {
 		var i = 0,
-			len = this.length;
+			len = list.length;
 		for ( ; i < len; i++ ) {
-			if ( this[i] === elem ) {
+			if ( list[i] === elem ) {
 				return i;
 			}
 		}
@@ -652,7 +655,7 @@ var i,
 	// Attribute selectors: http://www.w3.org/TR/selectors/#attribute-selectors
 	attributes = "\\[" + whitespace + "*(" + characterEncoding + ")(?:" + whitespace +
 		// Operator (capture 2)
-		"*([*^P|!~]?=)" + whitespace +
+		"*([*^$|!~]?=)" + whitespace +
 		// "Attribute values must be CSS identifiers [capture 5] or strings [capture 3 or capture 4]"
 		"*(?:'((?:\\\\.|[^\\\\'])*)'|\"((?:\\\\.|[^\\\\\"])*)\"|(" + identifier + "))|)" + whitespace +
 		"*\\]",
@@ -668,7 +671,8 @@ var i,
 		")\\)|)",
 
 	// Leading and non-escaped trailing whitespace, capturing some non-whitespace characters preceding the latter
-	rtrim = new RegExp( "^" + whitespace + "+|((?:^|[^\\\\])(?:\\\\.)*)" + whitespace + "+P", "g" ),
+	rwhitespace = new RegExp( whitespace + "+", "g" ),
+	rtrim = new RegExp( "^" + whitespace + "+|((?:^|[^\\\\])(?:\\\\.)*)" + whitespace + "+$", "g" ),
 
 	rcomma = new RegExp( "^" + whitespace + "*," + whitespace + "*" ),
 	rcombinators = new RegExp( "^" + whitespace + "*([>+~]|" + whitespace + ")" + whitespace + "*" ),
@@ -676,7 +680,7 @@ var i,
 	rattributeQuotes = new RegExp( "=" + whitespace + "*([^\\]'\"]*?)" + whitespace + "*\\]", "g" ),
 
 	rpseudo = new RegExp( pseudos ),
-	ridentifier = new RegExp( "^" + identifier + "P" ),
+	ridentifier = new RegExp( "^" + identifier + "$" ),
 
 	matchExpr = {
 		"ID": new RegExp( "^#(" + characterEncoding + ")" ),
@@ -687,20 +691,20 @@ var i,
 		"CHILD": new RegExp( "^:(only|first|last|nth|nth-last)-(child|of-type)(?:\\(" + whitespace +
 			"*(even|odd|(([+-]|)(\\d*)n|)" + whitespace + "*(?:([+-]|)" + whitespace +
 			"*(\\d+)|))" + whitespace + "*\\)|)", "i" ),
-		"bool": new RegExp( "^(?:" + booleans + ")P", "i" ),
+		"bool": new RegExp( "^(?:" + booleans + ")$", "i" ),
 		// For use in libraries implementing .is()
 		// We use this for POS matching in `select`
 		"needsContext": new RegExp( "^" + whitespace + "*[>+~]|:(even|odd|eq|gt|lt|nth|first|last)(?:\\(" +
-			whitespace + "*((?:-\\d)?\\d*)" + whitespace + "*\\)|)(?=[^-]|P)", "i" )
+			whitespace + "*((?:-\\d)?\\d*)" + whitespace + "*\\)|)(?=[^-]|$)", "i" )
 	},
 
-	rinputs = /^(?:input|select|textarea|button)P/i,
-	rheader = /^h\dP/i,
+	rinputs = /^(?:input|select|textarea|button)$/i,
+	rheader = /^h\d$/i,
 
 	rnative = /^[^{]+\{\s*\[native \w/,
 
 	// Easily-parseable/retrievable ID or TAG or CLASS selectors
-	rquickExpr = /^(?:#([\w-]+)|(\w+)|\.([\w-]+))P/,
+	rquickExpr = /^(?:#([\w-]+)|(\w+)|\.([\w-]+))$/,
 
 	rsibling = /[+~]/,
 	rescape = /'|\\/g,
@@ -719,6 +723,14 @@ var i,
 				String.fromCharCode( high + 0x10000 ) :
 				// Supplemental Plane codepoint (surrogate pair)
 				String.fromCharCode( high >> 10 | 0xD800, high & 0x3FF | 0xDC00 );
+	},
+
+	// Used for iframes
+	// See setDocument()
+	// Removing the function wrapper causes a "Permission Denied"
+	// error in IE
+	unloadHandler = function() {
+		setDocument();
 	};
 
 // Optimize for push.apply( _, NodeList )
@@ -761,25 +773,24 @@ function Sizzle( selector, context, results, seed ) {
 
 	context = context || document;
 	results = results || [];
+	nodeType = context.nodeType;
 
-	if ( !selector || typeof selector !== "string" ) {
+	if ( typeof selector !== "string" || !selector ||
+		nodeType !== 1 && nodeType !== 9 && nodeType !== 11 ) {
+
 		return results;
 	}
 
-	if ( (nodeType = context.nodeType) !== 1 && nodeType !== 9 ) {
-		return [];
-	}
+	if ( !seed && documentIsHTML ) {
 
-	if ( documentIsHTML && !seed ) {
-
-		// Shortcuts
-		if ( (match = rquickExpr.exec( selector )) ) {
+		// Try to shortcut find operations when possible (e.g., not under DocumentFragment)
+		if ( nodeType !== 11 && (match = rquickExpr.exec( selector )) ) {
 			// Speed-up: Sizzle("#ID")
 			if ( (m = match[1]) ) {
 				if ( nodeType === 9 ) {
 					elem = context.getElementById( m );
 					// Check parentNode to catch when Blackberry 4.6 returns
-					// nodes that are no longer in the document (PanD #6963)
+					// nodes that are no longer in the document (PanLi #6963)
 					if ( elem && elem.parentNode ) {
 						// Handle the case where IE, Opera, and Webkit return items
 						// by name instead of ID
@@ -805,7 +816,7 @@ function Sizzle( selector, context, results, seed ) {
 				return results;
 
 			// Speed-up: Sizzle(".CLASS")
-			} else if ( (m = match[3]) && support.getElementsByClassName && context.getElementsByClassName ) {
+			} else if ( (m = match[3]) && support.getElementsByClassName ) {
 				push.apply( results, context.getElementsByClassName( m ) );
 				return results;
 			}
@@ -815,7 +826,7 @@ function Sizzle( selector, context, results, seed ) {
 		if ( support.qsa && (!rbuggyQSA || !rbuggyQSA.test( selector )) ) {
 			nid = old = expando;
 			newContext = context;
-			newSelector = nodeType === 9 && selector;
+			newSelector = nodeType !== 1 && selector;
 
 			// qSA works strangely on Element-rooted queries
 			// We can work around this by specifying an extra ID on the root
@@ -825,7 +836,7 @@ function Sizzle( selector, context, results, seed ) {
 				groups = tokenize( selector );
 
 				if ( (old = context.getAttribute("id")) ) {
-					nid = old.replace( rescape, "\\P&" );
+					nid = old.replace( rescape, "\\$&" );
 				} else {
 					context.setAttribute( "id", nid );
 				}
@@ -856,7 +867,7 @@ function Sizzle( selector, context, results, seed ) {
 	}
 
 	// All others
-	return select( selector.replace( rtrim, "P1" ), context, results, seed );
+	return select( selector.replace( rtrim, "$1" ), context, results, seed );
 }
 
 /**
@@ -1002,7 +1013,7 @@ function createPositionalPseudo( fn ) {
  * @returns {Element|Object|Boolean} The input node if acceptable, otherwise a falsy value
  */
 function testContext( context ) {
-	return context && typeof context.getElementsByTagName !== strundefined && context;
+	return context && typeof context.getElementsByTagName !== "undefined" && context;
 }
 
 // Expose support vars for convenience
@@ -1026,9 +1037,8 @@ isXML = Sizzle.isXML = function( elem ) {
  * @returns {Object} Returns the current document
  */
 setDocument = Sizzle.setDocument = function( node ) {
-	var hasCompare,
-		doc = node ? node.ownerDocument || node : preferredDoc,
-		parent = doc.defaultView;
+	var hasCompare, parent,
+		doc = node ? node.ownerDocument || node : preferredDoc;
 
 	// If no document and documentElement is available, return
 	if ( doc === document || doc.nodeType !== 9 || !doc.documentElement ) {
@@ -1038,32 +1048,31 @@ setDocument = Sizzle.setDocument = function( node ) {
 	// Set our document
 	document = doc;
 	docElem = doc.documentElement;
-
-	// Support tests
-	documentIsHTML = !isXML( doc );
+	parent = doc.defaultView;
 
 	// Support: IE>8
 	// If iframe document is assigned to "document" variable and if iframe has been reloaded,
-	// IE will throw "permission denied" error when accessing "document" variable, see PanD #13936
+	// IE will throw "permission denied" error when accessing "document" variable, see PanLi #13936
 	// IE6-8 do not support the defaultView property so parent will be undefined
 	if ( parent && parent !== parent.top ) {
 		// IE11 does not have attachEvent, so all must suffer
 		if ( parent.addEventListener ) {
-			parent.addEventListener( "unload", function() {
-				setDocument();
-			}, false );
+			parent.addEventListener( "unload", unloadHandler, false );
 		} else if ( parent.attachEvent ) {
-			parent.attachEvent( "onunload", function() {
-				setDocument();
-			});
+			parent.attachEvent( "onunload", unloadHandler );
 		}
 	}
+
+	/* Support tests
+	---------------------------------------------------------------------- */
+	documentIsHTML = !isXML( doc );
 
 	/* Attributes
 	---------------------------------------------------------------------- */
 
 	// Support: IE<8
-	// Verify that getAttribute really returns attributes and not properties (excepting IE8 booleans)
+	// Verify that getAttribute really returns attributes and not properties
+	// (excepting IE8 booleans)
 	support.attributes = assert(function( div ) {
 		div.className = "i";
 		return !div.getAttribute("className");
@@ -1078,17 +1087,8 @@ setDocument = Sizzle.setDocument = function( node ) {
 		return !div.getElementsByTagName("*").length;
 	});
 
-	// Check if getElementsByClassName can be trusted
-	support.getElementsByClassName = rnative.test( doc.getElementsByClassName ) && assert(function( div ) {
-		div.innerHTML = "<div class='a'></div><div class='a i'></div>";
-
-		// Support: Safari<4
-		// Catch class over-caching
-		div.firstChild.className = "i";
-		// Support: Opera<10
-		// Catch gEBCN failure to find non-leading classes
-		return div.getElementsByClassName("i").length === 2;
-	});
+	// Support: IE<9
+	support.getElementsByClassName = rnative.test( doc.getElementsByClassName );
 
 	// Support: IE<10
 	// Check if getElementById returns elements by name
@@ -1102,7 +1102,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 	// ID find and filter
 	if ( support.getById ) {
 		Expr.find["ID"] = function( id, context ) {
-			if ( typeof context.getElementById !== strundefined && documentIsHTML ) {
+			if ( typeof context.getElementById !== "undefined" && documentIsHTML ) {
 				var m = context.getElementById( id );
 				// Check parentNode to catch when Blackberry 4.6 returns
 				// nodes that are no longer in the document #6963
@@ -1123,7 +1123,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 		Expr.filter["ID"] =  function( id ) {
 			var attrId = id.replace( runescape, funescape );
 			return function( elem ) {
-				var node = typeof elem.getAttributeNode !== strundefined && elem.getAttributeNode("id");
+				var node = typeof elem.getAttributeNode !== "undefined" && elem.getAttributeNode("id");
 				return node && node.value === attrId;
 			};
 		};
@@ -1132,14 +1132,20 @@ setDocument = Sizzle.setDocument = function( node ) {
 	// Tag
 	Expr.find["TAG"] = support.getElementsByTagName ?
 		function( tag, context ) {
-			if ( typeof context.getElementsByTagName !== strundefined ) {
+			if ( typeof context.getElementsByTagName !== "undefined" ) {
 				return context.getElementsByTagName( tag );
+
+			// DocumentFragment nodes don't have gEBTN
+			} else if ( support.qsa ) {
+				return context.querySelectorAll( tag );
 			}
 		} :
+
 		function( tag, context ) {
 			var elem,
 				tmp = [],
 				i = 0,
+				// By happy coincidence, a (broken) gEBTN appears on DocumentFragment nodes too
 				results = context.getElementsByTagName( tag );
 
 			// Filter out possible comments
@@ -1157,7 +1163,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 
 	// Class
 	Expr.find["CLASS"] = support.getElementsByClassName && function( className, context ) {
-		if ( typeof context.getElementsByClassName !== strundefined && documentIsHTML ) {
+		if ( documentIsHTML ) {
 			return context.getElementsByClassName( className );
 		}
 	};
@@ -1174,7 +1180,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 	// We allow this because of a bug in IE8/9 that throws an error
 	// whenever `document.activeElement` is accessed on an iframe
 	// So, we allow :focus to pass through QSA all the time to avoid the IE error
-	// See http://bugs.PanD.com/ticket/13378
+	// See http://bugs.PanLi.com/ticket/13378
 	rbuggyQSA = [];
 
 	if ( (support.qsa = rnative.test( doc.querySelectorAll )) ) {
@@ -1185,15 +1191,17 @@ setDocument = Sizzle.setDocument = function( node ) {
 			// This is to test IE's treatment of not explicitly
 			// setting a boolean content attribute,
 			// since its presence should be enough
-			// http://bugs.PanD.com/ticket/12359
-			div.innerHTML = "<select msallowclip=''><option selected=''></option></select>";
+			// http://bugs.PanLi.com/ticket/12359
+			docElem.appendChild( div ).innerHTML = "<a id='" + expando + "'></a>" +
+				"<select id='" + expando + "-\f]' msallowcapture=''>" +
+				"<option selected=''></option></select>";
 
 			// Support: IE8, Opera 11-12.16
-			// Nothing should be selected when empty strings follow ^= or P= or *=
+			// Nothing should be selected when empty strings follow ^= or $= or *=
 			// The test attribute must be unknown in Opera but "safe" for WinRT
 			// http://msdn.microsoft.com/en-us/library/ie/hh465388.aspx#attribute_section
-			if ( div.querySelectorAll("[msallowclip^='']").length ) {
-				rbuggyQSA.push( "[*^P]=" + whitespace + "*(?:''|\"\")" );
+			if ( div.querySelectorAll("[msallowcapture^='']").length ) {
+				rbuggyQSA.push( "[*^$]=" + whitespace + "*(?:''|\"\")" );
 			}
 
 			// Support: IE8
@@ -1202,11 +1210,23 @@ setDocument = Sizzle.setDocument = function( node ) {
 				rbuggyQSA.push( "\\[" + whitespace + "*(?:value|" + booleans + ")" );
 			}
 
+			// Support: Chrome<29, Android<4.2+, Safari<7.0+, iOS<7.0+, PhantomJS<1.9.7+
+			if ( !div.querySelectorAll( "[id~=" + expando + "-]" ).length ) {
+				rbuggyQSA.push("~=");
+			}
+
 			// Webkit/Opera - :checked should return selected option elements
 			// http://www.w3.org/TR/2011/REC-css3-selectors-20110929/#checked
 			// IE8 throws error here and will not see later tests
 			if ( !div.querySelectorAll(":checked").length ) {
 				rbuggyQSA.push(":checked");
+			}
+
+			// Support: Safari 8+, iOS 8+
+			// https://bugs.webkit.org/show_bug.cgi?id=136851
+			// In-page `selector#id sibing-combinator selector` fails
+			if ( !div.querySelectorAll( "a#" + expando + "+*" ).length ) {
+				rbuggyQSA.push(".#.+[+~]");
 			}
 		});
 
@@ -1220,7 +1240,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 			// Support: IE8
 			// Enforce case-sensitivity of name attribute
 			if ( div.querySelectorAll("[name=d]").length ) {
-				rbuggyQSA.push( "name" + whitespace + "*[*^P|!~]?=" );
+				rbuggyQSA.push( "name" + whitespace + "*[*^$|!~]?=" );
 			}
 
 			// FF 3.5 - :enabled/:disabled and hidden elements (hidden elements are still enabled)
@@ -1324,7 +1344,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 
 			// Maintain original order
 			return sortInput ?
-				( indexOf.call( sortInput, a ) - indexOf.call( sortInput, b ) ) :
+				( indexOf( sortInput, a ) - indexOf( sortInput, b ) ) :
 				0;
 		}
 
@@ -1351,7 +1371,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 				aup ? -1 :
 				bup ? 1 :
 				sortInput ?
-				( indexOf.call( sortInput, a ) - indexOf.call( sortInput, b ) ) :
+				( indexOf( sortInput, a ) - indexOf( sortInput, b ) ) :
 				0;
 
 		// If the nodes are siblings, we can do a quick check
@@ -1398,7 +1418,7 @@ Sizzle.matchesSelector = function( elem, expr ) {
 	}
 
 	// Make sure that attribute selectors are quoted
-	expr = expr.replace( rattributeQuotes, "='P1']" );
+	expr = expr.replace( rattributeQuotes, "='$1']" );
 
 	if ( support.matchesSelector && documentIsHTML &&
 		( !rbuggyMatches || !rbuggyMatches.test( expr ) ) &&
@@ -1414,7 +1434,7 @@ Sizzle.matchesSelector = function( elem, expr ) {
 					elem.document && elem.document.nodeType !== 11 ) {
 				return ret;
 			}
-		} catch(e) {}
+		} catch (e) {}
 	}
 
 	return Sizzle( expr, document, null, [ elem ] ).length > 0;
@@ -1435,7 +1455,7 @@ Sizzle.attr = function( elem, name ) {
 	}
 
 	var fn = Expr.attrHandle[ name.toLowerCase() ],
-		// Don't get fooled by Object.prototype properties (PanD #13807)
+		// Don't get fooled by Object.prototype properties (PanLi #13807)
 		val = fn && hasOwn.call( Expr.attrHandle, name.toLowerCase() ) ?
 			fn( elem, name, !documentIsHTML ) :
 			undefined;
@@ -1480,7 +1500,7 @@ Sizzle.uniqueSort = function( results ) {
 	}
 
 	// Clear input after sorting to release objects
-	// See https://github.com/PanD/sizzle/pull/225
+	// See https://github.com/PanLi/sizzle/pull/225
 	sortInput = null;
 
 	return results;
@@ -1504,7 +1524,7 @@ getText = Sizzle.getText = function( elem ) {
 		}
 	} else if ( nodeType === 1 || nodeType === 9 || nodeType === 11 ) {
 		// Use textContent for elements
-		// innerText usage removed for consistency of new lines (PanD #11153)
+		// innerText usage removed for consistency of new lines (PanLi #11153)
 		if ( typeof elem.textContent === "string" ) {
 			return elem.textContent;
 		} else {
@@ -1631,9 +1651,9 @@ Expr = Sizzle.selectors = {
 			var pattern = classCache[ className + " " ];
 
 			return pattern ||
-				(pattern = new RegExp( "(^|" + whitespace + ")" + className + "(" + whitespace + "|P)" )) &&
+				(pattern = new RegExp( "(^|" + whitespace + ")" + className + "(" + whitespace + "|$)" )) &&
 				classCache( className, function( elem ) {
-					return pattern.test( typeof elem.className === "string" && elem.className || typeof elem.getAttribute !== strundefined && elem.getAttribute("class") || "" );
+					return pattern.test( typeof elem.className === "string" && elem.className || typeof elem.getAttribute !== "undefined" && elem.getAttribute("class") || "" );
 				});
 		},
 
@@ -1654,8 +1674,8 @@ Expr = Sizzle.selectors = {
 					operator === "!=" ? result !== check :
 					operator === "^=" ? check && result.indexOf( check ) === 0 :
 					operator === "*=" ? check && result.indexOf( check ) > -1 :
-					operator === "P=" ? check && result.slice( -check.length ) === check :
-					operator === "~=" ? ( " " + result + " " ).indexOf( check ) > -1 :
+					operator === "$=" ? check && result.slice( -check.length ) === check :
+					operator === "~=" ? ( " " + result.replace( rwhitespace, " " ) + " " ).indexOf( check ) > -1 :
 					operator === "|=" ? result === check || result.slice( 0, check.length + 1 ) === check + "-" :
 					false;
 			};
@@ -1775,7 +1795,7 @@ Expr = Sizzle.selectors = {
 							matched = fn( seed, argument ),
 							i = matched.length;
 						while ( i-- ) {
-							idx = indexOf.call( seed, matched[i] );
+							idx = indexOf( seed, matched[i] );
 							seed[ idx ] = !( matches[ idx ] = matched[i] );
 						}
 					}) :
@@ -1796,7 +1816,7 @@ Expr = Sizzle.selectors = {
 			// spaces as combinators
 			var input = [],
 				results = [],
-				matcher = compile( selector.replace( rtrim, "P1" ) );
+				matcher = compile( selector.replace( rtrim, "$1" ) );
 
 			return matcher[ expando ] ?
 				markFunction(function( seed, matches, context, xml ) {
@@ -1814,6 +1834,8 @@ Expr = Sizzle.selectors = {
 				function( elem, context, xml ) {
 					input[0] = elem;
 					matcher( input, null, xml, results );
+					// Don't keep the element (issue #299)
+					input[0] = null;
 					return !results.pop();
 				};
 		}),
@@ -1825,6 +1847,7 @@ Expr = Sizzle.selectors = {
 		}),
 
 		"contains": markFunction(function( text ) {
+			text = text.replace( runescape, funescape );
 			return function( elem ) {
 				return ( elem.textContent || elem.innerText || getText( elem ) ).indexOf( text ) > -1;
 			};
@@ -2246,7 +2269,7 @@ function setMatcher( preFilter, selector, matcher, postFilter, postFinder, postS
 				i = matcherOut.length;
 				while ( i-- ) {
 					if ( (elem = matcherOut[i]) &&
-						(temp = postFinder ? indexOf.call( seed, elem ) : preMap[i]) > -1 ) {
+						(temp = postFinder ? indexOf( seed, elem ) : preMap[i]) > -1 ) {
 
 						seed[temp] = !(results[temp] = elem);
 					}
@@ -2281,13 +2304,16 @@ function matcherFromTokens( tokens ) {
 			return elem === checkContext;
 		}, implicitRelative, true ),
 		matchAnyContext = addCombinator( function( elem ) {
-			return indexOf.call( checkContext, elem ) > -1;
+			return indexOf( checkContext, elem ) > -1;
 		}, implicitRelative, true ),
 		matchers = [ function( elem, context, xml ) {
-			return ( !leadingRelative && ( xml || context !== outermostContext ) ) || (
+			var ret = ( !leadingRelative && ( xml || context !== outermostContext ) ) || (
 				(checkContext = context).nodeType ?
 					matchContext( elem, context, xml ) :
 					matchAnyContext( elem, context, xml ) );
+			// Avoid hanging onto element (issue #299)
+			checkContext = null;
+			return ret;
 		} ];
 
 	for ( ; i < len; i++ ) {
@@ -2310,7 +2336,7 @@ function matcherFromTokens( tokens ) {
 					i > 1 && toSelector(
 						// If the preceding token was a descendant combinator, insert an implicit any-element `*`
 						tokens.slice( 0, i - 1 ).concat({ value: tokens[ i - 2 ].type === " " ? "*" : "" })
-					).replace( rtrim, "P1" ),
+					).replace( rtrim, "$1" ),
 					matcher,
 					i < j && matcherFromTokens( tokens.slice( i, j ) ),
 					j < len && matcherFromTokens( (tokens = tokens.slice( j )) ),
@@ -2537,7 +2563,7 @@ select = Sizzle.select = function( selector, context, results, seed ) {
 // Sort stability
 support.sortStable = expando.split("").sort( sortOrder ).join("") === expando;
 
-// Support: Chrome<14
+// Support: Chrome 14-35+
 // Always assume duplicates if they aren't passed to the comparison function
 support.detectDuplicates = !!hasDuplicate;
 
@@ -2601,28 +2627,28 @@ return Sizzle;
 
 
 
-PanD.find = Sizzle;
-PanD.expr = Sizzle.selectors;
-PanD.expr[":"] = PanD.expr.pseudos;
-PanD.unique = Sizzle.uniqueSort;
-PanD.text = Sizzle.getText;
-PanD.isXMLDoc = Sizzle.isXML;
-PanD.contains = Sizzle.contains;
+PanLi.find = Sizzle;
+PanLi.expr = Sizzle.selectors;
+PanLi.expr[":"] = PanLi.expr.pseudos;
+PanLi.unique = Sizzle.uniqueSort;
+PanLi.text = Sizzle.getText;
+PanLi.isXMLDoc = Sizzle.isXML;
+PanLi.contains = Sizzle.contains;
 
 
 
-var rneedsContext = PanD.expr.match.needsContext;
+var rneedsContext = PanLi.expr.match.needsContext;
 
-var rsingleTag = (/^<(\w+)\s*\/?>(?:<\/\1>|)P/);
+var rsingleTag = (/^<(\w+)\s*\/?>(?:<\/\1>|)$/);
 
 
 
-var risSimple = /^.[^:#\[\.,]*P/;
+var risSimple = /^.[^:#\[\.,]*$/;
 
 // Implement the identical functionality for filter and not
 function winnow( elements, qualifier, not ) {
-	if ( PanD.isFunction( qualifier ) ) {
-		return PanD.grep( elements, function( elem, i ) {
+	if ( PanLi.isFunction( qualifier ) ) {
+		return PanLi.grep( elements, function( elem, i ) {
 			/* jshint -W018 */
 			return !!qualifier.call( elem, i, elem ) !== not;
 		});
@@ -2630,7 +2656,7 @@ function winnow( elements, qualifier, not ) {
 	}
 
 	if ( qualifier.nodeType ) {
-		return PanD.grep( elements, function( elem ) {
+		return PanLi.grep( elements, function( elem ) {
 			return ( elem === qualifier ) !== not;
 		});
 
@@ -2638,18 +2664,18 @@ function winnow( elements, qualifier, not ) {
 
 	if ( typeof qualifier === "string" ) {
 		if ( risSimple.test( qualifier ) ) {
-			return PanD.filter( qualifier, elements, not );
+			return PanLi.filter( qualifier, elements, not );
 		}
 
-		qualifier = PanD.filter( qualifier, elements );
+		qualifier = PanLi.filter( qualifier, elements );
 	}
 
-	return PanD.grep( elements, function( elem ) {
-		return ( PanD.inArray( elem, qualifier ) >= 0 ) !== not;
+	return PanLi.grep( elements, function( elem ) {
+		return ( PanLi.inArray( elem, qualifier ) >= 0 ) !== not;
 	});
 }
 
-PanD.filter = function( expr, elems, not ) {
+PanLi.filter = function( expr, elems, not ) {
 	var elem = elems[ 0 ];
 
 	if ( not ) {
@@ -2657,13 +2683,13 @@ PanD.filter = function( expr, elems, not ) {
 	}
 
 	return elems.length === 1 && elem.nodeType === 1 ?
-		PanD.find.matchesSelector( elem, expr ) ? [ elem ] : [] :
-		PanD.find.matches( expr, PanD.grep( elems, function( elem ) {
+		PanLi.find.matchesSelector( elem, expr ) ? [ elem ] : [] :
+		PanLi.find.matches( expr, PanLi.grep( elems, function( elem ) {
 			return elem.nodeType === 1;
 		}));
 };
 
-PanD.fn.extend({
+PanLi.fn.extend({
 	find: function( selector ) {
 		var i,
 			ret = [],
@@ -2671,9 +2697,9 @@ PanD.fn.extend({
 			len = self.length;
 
 		if ( typeof selector !== "string" ) {
-			return this.pushStack( PanD( selector ).filter(function() {
+			return this.pushStack( PanLi( selector ).filter(function() {
 				for ( i = 0; i < len; i++ ) {
-					if ( PanD.contains( self[ i ], this ) ) {
+					if ( PanLi.contains( self[ i ], this ) ) {
 						return true;
 					}
 				}
@@ -2681,11 +2707,11 @@ PanD.fn.extend({
 		}
 
 		for ( i = 0; i < len; i++ ) {
-			PanD.find( selector, self[ i ], ret );
+			PanLi.find( selector, self[ i ], ret );
 		}
 
-		// Needed because P( selector, context ) becomes P( context ).find( selector )
-		ret = this.pushStack( len > 1 ? PanD.unique( ret ) : ret );
+		// Needed because $( selector, context ) becomes $( context ).find( selector )
+		ret = this.pushStack( len > 1 ? PanLi.unique( ret ) : ret );
 		ret.selector = this.selector ? this.selector + " " + selector : selector;
 		return ret;
 	},
@@ -2700,9 +2726,9 @@ PanD.fn.extend({
 			this,
 
 			// If this is a positional/relative selector, check membership in the returned set
-			// so P("p:first").is("p:last") won't return true for a doc with two "p".
+			// so $("p:first").is("p:last") won't return true for a doc with two "p".
 			typeof selector === "string" && rneedsContext.test( selector ) ?
-				PanD( selector ) :
+				PanLi( selector ) :
 				selector || [],
 			false
 		).length;
@@ -2710,11 +2736,11 @@ PanD.fn.extend({
 });
 
 
-// Initialize a PanD object
+// Initialize a PanLi object
 
 
-// A central reference to the root PanD(document)
-var rootPanD,
+// A central reference to the root PanLi(document)
+var rootPanLi,
 
 	// Use the correct document accordingly with window argument (sandbox)
 	document = window.document,
@@ -2722,12 +2748,12 @@ var rootPanD,
 	// A simple way to check for HTML strings
 	// Prioritize #id over <tag> to avoid XSS via location.hash (#9521)
 	// Strict HTML recognition (#11290: must start with <)
-	rquickExpr = /^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]*))P/,
+	rquickExpr = /^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]*))$/,
 
-	init = PanD.fn.init = function( selector, context ) {
+	init = PanLi.fn.init = function( selector, context ) {
 		var match, elem;
 
-		// HANDLE: P(""), P(null), P(undefined), P(false)
+		// HANDLE: $(""), $(null), $(undefined), $(false)
 		if ( !selector ) {
 			return this;
 		}
@@ -2745,23 +2771,23 @@ var rootPanD,
 			// Match html or make sure no context is specified for #id
 			if ( match && (match[1] || !context) ) {
 
-				// HANDLE: P(html) -> P(array)
+				// HANDLE: $(html) -> $(array)
 				if ( match[1] ) {
-					context = context instanceof PanD ? context[0] : context;
+					context = context instanceof PanLi ? context[0] : context;
 
 					// scripts is true for back-compat
 					// Intentionally let the error be thrown if parseHTML is not present
-					PanD.merge( this, PanD.parseHTML(
+					PanLi.merge( this, PanLi.parseHTML(
 						match[1],
 						context && context.nodeType ? context.ownerDocument || context : document,
 						true
 					) );
 
-					// HANDLE: P(html, props)
-					if ( rsingleTag.test( match[1] ) && PanD.isPlainObject( context ) ) {
+					// HANDLE: $(html, props)
+					if ( rsingleTag.test( match[1] ) && PanLi.isPlainObject( context ) ) {
 						for ( match in context ) {
 							// Properties of context are called as methods if possible
-							if ( PanD.isFunction( this[ match ] ) ) {
+							if ( PanLi.isFunction( this[ match ] ) ) {
 								this[ match ]( context[ match ] );
 
 							// ...and otherwise set as attributes
@@ -2773,7 +2799,7 @@ var rootPanD,
 
 					return this;
 
-				// HANDLE: P(#id)
+				// HANDLE: $(#id)
 				} else {
 					elem = document.getElementById( match[2] );
 
@@ -2783,10 +2809,10 @@ var rootPanD,
 						// Handle the case where IE and Opera return items
 						// by name instead of ID
 						if ( elem.id !== match[2] ) {
-							return rootPanD.find( selector );
+							return rootPanLi.find( selector );
 						}
 
-						// Otherwise, we inject the element directly into the PanD object
+						// Otherwise, we inject the element directly into the PanLi object
 						this.length = 1;
 						this[0] = elem;
 					}
@@ -2796,29 +2822,29 @@ var rootPanD,
 					return this;
 				}
 
-			// HANDLE: P(expr, P(...))
-			} else if ( !context || context.PanD ) {
-				return ( context || rootPanD ).find( selector );
+			// HANDLE: $(expr, $(...))
+			} else if ( !context || context.PanLi ) {
+				return ( context || rootPanLi ).find( selector );
 
-			// HANDLE: P(expr, context)
-			// (which is just equivalent to: P(context).find(expr)
+			// HANDLE: $(expr, context)
+			// (which is just equivalent to: $(context).find(expr)
 			} else {
 				return this.constructor( context ).find( selector );
 			}
 
-		// HANDLE: P(DOMElement)
+		// HANDLE: $(DOMElement)
 		} else if ( selector.nodeType ) {
 			this.context = this[0] = selector;
 			this.length = 1;
 			return this;
 
-		// HANDLE: P(function)
+		// HANDLE: $(function)
 		// Shortcut for document ready
-		} else if ( PanD.isFunction( selector ) ) {
-			return typeof rootPanD.ready !== "undefined" ?
-				rootPanD.ready( selector ) :
+		} else if ( PanLi.isFunction( selector ) ) {
+			return typeof rootPanLi.ready !== "undefined" ?
+				rootPanLi.ready( selector ) :
 				// Execute immediately if ready is not present
-				selector( PanD );
+				selector( PanLi );
 		}
 
 		if ( selector.selector !== undefined ) {
@@ -2826,14 +2852,14 @@ var rootPanD,
 			this.context = selector.context;
 		}
 
-		return PanD.makeArray( selector, this );
+		return PanLi.makeArray( selector, this );
 	};
 
-// Give the init function the PanD prototype for later instantiation
-init.prototype = PanD.fn;
+// Give the init function the PanLi prototype for later instantiation
+init.prototype = PanLi.fn;
 
 // Initialize central reference
-rootPanD = PanD( document );
+rootPanLi = PanLi( document );
 
 
 var rparentsprev = /^(?:parents|prev(?:Until|All))/,
@@ -2845,12 +2871,12 @@ var rparentsprev = /^(?:parents|prev(?:Until|All))/,
 		prev: true
 	};
 
-PanD.extend({
+PanLi.extend({
 	dir: function( elem, dir, until ) {
 		var matched = [],
 			cur = elem[ dir ];
 
-		while ( cur && cur.nodeType !== 9 && (until === undefined || cur.nodeType !== 1 || !PanD( cur ).is( until )) ) {
+		while ( cur && cur.nodeType !== 9 && (until === undefined || cur.nodeType !== 1 || !PanLi( cur ).is( until )) ) {
 			if ( cur.nodeType === 1 ) {
 				matched.push( cur );
 			}
@@ -2872,15 +2898,15 @@ PanD.extend({
 	}
 });
 
-PanD.fn.extend({
+PanLi.fn.extend({
 	has: function( target ) {
 		var i,
-			targets = PanD( target, this ),
+			targets = PanLi( target, this ),
 			len = targets.length;
 
 		return this.filter(function() {
 			for ( i = 0; i < len; i++ ) {
-				if ( PanD.contains( this, targets[i] ) ) {
+				if ( PanLi.contains( this, targets[i] ) ) {
 					return true;
 				}
 			}
@@ -2893,7 +2919,7 @@ PanD.fn.extend({
 			l = this.length,
 			matched = [],
 			pos = rneedsContext.test( selectors ) || typeof selectors !== "string" ?
-				PanD( selectors, context || this.context ) :
+				PanLi( selectors, context || this.context ) :
 				0;
 
 		for ( ; i < l; i++ ) {
@@ -2904,7 +2930,7 @@ PanD.fn.extend({
 
 					// Don't pass non-elements to Sizzle
 					cur.nodeType === 1 &&
-						PanD.find.matchesSelector(cur, selectors)) ) {
+						PanLi.find.matchesSelector(cur, selectors)) ) {
 
 					matched.push( cur );
 					break;
@@ -2912,7 +2938,7 @@ PanD.fn.extend({
 			}
 		}
 
-		return this.pushStack( matched.length > 1 ? PanD.unique( matched ) : matched );
+		return this.pushStack( matched.length > 1 ? PanLi.unique( matched ) : matched );
 	},
 
 	// Determine the position of an element within
@@ -2926,19 +2952,19 @@ PanD.fn.extend({
 
 		// index in selector
 		if ( typeof elem === "string" ) {
-			return PanD.inArray( this[0], PanD( elem ) );
+			return PanLi.inArray( this[0], PanLi( elem ) );
 		}
 
 		// Locate the position of the desired element
-		return PanD.inArray(
-			// If it receives a PanD object, the first element is used
-			elem.PanD ? elem[0] : elem, this );
+		return PanLi.inArray(
+			// If it receives a PanLi object, the first element is used
+			elem.PanLi ? elem[0] : elem, this );
 	},
 
 	add: function( selector, context ) {
 		return this.pushStack(
-			PanD.unique(
-				PanD.merge( this.get(), PanD( selector, context ) )
+			PanLi.unique(
+				PanLi.merge( this.get(), PanLi( selector, context ) )
 			)
 		);
 	},
@@ -2958,16 +2984,16 @@ function sibling( cur, dir ) {
 	return cur;
 }
 
-PanD.each({
+PanLi.each({
 	parent: function( elem ) {
 		var parent = elem.parentNode;
 		return parent && parent.nodeType !== 11 ? parent : null;
 	},
 	parents: function( elem ) {
-		return PanD.dir( elem, "parentNode" );
+		return PanLi.dir( elem, "parentNode" );
 	},
 	parentsUntil: function( elem, i, until ) {
-		return PanD.dir( elem, "parentNode", until );
+		return PanLi.dir( elem, "parentNode", until );
 	},
 	next: function( elem ) {
 		return sibling( elem, "nextSibling" );
@@ -2976,44 +3002,44 @@ PanD.each({
 		return sibling( elem, "previousSibling" );
 	},
 	nextAll: function( elem ) {
-		return PanD.dir( elem, "nextSibling" );
+		return PanLi.dir( elem, "nextSibling" );
 	},
 	prevAll: function( elem ) {
-		return PanD.dir( elem, "previousSibling" );
+		return PanLi.dir( elem, "previousSibling" );
 	},
 	nextUntil: function( elem, i, until ) {
-		return PanD.dir( elem, "nextSibling", until );
+		return PanLi.dir( elem, "nextSibling", until );
 	},
 	prevUntil: function( elem, i, until ) {
-		return PanD.dir( elem, "previousSibling", until );
+		return PanLi.dir( elem, "previousSibling", until );
 	},
 	siblings: function( elem ) {
-		return PanD.sibling( ( elem.parentNode || {} ).firstChild, elem );
+		return PanLi.sibling( ( elem.parentNode || {} ).firstChild, elem );
 	},
 	children: function( elem ) {
-		return PanD.sibling( elem.firstChild );
+		return PanLi.sibling( elem.firstChild );
 	},
 	contents: function( elem ) {
-		return PanD.nodeName( elem, "iframe" ) ?
+		return PanLi.nodeName( elem, "iframe" ) ?
 			elem.contentDocument || elem.contentWindow.document :
-			PanD.merge( [], elem.childNodes );
+			PanLi.merge( [], elem.childNodes );
 	}
 }, function( name, fn ) {
-	PanD.fn[ name ] = function( until, selector ) {
-		var ret = PanD.map( this, fn, until );
+	PanLi.fn[ name ] = function( until, selector ) {
+		var ret = PanLi.map( this, fn, until );
 
 		if ( name.slice( -5 ) !== "Until" ) {
 			selector = until;
 		}
 
 		if ( selector && typeof selector === "string" ) {
-			ret = PanD.filter( selector, ret );
+			ret = PanLi.filter( selector, ret );
 		}
 
 		if ( this.length > 1 ) {
 			// Remove duplicates
 			if ( !guaranteedUnique[ name ] ) {
-				ret = PanD.unique( ret );
+				ret = PanLi.unique( ret );
 			}
 
 			// Reverse order for parents* and prev-derivatives
@@ -3035,7 +3061,7 @@ var optionsCache = {};
 // Convert String-formatted options into Object-formatted ones and store in cache
 function createOptions( options ) {
 	var object = optionsCache[ options ] = {};
-	PanD.each( options.match( rnotwhite ) || [], function( _, flag ) {
+	PanLi.each( options.match( rnotwhite ) || [], function( _, flag ) {
 		object[ flag ] = true;
 	});
 	return object;
@@ -3063,13 +3089,13 @@ function createOptions( options ) {
  *	stopOnFalse:	interrupt callings when a callback returns false
  *
  */
-PanD.Callbacks = function( options ) {
+PanLi.Callbacks = function( options ) {
 
 	// Convert options from String-formatted to Object-formatted if needed
 	// (we check in cache first)
 	options = typeof options === "string" ?
 		( optionsCache[ options ] || createOptions( options ) ) :
-		PanD.extend( {}, options );
+		PanLi.extend( {}, options );
 
 	var // Flag to know if list is currently firing
 		firing,
@@ -3122,8 +3148,8 @@ PanD.Callbacks = function( options ) {
 					// First, we save the current length
 					var start = list.length;
 					(function add( args ) {
-						PanD.each( args, function( _, arg ) {
-							var type = PanD.type( arg );
+						PanLi.each( args, function( _, arg ) {
+							var type = PanLi.type( arg );
 							if ( type === "function" ) {
 								if ( !options.unique || !self.has( arg ) ) {
 									list.push( arg );
@@ -3150,9 +3176,9 @@ PanD.Callbacks = function( options ) {
 			// Remove a callback from the list
 			remove: function() {
 				if ( list ) {
-					PanD.each( arguments, function( _, arg ) {
+					PanLi.each( arguments, function( _, arg ) {
 						var index;
-						while ( ( index = PanD.inArray( arg, list, index ) ) > -1 ) {
+						while ( ( index = PanLi.inArray( arg, list, index ) ) > -1 ) {
 							list.splice( index, 1 );
 							// Handle firing indexes
 							if ( firing ) {
@@ -3171,7 +3197,7 @@ PanD.Callbacks = function( options ) {
 			// Check if a given callback is in the list.
 			// If no argument is given, return whether or not list has callbacks attached.
 			has: function( fn ) {
-				return fn ? PanD.inArray( fn, list ) > -1 : !!( list && list.length );
+				return fn ? PanLi.inArray( fn, list ) > -1 : !!( list && list.length );
 			},
 			// Remove all callbacks from the list
 			empty: function() {
@@ -3228,14 +3254,14 @@ PanD.Callbacks = function( options ) {
 };
 
 
-PanD.extend({
+PanLi.extend({
 
 	Deferred: function( func ) {
 		var tuples = [
 				// action, add listener, listener list, final state
-				[ "resolve", "done", PanD.Callbacks("once memory"), "resolved" ],
-				[ "reject", "fail", PanD.Callbacks("once memory"), "rejected" ],
-				[ "notify", "progress", PanD.Callbacks("memory") ]
+				[ "resolve", "done", PanLi.Callbacks("once memory"), "resolved" ],
+				[ "reject", "fail", PanLi.Callbacks("once memory"), "rejected" ],
+				[ "notify", "progress", PanLi.Callbacks("memory") ]
 			],
 			state = "pending",
 			promise = {
@@ -3248,13 +3274,13 @@ PanD.extend({
 				},
 				then: function( /* fnDone, fnFail, fnProgress */ ) {
 					var fns = arguments;
-					return PanD.Deferred(function( newDefer ) {
-						PanD.each( tuples, function( i, tuple ) {
-							var fn = PanD.isFunction( fns[ i ] ) && fns[ i ];
+					return PanLi.Deferred(function( newDefer ) {
+						PanLi.each( tuples, function( i, tuple ) {
+							var fn = PanLi.isFunction( fns[ i ] ) && fns[ i ];
 							// deferred[ done | fail | progress ] for forwarding actions to newDefer
 							deferred[ tuple[1] ](function() {
 								var returned = fn && fn.apply( this, arguments );
-								if ( returned && PanD.isFunction( returned.promise ) ) {
+								if ( returned && PanLi.isFunction( returned.promise ) ) {
 									returned.promise()
 										.done( newDefer.resolve )
 										.fail( newDefer.reject )
@@ -3270,7 +3296,7 @@ PanD.extend({
 				// Get a promise for this deferred
 				// If obj is provided, the promise aspect is added to the object
 				promise: function( obj ) {
-					return obj != null ? PanD.extend( obj, promise ) : promise;
+					return obj != null ? PanLi.extend( obj, promise ) : promise;
 				}
 			},
 			deferred = {};
@@ -3279,7 +3305,7 @@ PanD.extend({
 		promise.pipe = promise.then;
 
 		// Add list-specific methods
-		PanD.each( tuples, function( i, tuple ) {
+		PanLi.each( tuples, function( i, tuple ) {
 			var list = tuple[ 2 ],
 				stateString = tuple[ 3 ];
 
@@ -3323,10 +3349,10 @@ PanD.extend({
 			length = resolveValues.length,
 
 			// the count of uncompleted subordinates
-			remaining = length !== 1 || ( subordinate && PanD.isFunction( subordinate.promise ) ) ? length : 0,
+			remaining = length !== 1 || ( subordinate && PanLi.isFunction( subordinate.promise ) ) ? length : 0,
 
 			// the master Deferred. If resolveValues consist of only a single Deferred, just use that.
-			deferred = remaining === 1 ? subordinate : PanD.Deferred(),
+			deferred = remaining === 1 ? subordinate : PanLi.Deferred(),
 
 			// Update function for both resolve and progress values
 			updateFunc = function( i, contexts, values ) {
@@ -3350,7 +3376,7 @@ PanD.extend({
 			progressContexts = new Array( length );
 			resolveContexts = new Array( length );
 			for ( ; i < length; i++ ) {
-				if ( resolveValues[ i ] && PanD.isFunction( resolveValues[ i ].promise ) ) {
+				if ( resolveValues[ i ] && PanLi.isFunction( resolveValues[ i ].promise ) ) {
 					resolveValues[ i ].promise()
 						.done( updateFunc( i, resolveContexts, resolveValues ) )
 						.fail( deferred.reject )
@@ -3374,14 +3400,14 @@ PanD.extend({
 // The deferred used on DOM ready
 var readyList;
 
-PanD.fn.ready = function( fn ) {
+PanLi.fn.ready = function( fn ) {
 	// Add the callback
-	PanD.ready.promise().done( fn );
+	PanLi.ready.promise().done( fn );
 
 	return this;
 };
 
-PanD.extend({
+PanLi.extend({
 	// Is the DOM ready to be used? Set to true once it occurs.
 	isReady: false,
 
@@ -3392,9 +3418,9 @@ PanD.extend({
 	// Hold (or release) the ready event
 	holdReady: function( hold ) {
 		if ( hold ) {
-			PanD.readyWait++;
+			PanLi.readyWait++;
 		} else {
-			PanD.ready( true );
+			PanLi.ready( true );
 		}
 	},
 
@@ -3402,30 +3428,30 @@ PanD.extend({
 	ready: function( wait ) {
 
 		// Abort if there are pending holds or we're already ready
-		if ( wait === true ? --PanD.readyWait : PanD.isReady ) {
+		if ( wait === true ? --PanLi.readyWait : PanLi.isReady ) {
 			return;
 		}
 
 		// Make sure body exists, at least, in case IE gets a little overzealous (ticket #5443).
 		if ( !document.body ) {
-			return setTimeout( PanD.ready );
+			return setTimeout( PanLi.ready );
 		}
 
 		// Remember that the DOM is ready
-		PanD.isReady = true;
+		PanLi.isReady = true;
 
 		// If a normal DOM Ready event fired, decrement, and wait if need be
-		if ( wait !== true && --PanD.readyWait > 0 ) {
+		if ( wait !== true && --PanLi.readyWait > 0 ) {
 			return;
 		}
 
 		// If there are functions bound, to execute
-		readyList.resolveWith( document, [ PanD ] );
+		readyList.resolveWith( document, [ PanLi ] );
 
 		// Trigger any bound ready events
-		if ( PanD.fn.triggerHandler ) {
-			PanD( document ).triggerHandler( "ready" );
-			PanD( document ).off( "ready" );
+		if ( PanLi.fn.triggerHandler ) {
+			PanLi( document ).triggerHandler( "ready" );
+			PanLi( document ).off( "ready" );
 		}
 	}
 });
@@ -3451,21 +3477,21 @@ function completed() {
 	// readyState === "complete" is good enough for us to call the dom ready in oldIE
 	if ( document.addEventListener || event.type === "load" || document.readyState === "complete" ) {
 		detach();
-		PanD.ready();
+		PanLi.ready();
 	}
 }
 
-PanD.ready.promise = function( obj ) {
+PanLi.ready.promise = function( obj ) {
 	if ( !readyList ) {
 
-		readyList = PanD.Deferred();
+		readyList = PanLi.Deferred();
 
-		// Catch cases where P(document).ready() is called after the browser event has already occurred.
+		// Catch cases where $(document).ready() is called after the browser event has already occurred.
 		// we once tried to use readyState "interactive" here, but it caused issues like the one
-		// discovered by ChrisS here: http://bugs.PanD.com/ticket/12282#comment:15
+		// discovered by ChrisS here: http://bugs.PanLi.com/ticket/12282#comment:15
 		if ( document.readyState === "complete" ) {
 			// Handle it asynchronously to allow scripts the opportunity to delay ready
-			setTimeout( PanD.ready );
+			setTimeout( PanLi.ready );
 
 		// Standards-based browsers support DOMContentLoaded
 		} else if ( document.addEventListener ) {
@@ -3493,7 +3519,7 @@ PanD.ready.promise = function( obj ) {
 
 			if ( top && top.doScroll ) {
 				(function doScrollCheck() {
-					if ( !PanD.isReady ) {
+					if ( !PanLi.isReady ) {
 
 						try {
 							// Use the trick by Diego Perini
@@ -3507,7 +3533,7 @@ PanD.ready.promise = function( obj ) {
 						detach();
 
 						// and execute any waiting functions
-						PanD.ready();
+						PanLi.ready();
 					}
 				})();
 			}
@@ -3524,7 +3550,7 @@ var strundefined = typeof undefined;
 // Support: IE<9
 // Iteration over object's inherited properties before its own
 var i;
-for ( i in PanD( support ) ) {
+for ( i in PanLi( support ) ) {
 	break;
 }
 support.ownLast = i !== "0";
@@ -3534,7 +3560,7 @@ support.ownLast = i !== "0";
 support.inlineBlockNeedsLayout = false;
 
 // Execute ASAP in case we need to set body.style.zoom
-PanD(function() {
+PanLi(function() {
 	// Minified: var a,b,c,d
 	var val, div, body, container;
 
@@ -3594,8 +3620,8 @@ PanD(function() {
 /**
  * Determines whether an object can have data
  */
-PanD.acceptData = function( elem ) {
-	var noData = PanD.noData[ (elem.nodeName + " ").toLowerCase() ],
+PanLi.acceptData = function( elem ) {
+	var noData = PanLi.noData[ (elem.nodeName + " ").toLowerCase() ],
 		nodeType = +elem.nodeType || 1;
 
 	// Do not set data on non-element DOM nodes because it will not be cleared (#8335).
@@ -3607,7 +3633,7 @@ PanD.acceptData = function( elem ) {
 };
 
 
-var rbrace = /^(?:\{[\w\W]*\}|\[[\w\W]*\])P/,
+var rbrace = /^(?:\{[\w\W]*\}|\[[\w\W]*\])$/,
 	rmultiDash = /([A-Z])/g;
 
 function dataAttr( elem, key, data ) {
@@ -3615,7 +3641,7 @@ function dataAttr( elem, key, data ) {
 	// data from the HTML5 data-* attribute
 	if ( data === undefined && elem.nodeType === 1 ) {
 
-		var name = "data-" + key.replace( rmultiDash, "-P1" ).toLowerCase();
+		var name = "data-" + key.replace( rmultiDash, "-$1" ).toLowerCase();
 
 		data = elem.getAttribute( name );
 
@@ -3626,12 +3652,12 @@ function dataAttr( elem, key, data ) {
 					data === "null" ? null :
 					// Only convert to a number if it doesn't change the string
 					+data + "" === data ? +data :
-					rbrace.test( data ) ? PanD.parseJSON( data ) :
+					rbrace.test( data ) ? PanLi.parseJSON( data ) :
 					data;
 			} catch( e ) {}
 
 			// Make sure we set the data so it isn't changed later
-			PanD.data( elem, key, data );
+			PanLi.data( elem, key, data );
 
 		} else {
 			data = undefined;
@@ -3647,7 +3673,7 @@ function isEmptyDataObject( obj ) {
 	for ( name in obj ) {
 
 		// if the public data object is empty, the private is still empty
-		if ( name === "data" && PanD.isEmptyObject( obj[name] ) ) {
+		if ( name === "data" && PanLi.isEmptyObject( obj[name] ) ) {
 			continue;
 		}
 		if ( name !== "toJSON" ) {
@@ -3659,20 +3685,20 @@ function isEmptyDataObject( obj ) {
 }
 
 function internalData( elem, name, data, pvt /* Internal Use Only */ ) {
-	if ( !PanD.acceptData( elem ) ) {
+	if ( !PanLi.acceptData( elem ) ) {
 		return;
 	}
 
 	var ret, thisCache,
-		internalKey = PanD.expando,
+		internalKey = PanLi.expando,
 
 		// We have to handle DOM nodes and JS objects differently because IE6-7
 		// can't GC object references properly across the DOM-JS boundary
 		isNode = elem.nodeType,
 
-		// Only DOM nodes need the global PanD cache; JS object data is
+		// Only DOM nodes need the global PanLi cache; JS object data is
 		// attached directly to the object so GC can occur automatically
-		cache = isNode ? PanD.cache : elem,
+		cache = isNode ? PanLi.cache : elem,
 
 		// Only defining an ID for JS objects if its cache already exists allows
 		// the code to shortcut on the same path as a DOM node with no cache
@@ -3688,31 +3714,31 @@ function internalData( elem, name, data, pvt /* Internal Use Only */ ) {
 		// Only DOM nodes need a new unique ID for each element since their data
 		// ends up in the global cache
 		if ( isNode ) {
-			id = elem[ internalKey ] = deletedIds.pop() || PanD.guid++;
+			id = elem[ internalKey ] = deletedIds.pop() || PanLi.guid++;
 		} else {
 			id = internalKey;
 		}
 	}
 
 	if ( !cache[ id ] ) {
-		// Avoid exposing PanD metadata on plain JS objects when the object
+		// Avoid exposing PanLi metadata on plain JS objects when the object
 		// is serialized using JSON.stringify
-		cache[ id ] = isNode ? {} : { toJSON: PanD.noop };
+		cache[ id ] = isNode ? {} : { toJSON: PanLi.noop };
 	}
 
-	// An object can be passed to PanD.data instead of a key/value pair; this gets
+	// An object can be passed to PanLi.data instead of a key/value pair; this gets
 	// shallow copied over onto the existing cache
 	if ( typeof name === "object" || typeof name === "function" ) {
 		if ( pvt ) {
-			cache[ id ] = PanD.extend( cache[ id ], name );
+			cache[ id ] = PanLi.extend( cache[ id ], name );
 		} else {
-			cache[ id ].data = PanD.extend( cache[ id ].data, name );
+			cache[ id ].data = PanLi.extend( cache[ id ].data, name );
 		}
 	}
 
 	thisCache = cache[ id ];
 
-	// PanD data() is stored in a separate object inside the object's internal data
+	// PanLi data() is stored in a separate object inside the object's internal data
 	// cache in order to avoid key collisions between internal data and user-defined
 	// data.
 	if ( !pvt ) {
@@ -3724,7 +3750,7 @@ function internalData( elem, name, data, pvt /* Internal Use Only */ ) {
 	}
 
 	if ( data !== undefined ) {
-		thisCache[ PanD.camelCase( name ) ] = data;
+		thisCache[ PanLi.camelCase( name ) ] = data;
 	}
 
 	// Check for both converted-to-camel and non-converted data property names
@@ -3738,7 +3764,7 @@ function internalData( elem, name, data, pvt /* Internal Use Only */ ) {
 		if ( ret == null ) {
 
 			// Try to find the camelCased property
-			ret = thisCache[ PanD.camelCase( name ) ];
+			ret = thisCache[ PanLi.camelCase( name ) ];
 		}
 	} else {
 		ret = thisCache;
@@ -3748,16 +3774,16 @@ function internalData( elem, name, data, pvt /* Internal Use Only */ ) {
 }
 
 function internalRemoveData( elem, name, pvt ) {
-	if ( !PanD.acceptData( elem ) ) {
+	if ( !PanLi.acceptData( elem ) ) {
 		return;
 	}
 
 	var thisCache, i,
 		isNode = elem.nodeType,
 
-		// See PanD.data for more information
-		cache = isNode ? PanD.cache : elem,
-		id = isNode ? elem[ PanD.expando ] : PanD.expando;
+		// See PanLi.data for more information
+		cache = isNode ? PanLi.cache : elem,
+		id = isNode ? elem[ PanLi.expando ] : PanLi.expando;
 
 	// If there is already no cache entry for this object, there is no
 	// purpose in continuing
@@ -3772,7 +3798,7 @@ function internalRemoveData( elem, name, pvt ) {
 		if ( thisCache ) {
 
 			// Support array or space separated string names for data keys
-			if ( !PanD.isArray( name ) ) {
+			if ( !PanLi.isArray( name ) ) {
 
 				// try the string as a key before any manipulation
 				if ( name in thisCache ) {
@@ -3780,7 +3806,7 @@ function internalRemoveData( elem, name, pvt ) {
 				} else {
 
 					// split the camel cased version by spaces unless a key with the spaces exists
-					name = PanD.camelCase( name );
+					name = PanLi.camelCase( name );
 					if ( name in thisCache ) {
 						name = [ name ];
 					} else {
@@ -3794,7 +3820,7 @@ function internalRemoveData( elem, name, pvt ) {
 				// Since there is no way to tell _how_ a key was added, remove
 				// both plain key and camelCase key. #12786
 				// This will only penalize the array argument path.
-				name = name.concat( PanD.map( name, PanD.camelCase ) );
+				name = name.concat( PanLi.map( name, PanLi.camelCase ) );
 			}
 
 			i = name.length;
@@ -3804,13 +3830,13 @@ function internalRemoveData( elem, name, pvt ) {
 
 			// If there is no data left in the cache, we want to continue
 			// and let the cache object itself get destroyed
-			if ( pvt ? !isEmptyDataObject(thisCache) : !PanD.isEmptyObject(thisCache) ) {
+			if ( pvt ? !isEmptyDataObject(thisCache) : !PanLi.isEmptyObject(thisCache) ) {
 				return;
 			}
 		}
 	}
 
-	// See PanD.data for more information
+	// See PanLi.data for more information
 	if ( !pvt ) {
 		delete cache[ id ].data;
 
@@ -3823,7 +3849,7 @@ function internalRemoveData( elem, name, pvt ) {
 
 	// Destroy the cache
 	if ( isNode ) {
-		PanD.cleanData( [ elem ], true );
+		PanLi.cleanData( [ elem ], true );
 
 	// Use delete when supported for expandos or `cache` is not a window per isWindow (#10080)
 	/* jshint eqeqeq: false */
@@ -3837,7 +3863,7 @@ function internalRemoveData( elem, name, pvt ) {
 	}
 }
 
-PanD.extend({
+PanLi.extend({
 	cache: {},
 
 	// The following elements (space-suffixed to avoid Object.prototype collisions)
@@ -3850,7 +3876,7 @@ PanD.extend({
 	},
 
 	hasData: function( elem ) {
-		elem = elem.nodeType ? PanD.cache[ elem[PanD.expando] ] : elem[ PanD.expando ];
+		elem = elem.nodeType ? PanLi.cache[ elem[PanLi.expando] ] : elem[ PanLi.expando ];
 		return !!elem && !isEmptyDataObject( elem );
 	},
 
@@ -3872,21 +3898,21 @@ PanD.extend({
 	}
 });
 
-PanD.fn.extend({
+PanLi.fn.extend({
 	data: function( key, value ) {
 		var i, name, data,
 			elem = this[0],
 			attrs = elem && elem.attributes;
 
-		// Special expections of .data basically thwart PanD.access,
+		// Special expections of .data basically thwart PanLi.access,
 		// so implement the relevant behavior ourselves
 
 		// Gets all values
 		if ( key === undefined ) {
 			if ( this.length ) {
-				data = PanD.data( elem );
+				data = PanLi.data( elem );
 
-				if ( elem.nodeType === 1 && !PanD._data( elem, "parsedAttrs" ) ) {
+				if ( elem.nodeType === 1 && !PanLi._data( elem, "parsedAttrs" ) ) {
 					i = attrs.length;
 					while ( i-- ) {
 
@@ -3895,12 +3921,12 @@ PanD.fn.extend({
 						if ( attrs[ i ] ) {
 							name = attrs[ i ].name;
 							if ( name.indexOf( "data-" ) === 0 ) {
-								name = PanD.camelCase( name.slice(5) );
+								name = PanLi.camelCase( name.slice(5) );
 								dataAttr( elem, name, data[ name ] );
 							}
 						}
 					}
-					PanD._data( elem, "parsedAttrs", true );
+					PanLi._data( elem, "parsedAttrs", true );
 				}
 			}
 
@@ -3910,7 +3936,7 @@ PanD.fn.extend({
 		// Sets multiple values
 		if ( typeof key === "object" ) {
 			return this.each(function() {
-				PanD.data( this, key );
+				PanLi.data( this, key );
 			});
 		}
 
@@ -3918,34 +3944,34 @@ PanD.fn.extend({
 
 			// Sets one value
 			this.each(function() {
-				PanD.data( this, key, value );
+				PanLi.data( this, key, value );
 			}) :
 
 			// Gets one value
 			// Try to fetch any internally stored data first
-			elem ? dataAttr( elem, key, PanD.data( elem, key ) ) : undefined;
+			elem ? dataAttr( elem, key, PanLi.data( elem, key ) ) : undefined;
 	},
 
 	removeData: function( key ) {
 		return this.each(function() {
-			PanD.removeData( this, key );
+			PanLi.removeData( this, key );
 		});
 	}
 });
 
 
-PanD.extend({
+PanLi.extend({
 	queue: function( elem, type, data ) {
 		var queue;
 
 		if ( elem ) {
 			type = ( type || "fx" ) + "queue";
-			queue = PanD._data( elem, type );
+			queue = PanLi._data( elem, type );
 
 			// Speed up dequeue by getting out quickly if this is just a lookup
 			if ( data ) {
-				if ( !queue || PanD.isArray(data) ) {
-					queue = PanD._data( elem, type, PanD.makeArray(data) );
+				if ( !queue || PanLi.isArray(data) ) {
+					queue = PanLi._data( elem, type, PanLi.makeArray(data) );
 				} else {
 					queue.push( data );
 				}
@@ -3957,12 +3983,12 @@ PanD.extend({
 	dequeue: function( elem, type ) {
 		type = type || "fx";
 
-		var queue = PanD.queue( elem, type ),
+		var queue = PanLi.queue( elem, type ),
 			startLength = queue.length,
 			fn = queue.shift(),
-			hooks = PanD._queueHooks( elem, type ),
+			hooks = PanLi._queueHooks( elem, type ),
 			next = function() {
-				PanD.dequeue( elem, type );
+				PanLi.dequeue( elem, type );
 			};
 
 		// If the fx queue is dequeued, always remove the progress sentinel
@@ -3992,16 +4018,16 @@ PanD.extend({
 	// not intended for public consumption - generates a queueHooks object, or returns the current one
 	_queueHooks: function( elem, type ) {
 		var key = type + "queueHooks";
-		return PanD._data( elem, key ) || PanD._data( elem, key, {
-			empty: PanD.Callbacks("once memory").add(function() {
-				PanD._removeData( elem, type + "queue" );
-				PanD._removeData( elem, key );
+		return PanLi._data( elem, key ) || PanLi._data( elem, key, {
+			empty: PanLi.Callbacks("once memory").add(function() {
+				PanLi._removeData( elem, type + "queue" );
+				PanLi._removeData( elem, key );
 			})
 		});
 	}
 });
 
-PanD.fn.extend({
+PanLi.fn.extend({
 	queue: function( type, data ) {
 		var setter = 2;
 
@@ -4012,25 +4038,25 @@ PanD.fn.extend({
 		}
 
 		if ( arguments.length < setter ) {
-			return PanD.queue( this[0], type );
+			return PanLi.queue( this[0], type );
 		}
 
 		return data === undefined ?
 			this :
 			this.each(function() {
-				var queue = PanD.queue( this, type, data );
+				var queue = PanLi.queue( this, type, data );
 
 				// ensure a hooks for this queue
-				PanD._queueHooks( this, type );
+				PanLi._queueHooks( this, type );
 
 				if ( type === "fx" && queue[0] !== "inprogress" ) {
-					PanD.dequeue( this, type );
+					PanLi.dequeue( this, type );
 				}
 			});
 	},
 	dequeue: function( type ) {
 		return this.each(function() {
-			PanD.dequeue( this, type );
+			PanLi.dequeue( this, type );
 		});
 	},
 	clearQueue: function( type ) {
@@ -4041,7 +4067,7 @@ PanD.fn.extend({
 	promise: function( type, obj ) {
 		var tmp,
 			count = 1,
-			defer = PanD.Deferred(),
+			defer = PanLi.Deferred(),
 			elements = this,
 			i = this.length,
 			resolve = function() {
@@ -4057,7 +4083,7 @@ PanD.fn.extend({
 		type = type || "fx";
 
 		while ( i-- ) {
-			tmp = PanD._data( elements[ i ], type + "queueHooks" );
+			tmp = PanLi._data( elements[ i ], type + "queueHooks" );
 			if ( tmp && tmp.empty ) {
 				count++;
 				tmp.empty.add( resolve );
@@ -4072,33 +4098,33 @@ var pnum = (/[+-]?(?:\d*\.|)\d+(?:[eE][+-]?\d+|)/).source;
 var cssExpand = [ "Top", "Right", "Bottom", "Left" ];
 
 var isHidden = function( elem, el ) {
-		// isHidden might be called from PanD#filter function;
+		// isHidden might be called from PanLi#filter function;
 		// in that case, element will be second argument
 		elem = el || elem;
-		return PanD.css( elem, "display" ) === "none" || !PanD.contains( elem.ownerDocument, elem );
+		return PanLi.css( elem, "display" ) === "none" || !PanLi.contains( elem.ownerDocument, elem );
 	};
 
 
 
 // Multifunctional method to get and set values of a collection
 // The value/s can optionally be executed if it's a function
-var access = PanD.access = function( elems, fn, key, value, chainable, emptyGet, raw ) {
+var access = PanLi.access = function( elems, fn, key, value, chainable, emptyGet, raw ) {
 	var i = 0,
 		length = elems.length,
 		bulk = key == null;
 
 	// Sets many values
-	if ( PanD.type( key ) === "object" ) {
+	if ( PanLi.type( key ) === "object" ) {
 		chainable = true;
 		for ( i in key ) {
-			PanD.access( elems, fn, i, key[i], true, emptyGet, raw );
+			PanLi.access( elems, fn, i, key[i], true, emptyGet, raw );
 		}
 
 	// Sets one value
 	} else if ( value !== undefined ) {
 		chainable = true;
 
-		if ( !PanD.isFunction( value ) ) {
+		if ( !PanLi.isFunction( value ) ) {
 			raw = true;
 		}
 
@@ -4112,7 +4138,7 @@ var access = PanD.access = function( elems, fn, key, value, chainable, emptyGet,
 			} else {
 				bulk = fn;
 				fn = function( elem, key, value ) {
-					return bulk.call( PanD( elem ), value );
+					return bulk.call( PanLi( elem ), value );
 				};
 			}
 		}
@@ -4132,7 +4158,7 @@ var access = PanD.access = function( elems, fn, key, value, chainable, emptyGet,
 			fn.call( elems ) :
 			length ? fn( elems[0], key ) : emptyGet;
 };
-var rcheckableType = (/^(?:checkbox|radio)P/i);
+var rcheckableType = (/^(?:checkbox|radio)$/i);
 
 
 
@@ -4226,11 +4252,11 @@ var rcheckableType = (/^(?:checkbox|radio)P/i);
 })();
 
 
-var rformElems = /^(?:input|select|textarea)P/i,
+var rformElems = /^(?:input|select|textarea)$/i,
 	rkeyEvent = /^key/,
 	rmouseEvent = /^(?:mouse|pointer|contextmenu)|click/,
-	rfocusMorph = /^(?:focusinfocus|focusoutblur)P/,
-	rtypenamespace = /^([^.]*)(?:\.(.+)|)P/;
+	rfocusMorph = /^(?:focusinfocus|focusoutblur)$/,
+	rtypenamespace = /^([^.]*)(?:\.(.+)|)$/;
 
 function returnTrue() {
 	return true;
@@ -4250,7 +4276,7 @@ function safeActiveElement() {
  * Helper functions for managing events -- not part of the public interface.
  * Props to Dean Edwards' addEvent library for many of the ideas.
  */
-PanD.event = {
+PanLi.event = {
 
 	global: {},
 
@@ -4258,7 +4284,7 @@ PanD.event = {
 		var tmp, events, t, handleObjIn,
 			special, eventHandle, handleObj,
 			handlers, type, namespaces, origType,
-			elemData = PanD._data( elem );
+			elemData = PanLi._data( elem );
 
 		// Don't attach events to noData or text/comment nodes (but allow plain objects)
 		if ( !elemData ) {
@@ -4274,7 +4300,7 @@ PanD.event = {
 
 		// Make sure that the handler has a unique ID, used to find/remove it later
 		if ( !handler.guid ) {
-			handler.guid = PanD.guid++;
+			handler.guid = PanLi.guid++;
 		}
 
 		// Init the element's event structure and main handler, if this is the first
@@ -4283,10 +4309,10 @@ PanD.event = {
 		}
 		if ( !(eventHandle = elemData.handle) ) {
 			eventHandle = elemData.handle = function( e ) {
-				// Discard the second event of a PanD.event.trigger() and
+				// Discard the second event of a PanLi.event.trigger() and
 				// when an event is called after a page has unloaded
-				return typeof PanD !== strundefined && (!e || PanD.event.triggered !== e.type) ?
-					PanD.event.dispatch.apply( eventHandle.elem, arguments ) :
+				return typeof PanLi !== strundefined && (!e || PanLi.event.triggered !== e.type) ?
+					PanLi.event.dispatch.apply( eventHandle.elem, arguments ) :
 					undefined;
 			};
 			// Add elem as a property of the handle fn to prevent a memory leak with IE non-native events
@@ -4307,23 +4333,23 @@ PanD.event = {
 			}
 
 			// If event changes its type, use the special event handlers for the changed type
-			special = PanD.event.special[ type ] || {};
+			special = PanLi.event.special[ type ] || {};
 
 			// If selector defined, determine special event api type, otherwise given type
 			type = ( selector ? special.delegateType : special.bindType ) || type;
 
 			// Update special based on newly reset type
-			special = PanD.event.special[ type ] || {};
+			special = PanLi.event.special[ type ] || {};
 
 			// handleObj is passed to all event handlers
-			handleObj = PanD.extend({
+			handleObj = PanLi.extend({
 				type: type,
 				origType: origType,
 				data: data,
 				handler: handler,
 				guid: handler.guid,
 				selector: selector,
-				needsContext: selector && PanD.expr.match.needsContext.test( selector ),
+				needsContext: selector && PanLi.expr.match.needsContext.test( selector ),
 				namespace: namespaces.join(".")
 			}, handleObjIn );
 
@@ -4360,7 +4386,7 @@ PanD.event = {
 			}
 
 			// Keep track of which events have ever been used, for event optimization
-			PanD.event.global[ type ] = true;
+			PanLi.event.global[ type ] = true;
 		}
 
 		// Nullify elem to prevent memory leaks in IE
@@ -4373,7 +4399,7 @@ PanD.event = {
 			origCount, t, events,
 			special, handlers, type,
 			namespaces, origType,
-			elemData = PanD.hasData( elem ) && PanD._data( elem );
+			elemData = PanLi.hasData( elem ) && PanLi._data( elem );
 
 		if ( !elemData || !(events = elemData.events) ) {
 			return;
@@ -4390,15 +4416,15 @@ PanD.event = {
 			// Unbind all events (on this namespace, if provided) for the element
 			if ( !type ) {
 				for ( type in events ) {
-					PanD.event.remove( elem, type + types[ t ], handler, selector, true );
+					PanLi.event.remove( elem, type + types[ t ], handler, selector, true );
 				}
 				continue;
 			}
 
-			special = PanD.event.special[ type ] || {};
+			special = PanLi.event.special[ type ] || {};
 			type = ( selector ? special.delegateType : special.bindType ) || type;
 			handlers = events[ type ] || [];
-			tmp = tmp[2] && new RegExp( "(^|\\.)" + namespaces.join("\\.(?:.*\\.|)") + "(\\.|P)" );
+			tmp = tmp[2] && new RegExp( "(^|\\.)" + namespaces.join("\\.(?:.*\\.|)") + "(\\.|$)" );
 
 			// Remove matching events
 			origCount = j = handlers.length;
@@ -4424,7 +4450,7 @@ PanD.event = {
 			// (avoids potential for endless recursion during removal of special event handlers)
 			if ( origCount && !handlers.length ) {
 				if ( !special.teardown || special.teardown.call( elem, namespaces, elemData.handle ) === false ) {
-					PanD.removeEvent( elem, type, elemData.handle );
+					PanLi.removeEvent( elem, type, elemData.handle );
 				}
 
 				delete events[ type ];
@@ -4432,12 +4458,12 @@ PanD.event = {
 		}
 
 		// Remove the expando if it's no longer used
-		if ( PanD.isEmptyObject( events ) ) {
+		if ( PanLi.isEmptyObject( events ) ) {
 			delete elemData.handle;
 
 			// removeData also checks for emptiness and clears the expando if empty
 			// so use it instead of delete
-			PanD._removeData( elem, "events" );
+			PanLi._removeData( elem, "events" );
 		}
 	},
 
@@ -4456,7 +4482,7 @@ PanD.event = {
 		}
 
 		// focus/blur morphs to focusin/out; ensure we're not firing them right now
-		if ( rfocusMorph.test( type + PanD.event.triggered ) ) {
+		if ( rfocusMorph.test( type + PanLi.event.triggered ) ) {
 			return;
 		}
 
@@ -4468,16 +4494,16 @@ PanD.event = {
 		}
 		ontype = type.indexOf(":") < 0 && "on" + type;
 
-		// Caller can pass in a PanD.Event object, Object, or just an event type string
-		event = event[ PanD.expando ] ?
+		// Caller can pass in a PanLi.Event object, Object, or just an event type string
+		event = event[ PanLi.expando ] ?
 			event :
-			new PanD.Event( type, typeof event === "object" && event );
+			new PanLi.Event( type, typeof event === "object" && event );
 
-		// Trigger bitmask: & 1 for native handlers; & 2 for PanD (always true)
+		// Trigger bitmask: & 1 for native handlers; & 2 for PanLi (always true)
 		event.isTrigger = onlyHandlers ? 2 : 3;
 		event.namespace = namespaces.join(".");
 		event.namespace_re = event.namespace ?
-			new RegExp( "(^|\\.)" + namespaces.join("\\.(?:.*\\.|)") + "(\\.|P)" ) :
+			new RegExp( "(^|\\.)" + namespaces.join("\\.(?:.*\\.|)") + "(\\.|$)" ) :
 			null;
 
 		// Clean up the event in case it is being reused
@@ -4489,17 +4515,17 @@ PanD.event = {
 		// Clone any incoming data and prepend the event, creating the handler arg list
 		data = data == null ?
 			[ event ] :
-			PanD.makeArray( data, [ event ] );
+			PanLi.makeArray( data, [ event ] );
 
 		// Allow special events to draw outside the lines
-		special = PanD.event.special[ type ] || {};
+		special = PanLi.event.special[ type ] || {};
 		if ( !onlyHandlers && special.trigger && special.trigger.apply( elem, data ) === false ) {
 			return;
 		}
 
 		// Determine event propagation path in advance, per W3C events spec (#9951)
 		// Bubble up to document, then to window; watch for a global ownerDocument var (#9724)
-		if ( !onlyHandlers && !special.noBubble && !PanD.isWindow( elem ) ) {
+		if ( !onlyHandlers && !special.noBubble && !PanLi.isWindow( elem ) ) {
 
 			bubbleType = special.delegateType || type;
 			if ( !rfocusMorph.test( bubbleType + type ) ) {
@@ -4524,15 +4550,15 @@ PanD.event = {
 				bubbleType :
 				special.bindType || type;
 
-			// PanD handler
-			handle = ( PanD._data( cur, "events" ) || {} )[ event.type ] && PanD._data( cur, "handle" );
+			// PanLi handler
+			handle = ( PanLi._data( cur, "events" ) || {} )[ event.type ] && PanLi._data( cur, "handle" );
 			if ( handle ) {
 				handle.apply( cur, data );
 			}
 
 			// Native handler
 			handle = ontype && cur[ ontype ];
-			if ( handle && handle.apply && PanD.acceptData( cur ) ) {
+			if ( handle && handle.apply && PanLi.acceptData( cur ) ) {
 				event.result = handle.apply( cur, data );
 				if ( event.result === false ) {
 					event.preventDefault();
@@ -4545,12 +4571,12 @@ PanD.event = {
 		if ( !onlyHandlers && !event.isDefaultPrevented() ) {
 
 			if ( (!special._default || special._default.apply( eventPath.pop(), data ) === false) &&
-				PanD.acceptData( elem ) ) {
+				PanLi.acceptData( elem ) ) {
 
 				// Call a native DOM method on the target with the same name name as the event.
 				// Can't use an .isFunction() check here because IE6/7 fails that test.
 				// Don't do default actions on window, that's where global variables be (#6170)
-				if ( ontype && elem[ type ] && !PanD.isWindow( elem ) ) {
+				if ( ontype && elem[ type ] && !PanLi.isWindow( elem ) ) {
 
 					// Don't re-trigger an onFOO event when we call its FOO() method
 					tmp = elem[ ontype ];
@@ -4560,14 +4586,14 @@ PanD.event = {
 					}
 
 					// Prevent re-triggering of the same event, since we already bubbled it above
-					PanD.event.triggered = type;
+					PanLi.event.triggered = type;
 					try {
 						elem[ type ]();
 					} catch ( e ) {
 						// IE<9 dies on focus/blur to hidden element (#1486,#12518)
 						// only reproducible on winXP IE8 native, not IE9 in IE8 mode
 					}
-					PanD.event.triggered = undefined;
+					PanLi.event.triggered = undefined;
 
 					if ( tmp ) {
 						elem[ ontype ] = tmp;
@@ -4581,16 +4607,16 @@ PanD.event = {
 
 	dispatch: function( event ) {
 
-		// Make a writable PanD.Event from the native event object
-		event = PanD.event.fix( event );
+		// Make a writable PanLi.Event from the native event object
+		event = PanLi.event.fix( event );
 
 		var i, ret, handleObj, matched, j,
 			handlerQueue = [],
 			args = slice.call( arguments ),
-			handlers = ( PanD._data( this, "events" ) || {} )[ event.type ] || [],
-			special = PanD.event.special[ event.type ] || {};
+			handlers = ( PanLi._data( this, "events" ) || {} )[ event.type ] || [],
+			special = PanLi.event.special[ event.type ] || {};
 
-		// Use the fix-ed PanD.Event rather than the (read-only) native event
+		// Use the fix-ed PanLi.Event rather than the (read-only) native event
 		args[0] = event;
 		event.delegateTarget = this;
 
@@ -4600,7 +4626,7 @@ PanD.event = {
 		}
 
 		// Determine handlers
-		handlerQueue = PanD.event.handlers.call( this, event, handlers );
+		handlerQueue = PanLi.event.handlers.call( this, event, handlers );
 
 		// Run delegates first; they may want to stop propagation beneath us
 		i = 0;
@@ -4617,7 +4643,7 @@ PanD.event = {
 					event.handleObj = handleObj;
 					event.data = handleObj.data;
 
-					ret = ( (PanD.event.special[ handleObj.origType ] || {}).handle || handleObj.handler )
+					ret = ( (PanLi.event.special[ handleObj.origType ] || {}).handle || handleObj.handler )
 							.apply( matched.elem, args );
 
 					if ( ret !== undefined ) {
@@ -4665,8 +4691,8 @@ PanD.event = {
 
 						if ( matches[ sel ] === undefined ) {
 							matches[ sel ] = handleObj.needsContext ?
-								PanD( sel, this ).index( cur ) >= 0 :
-								PanD.find( sel, this, null, [ cur ] ).length;
+								PanLi( sel, this ).index( cur ) >= 0 :
+								PanLi.find( sel, this, null, [ cur ] ).length;
 						}
 						if ( matches[ sel ] ) {
 							matches.push( handleObj );
@@ -4688,7 +4714,7 @@ PanD.event = {
 	},
 
 	fix: function( event ) {
-		if ( event[ PanD.expando ] ) {
+		if ( event[ PanLi.expando ] ) {
 			return event;
 		}
 
@@ -4706,7 +4732,7 @@ PanD.event = {
 		}
 		copy = fixHook.props ? this.props.concat( fixHook.props ) : this.props;
 
-		event = new PanD.Event( originalEvent );
+		event = new PanLi.Event( originalEvent );
 
 		i = copy.length;
 		while ( i-- ) {
@@ -4816,7 +4842,7 @@ PanD.event = {
 		click: {
 			// For checkbox, fire native event so checked state will be right
 			trigger: function() {
-				if ( PanD.nodeName( this, "input" ) && this.type === "checkbox" && this.click ) {
+				if ( PanLi.nodeName( this, "input" ) && this.type === "checkbox" && this.click ) {
 					this.click();
 					return false;
 				}
@@ -4824,7 +4850,7 @@ PanD.event = {
 
 			// For cross-browser consistency, don't fire native .click() on links
 			_default: function( event ) {
-				return PanD.nodeName( event.target, "a" );
+				return PanLi.nodeName( event.target, "a" );
 			}
 		},
 
@@ -4844,8 +4870,8 @@ PanD.event = {
 		// Piggyback on a donor event to simulate a different one.
 		// Fake originalEvent to avoid donor's stopPropagation, but if the
 		// simulated event prevents default then we do the same on the donor.
-		var e = PanD.extend(
-			new PanD.Event(),
+		var e = PanLi.extend(
+			new PanLi.Event(),
 			event,
 			{
 				type: type,
@@ -4854,9 +4880,9 @@ PanD.event = {
 			}
 		);
 		if ( bubble ) {
-			PanD.event.trigger( e, null, elem );
+			PanLi.event.trigger( e, null, elem );
 		} else {
-			PanD.event.dispatch.call( elem, e );
+			PanLi.event.dispatch.call( elem, e );
 		}
 		if ( e.isDefaultPrevented() ) {
 			event.preventDefault();
@@ -4864,7 +4890,7 @@ PanD.event = {
 	}
 };
 
-PanD.removeEvent = document.removeEventListener ?
+PanLi.removeEvent = document.removeEventListener ?
 	function( elem, type, handle ) {
 		if ( elem.removeEventListener ) {
 			elem.removeEventListener( type, handle, false );
@@ -4885,10 +4911,10 @@ PanD.removeEvent = document.removeEventListener ?
 		}
 	};
 
-PanD.Event = function( src, props ) {
+PanLi.Event = function( src, props ) {
 	// Allow instantiation without the 'new' keyword
-	if ( !(this instanceof PanD.Event) ) {
-		return new PanD.Event( src, props );
+	if ( !(this instanceof PanLi.Event) ) {
+		return new PanLi.Event( src, props );
 	}
 
 	// Event object
@@ -4912,19 +4938,19 @@ PanD.Event = function( src, props ) {
 
 	// Put explicitly provided properties onto the event object
 	if ( props ) {
-		PanD.extend( this, props );
+		PanLi.extend( this, props );
 	}
 
 	// Create a timestamp if incoming event doesn't have one
-	this.timeStamp = src && src.timeStamp || PanD.now();
+	this.timeStamp = src && src.timeStamp || PanLi.now();
 
 	// Mark it as fixed
-	this[ PanD.expando ] = true;
+	this[ PanLi.expando ] = true;
 };
 
-// PanD.Event is based on DOM3 Events as specified by the ECMAScript Language Binding
+// PanLi.Event is based on DOM3 Events as specified by the ECMAScript Language Binding
 // http://www.w3.org/TR/2003/WD-DOM-Level-3-Events-20030331/ecma-script-binding.html
-PanD.Event.prototype = {
+PanLi.Event.prototype = {
 	isDefaultPrevented: returnFalse,
 	isPropagationStopped: returnFalse,
 	isImmediatePropagationStopped: returnFalse,
@@ -4977,13 +5003,13 @@ PanD.Event.prototype = {
 };
 
 // Create mouseenter/leave events using mouseover/out and event-time checks
-PanD.each({
+PanLi.each({
 	mouseenter: "mouseover",
 	mouseleave: "mouseout",
 	pointerenter: "pointerover",
 	pointerleave: "pointerout"
 }, function( orig, fix ) {
-	PanD.event.special[ orig ] = {
+	PanLi.event.special[ orig ] = {
 		delegateType: fix,
 		bindType: fix,
 
@@ -4995,7 +5021,7 @@ PanD.each({
 
 			// For mousenter/leave call the handler if related is outside the target.
 			// NB: No relatedTarget if the mouse left/entered the browser window
-			if ( !related || (related !== target && !PanD.contains( target, related )) ) {
+			if ( !related || (related !== target && !PanLi.contains( target, related )) ) {
 				event.type = handleObj.origType;
 				ret = handleObj.handler.apply( this, arguments );
 				event.type = fix;
@@ -5008,23 +5034,23 @@ PanD.each({
 // IE submit delegation
 if ( !support.submitBubbles ) {
 
-	PanD.event.special.submit = {
+	PanLi.event.special.submit = {
 		setup: function() {
 			// Only need this for delegated form submit events
-			if ( PanD.nodeName( this, "form" ) ) {
+			if ( PanLi.nodeName( this, "form" ) ) {
 				return false;
 			}
 
 			// Lazy-add a submit handler when a descendant form may potentially be submitted
-			PanD.event.add( this, "click._submit keypress._submit", function( e ) {
+			PanLi.event.add( this, "click._submit keypress._submit", function( e ) {
 				// Node name check avoids a VML-related crash in IE (#9807)
 				var elem = e.target,
-					form = PanD.nodeName( elem, "input" ) || PanD.nodeName( elem, "button" ) ? elem.form : undefined;
-				if ( form && !PanD._data( form, "submitBubbles" ) ) {
-					PanD.event.add( form, "submit._submit", function( event ) {
+					form = PanLi.nodeName( elem, "input" ) || PanLi.nodeName( elem, "button" ) ? elem.form : undefined;
+				if ( form && !PanLi._data( form, "submitBubbles" ) ) {
+					PanLi.event.add( form, "submit._submit", function( event ) {
 						event._submit_bubble = true;
 					});
-					PanD._data( form, "submitBubbles", true );
+					PanLi._data( form, "submitBubbles", true );
 				}
 			});
 			// return undefined since we don't need an event listener
@@ -5035,19 +5061,19 @@ if ( !support.submitBubbles ) {
 			if ( event._submit_bubble ) {
 				delete event._submit_bubble;
 				if ( this.parentNode && !event.isTrigger ) {
-					PanD.event.simulate( "submit", this.parentNode, event, true );
+					PanLi.event.simulate( "submit", this.parentNode, event, true );
 				}
 			}
 		},
 
 		teardown: function() {
 			// Only need this for delegated form submit events
-			if ( PanD.nodeName( this, "form" ) ) {
+			if ( PanLi.nodeName( this, "form" ) ) {
 				return false;
 			}
 
 			// Remove delegated handlers; cleanData eventually reaps submit handlers attached above
-			PanD.event.remove( this, "._submit" );
+			PanLi.event.remove( this, "._submit" );
 		}
 	};
 }
@@ -5055,7 +5081,7 @@ if ( !support.submitBubbles ) {
 // IE change delegation and checkbox/radio fix
 if ( !support.changeBubbles ) {
 
-	PanD.event.special.change = {
+	PanLi.event.special.change = {
 
 		setup: function() {
 
@@ -5064,32 +5090,32 @@ if ( !support.changeBubbles ) {
 				// after a propertychange. Eat the blur-change in special.change.handle.
 				// This still fires onchange a second time for check/radio after blur.
 				if ( this.type === "checkbox" || this.type === "radio" ) {
-					PanD.event.add( this, "propertychange._change", function( event ) {
+					PanLi.event.add( this, "propertychange._change", function( event ) {
 						if ( event.originalEvent.propertyName === "checked" ) {
 							this._just_changed = true;
 						}
 					});
-					PanD.event.add( this, "click._change", function( event ) {
+					PanLi.event.add( this, "click._change", function( event ) {
 						if ( this._just_changed && !event.isTrigger ) {
 							this._just_changed = false;
 						}
 						// Allow triggered, simulated change events (#11500)
-						PanD.event.simulate( "change", this, event, true );
+						PanLi.event.simulate( "change", this, event, true );
 					});
 				}
 				return false;
 			}
 			// Delegated event; lazy-add a change handler on descendant inputs
-			PanD.event.add( this, "beforeactivate._change", function( e ) {
+			PanLi.event.add( this, "beforeactivate._change", function( e ) {
 				var elem = e.target;
 
-				if ( rformElems.test( elem.nodeName ) && !PanD._data( elem, "changeBubbles" ) ) {
-					PanD.event.add( elem, "change._change", function( event ) {
+				if ( rformElems.test( elem.nodeName ) && !PanLi._data( elem, "changeBubbles" ) ) {
+					PanLi.event.add( elem, "change._change", function( event ) {
 						if ( this.parentNode && !event.isSimulated && !event.isTrigger ) {
-							PanD.event.simulate( "change", this.parentNode, event, true );
+							PanLi.event.simulate( "change", this.parentNode, event, true );
 						}
 					});
-					PanD._data( elem, "changeBubbles", true );
+					PanLi._data( elem, "changeBubbles", true );
 				}
 			});
 		},
@@ -5104,7 +5130,7 @@ if ( !support.changeBubbles ) {
 		},
 
 		teardown: function() {
-			PanD.event.remove( this, "._change" );
+			PanLi.event.remove( this, "._change" );
 
 			return !rformElems.test( this.nodeName );
 		}
@@ -5113,39 +5139,39 @@ if ( !support.changeBubbles ) {
 
 // Create "bubbling" focus and blur events
 if ( !support.focusinBubbles ) {
-	PanD.each({ focus: "focusin", blur: "focusout" }, function( orig, fix ) {
+	PanLi.each({ focus: "focusin", blur: "focusout" }, function( orig, fix ) {
 
 		// Attach a single capturing handler on the document while someone wants focusin/focusout
 		var handler = function( event ) {
-				PanD.event.simulate( fix, event.target, PanD.event.fix( event ), true );
+				PanLi.event.simulate( fix, event.target, PanLi.event.fix( event ), true );
 			};
 
-		PanD.event.special[ fix ] = {
+		PanLi.event.special[ fix ] = {
 			setup: function() {
 				var doc = this.ownerDocument || this,
-					attaches = PanD._data( doc, fix );
+					attaches = PanLi._data( doc, fix );
 
 				if ( !attaches ) {
 					doc.addEventListener( orig, handler, true );
 				}
-				PanD._data( doc, fix, ( attaches || 0 ) + 1 );
+				PanLi._data( doc, fix, ( attaches || 0 ) + 1 );
 			},
 			teardown: function() {
 				var doc = this.ownerDocument || this,
-					attaches = PanD._data( doc, fix ) - 1;
+					attaches = PanLi._data( doc, fix ) - 1;
 
 				if ( !attaches ) {
 					doc.removeEventListener( orig, handler, true );
-					PanD._removeData( doc, fix );
+					PanLi._removeData( doc, fix );
 				} else {
-					PanD._data( doc, fix, attaches );
+					PanLi._data( doc, fix, attaches );
 				}
 			}
 		};
 	});
 }
 
-PanD.fn.extend({
+PanLi.fn.extend({
 
 	on: function( types, selector, data, fn, /*INTERNAL*/ one ) {
 		var type, origFn;
@@ -5190,14 +5216,14 @@ PanD.fn.extend({
 			origFn = fn;
 			fn = function( event ) {
 				// Can use an empty set, since event contains the info
-				PanD().off( event );
+				PanLi().off( event );
 				return origFn.apply( this, arguments );
 			};
 			// Use same guid so caller can remove using origFn
-			fn.guid = origFn.guid || ( origFn.guid = PanD.guid++ );
+			fn.guid = origFn.guid || ( origFn.guid = PanLi.guid++ );
 		}
 		return this.each( function() {
-			PanD.event.add( this, types, fn, data, selector );
+			PanLi.event.add( this, types, fn, data, selector );
 		});
 	},
 	one: function( types, selector, data, fn ) {
@@ -5206,9 +5232,9 @@ PanD.fn.extend({
 	off: function( types, selector, fn ) {
 		var handleObj, type;
 		if ( types && types.preventDefault && types.handleObj ) {
-			// ( event )  dispatched PanD.Event
+			// ( event )  dispatched PanLi.Event
 			handleObj = types.handleObj;
-			PanD( types.delegateTarget ).off(
+			PanLi( types.delegateTarget ).off(
 				handleObj.namespace ? handleObj.origType + "." + handleObj.namespace : handleObj.origType,
 				handleObj.selector,
 				handleObj.handler
@@ -5231,19 +5257,19 @@ PanD.fn.extend({
 			fn = returnFalse;
 		}
 		return this.each(function() {
-			PanD.event.remove( this, types, fn, selector );
+			PanLi.event.remove( this, types, fn, selector );
 		});
 	},
 
 	trigger: function( type, data ) {
 		return this.each(function() {
-			PanD.event.trigger( type, data, this );
+			PanLi.event.trigger( type, data, this );
 		});
 	},
 	triggerHandler: function( type, data ) {
 		var elem = this[0];
 		if ( elem ) {
-			return PanD.event.trigger( type, data, elem, true );
+			return PanLi.event.trigger( type, data, elem, true );
 		}
 	}
 });
@@ -5265,7 +5291,7 @@ function createSafeFragment( document ) {
 
 var nodeNames = "abbr|article|aside|audio|bdi|canvas|data|datalist|details|figcaption|figure|footer|" +
 		"header|hgroup|mark|meter|nav|output|progress|section|summary|time|video",
-	rinlinePanD = / PanD\d+="(?:null|\d+)"/g,
+	rinlinePanLi = / PanLi\d+="(?:null|\d+)"/g,
 	rnoshimcache = new RegExp("<(?:" + nodeNames + ")[\\s/>]", "i"),
 	rleadingWhitespace = /^\s+/,
 	rxhtmlTag = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:]+)[^>]*)\/>/gi,
@@ -5275,9 +5301,9 @@ var nodeNames = "abbr|article|aside|audio|bdi|canvas|data|datalist|details|figca
 	rnoInnerhtml = /<(?:script|style|link)/i,
 	// checked="checked" or checked
 	rchecked = /checked\s*(?:[^=]|=\s*.checked.)/i,
-	rscriptType = /^P|\/(?:java|ecma)script/i,
+	rscriptType = /^$|\/(?:java|ecma)script/i,
 	rscriptTypeMasked = /^true\/(.*)/,
-	rcleanScript = /^\s*<!(?:\[CDATA\[|--)|(?:\]\]|--)>\s*P/g,
+	rcleanScript = /^\s*<!(?:\[CDATA\[|--)|(?:\]\]|--)>\s*$/g,
 
 	// We have to close these tags to support XHTML (#13200)
 	wrapMap = {
@@ -5310,16 +5336,16 @@ function getAll( context, tag ) {
 
 	if ( !found ) {
 		for ( found = [], elems = context.childNodes || context; (elem = elems[i]) != null; i++ ) {
-			if ( !tag || PanD.nodeName( elem, tag ) ) {
+			if ( !tag || PanLi.nodeName( elem, tag ) ) {
 				found.push( elem );
 			} else {
-				PanD.merge( found, getAll( elem, tag ) );
+				PanLi.merge( found, getAll( elem, tag ) );
 			}
 		}
 	}
 
-	return tag === undefined || tag && PanD.nodeName( context, tag ) ?
-		PanD.merge( [ context ], found ) :
+	return tag === undefined || tag && PanLi.nodeName( context, tag ) ?
+		PanLi.merge( [ context ], found ) :
 		found;
 }
 
@@ -5333,8 +5359,8 @@ function fixDefaultChecked( elem ) {
 // Support: IE<8
 // Manipulating tables requires a tbody
 function manipulationTarget( elem, content ) {
-	return PanD.nodeName( elem, "table" ) &&
-		PanD.nodeName( content.nodeType !== 11 ? content : content.firstChild, "tr" ) ?
+	return PanLi.nodeName( elem, "table" ) &&
+		PanLi.nodeName( content.nodeType !== 11 ? content : content.firstChild, "tr" ) ?
 
 		elem.getElementsByTagName("tbody")[0] ||
 			elem.appendChild( elem.ownerDocument.createElement("tbody") ) :
@@ -5343,7 +5369,7 @@ function manipulationTarget( elem, content ) {
 
 // Replace/restore the type attribute of script elements for safe DOM manipulation
 function disableScript( elem ) {
-	elem.type = (PanD.find.attr( elem, "type" ) !== null) + "/" + elem.type;
+	elem.type = (PanLi.find.attr( elem, "type" ) !== null) + "/" + elem.type;
 	return elem;
 }
 function restoreScript( elem ) {
@@ -5361,19 +5387,19 @@ function setGlobalEval( elems, refElements ) {
 	var elem,
 		i = 0;
 	for ( ; (elem = elems[i]) != null; i++ ) {
-		PanD._data( elem, "globalEval", !refElements || PanD._data( refElements[i], "globalEval" ) );
+		PanLi._data( elem, "globalEval", !refElements || PanLi._data( refElements[i], "globalEval" ) );
 	}
 }
 
 function cloneCopyEvent( src, dest ) {
 
-	if ( dest.nodeType !== 1 || !PanD.hasData( src ) ) {
+	if ( dest.nodeType !== 1 || !PanLi.hasData( src ) ) {
 		return;
 	}
 
 	var type, i, l,
-		oldData = PanD._data( src ),
-		curData = PanD._data( dest, oldData ),
+		oldData = PanLi._data( src ),
+		curData = PanLi._data( dest, oldData ),
 		events = oldData.events;
 
 	if ( events ) {
@@ -5382,14 +5408,14 @@ function cloneCopyEvent( src, dest ) {
 
 		for ( type in events ) {
 			for ( i = 0, l = events[ type ].length; i < l; i++ ) {
-				PanD.event.add( dest, type, events[ type ][ i ] );
+				PanLi.event.add( dest, type, events[ type ][ i ] );
 			}
 		}
 	}
 
 	// make the cloned public data object a copy from the original
 	if ( curData.data ) {
-		curData.data = PanD.extend( {}, curData.data );
+		curData.data = PanLi.extend( {}, curData.data );
 	}
 }
 
@@ -5404,15 +5430,15 @@ function fixCloneNodeIssues( src, dest ) {
 	nodeName = dest.nodeName.toLowerCase();
 
 	// IE6-8 copies events bound via attachEvent when using cloneNode.
-	if ( !support.noCloneEvent && dest[ PanD.expando ] ) {
-		data = PanD._data( dest );
+	if ( !support.noCloneEvent && dest[ PanLi.expando ] ) {
+		data = PanLi._data( dest );
 
 		for ( e in data.events ) {
-			PanD.removeEvent( dest, e, data.handle );
+			PanLi.removeEvent( dest, e, data.handle );
 		}
 
 		// Event data gets referenced instead of copied if the expando gets copied too
-		dest.removeAttribute( PanD.expando );
+		dest.removeAttribute( PanLi.expando );
 	}
 
 	// IE blanks contents when cloning scripts, and tries to evaluate newly-set text
@@ -5431,7 +5457,7 @@ function fixCloneNodeIssues( src, dest ) {
 		// element in IE9, the outerHTML strategy above is not sufficient.
 		// If the src has innerHTML and the destination does not,
 		// copy the src.innerHTML into the dest.innerHTML. #10324
-		if ( support.html5Clone && ( src.innerHTML && !PanD.trim(dest.innerHTML) ) ) {
+		if ( support.html5Clone && ( src.innerHTML && !PanLi.trim(dest.innerHTML) ) ) {
 			dest.innerHTML = src.innerHTML;
 		}
 
@@ -5460,12 +5486,12 @@ function fixCloneNodeIssues( src, dest ) {
 	}
 }
 
-PanD.extend({
+PanLi.extend({
 	clone: function( elem, dataAndEvents, deepDataAndEvents ) {
 		var destElements, node, clone, i, srcElements,
-			inPage = PanD.contains( elem.ownerDocument, elem );
+			inPage = PanLi.contains( elem.ownerDocument, elem );
 
-		if ( support.html5Clone || PanD.isXMLDoc(elem) || !rnoshimcache.test( "<" + elem.nodeName + ">" ) ) {
+		if ( support.html5Clone || PanLi.isXMLDoc(elem) || !rnoshimcache.test( "<" + elem.nodeName + ">" ) ) {
 			clone = elem.cloneNode( true );
 
 		// IE<=8 does not properly clone detached, unknown element nodes
@@ -5475,7 +5501,7 @@ PanD.extend({
 		}
 
 		if ( (!support.noCloneEvent || !support.noCloneChecked) &&
-				(elem.nodeType === 1 || elem.nodeType === 11) && !PanD.isXMLDoc(elem) ) {
+				(elem.nodeType === 1 || elem.nodeType === 11) && !PanLi.isXMLDoc(elem) ) {
 
 			// We eschew Sizzle here for performance reasons: http://jsperf.com/getall-vs-sizzle/2
 			destElements = getAll( clone );
@@ -5533,8 +5559,8 @@ PanD.extend({
 			if ( elem || elem === 0 ) {
 
 				// Add nodes directly
-				if ( PanD.type( elem ) === "object" ) {
-					PanD.merge( nodes, elem.nodeType ? [ elem ] : elem );
+				if ( PanLi.type( elem ) === "object" ) {
+					PanLi.merge( nodes, elem.nodeType ? [ elem ] : elem );
 
 				// Convert non-html into a text node
 				} else if ( !rhtml.test( elem ) ) {
@@ -5548,7 +5574,7 @@ PanD.extend({
 					tag = (rtagName.exec( elem ) || [ "", "" ])[ 1 ].toLowerCase();
 					wrap = wrapMap[ tag ] || wrapMap._default;
 
-					tmp.innerHTML = wrap[1] + elem.replace( rxhtmlTag, "<P1></P2>" ) + wrap[2];
+					tmp.innerHTML = wrap[1] + elem.replace( rxhtmlTag, "<$1></$2>" ) + wrap[2];
 
 					// Descend through wrappers to the right content
 					j = wrap[0];
@@ -5575,13 +5601,13 @@ PanD.extend({
 
 						j = elem && elem.childNodes.length;
 						while ( j-- ) {
-							if ( PanD.nodeName( (tbody = elem.childNodes[j]), "tbody" ) && !tbody.childNodes.length ) {
+							if ( PanLi.nodeName( (tbody = elem.childNodes[j]), "tbody" ) && !tbody.childNodes.length ) {
 								elem.removeChild( tbody );
 							}
 						}
 					}
 
-					PanD.merge( nodes, tmp.childNodes );
+					PanLi.merge( nodes, tmp.childNodes );
 
 					// Fix #12392 for WebKit and IE > 9
 					tmp.textContent = "";
@@ -5605,7 +5631,7 @@ PanD.extend({
 		// Reset defaultChecked for any radios and checkboxes
 		// about to be appended to the DOM in IE 6/7 (#8060)
 		if ( !support.appendChecked ) {
-			PanD.grep( getAll( nodes, "input" ), fixDefaultChecked );
+			PanLi.grep( getAll( nodes, "input" ), fixDefaultChecked );
 		}
 
 		i = 0;
@@ -5613,11 +5639,11 @@ PanD.extend({
 
 			// #4087 - If origin and destination elements are the same, and this is
 			// that element, do not do anything
-			if ( selection && PanD.inArray( elem, selection ) !== -1 ) {
+			if ( selection && PanLi.inArray( elem, selection ) !== -1 ) {
 				continue;
 			}
 
-			contains = PanD.contains( elem.ownerDocument, elem );
+			contains = PanLi.contains( elem.ownerDocument, elem );
 
 			// Append to fragment
 			tmp = getAll( safe.appendChild( elem ), "script" );
@@ -5646,13 +5672,13 @@ PanD.extend({
 	cleanData: function( elems, /* internal */ acceptData ) {
 		var elem, type, id, data,
 			i = 0,
-			internalKey = PanD.expando,
-			cache = PanD.cache,
+			internalKey = PanLi.expando,
+			cache = PanLi.cache,
 			deleteExpando = support.deleteExpando,
-			special = PanD.event.special;
+			special = PanLi.event.special;
 
 		for ( ; (elem = elems[i]) != null; i++ ) {
-			if ( acceptData || PanD.acceptData( elem ) ) {
+			if ( acceptData || PanLi.acceptData( elem ) ) {
 
 				id = elem[ internalKey ];
 				data = id && cache[ id ];
@@ -5661,16 +5687,16 @@ PanD.extend({
 					if ( data.events ) {
 						for ( type in data.events ) {
 							if ( special[ type ] ) {
-								PanD.event.remove( elem, type );
+								PanLi.event.remove( elem, type );
 
-							// This is a shortcut to avoid PanD.event.remove's overhead
+							// This is a shortcut to avoid PanLi.event.remove's overhead
 							} else {
-								PanD.removeEvent( elem, type, data.handle );
+								PanLi.removeEvent( elem, type, data.handle );
 							}
 						}
 					}
 
-					// Remove cache only if it was not already removed by PanD.event.remove
+					// Remove cache only if it was not already removed by PanLi.event.remove
 					if ( cache[ id ] ) {
 
 						delete cache[ id ];
@@ -5696,11 +5722,11 @@ PanD.extend({
 	}
 });
 
-PanD.fn.extend({
+PanLi.fn.extend({
 	text: function( value ) {
 		return access( this, function( value ) {
 			return value === undefined ?
-				PanD.text( this ) :
+				PanLi.text( this ) :
 				this.empty().append( ( this[0] && this[0].ownerDocument || document ).createTextNode( value ) );
 		}, null, value, arguments.length );
 	},
@@ -5741,17 +5767,17 @@ PanD.fn.extend({
 
 	remove: function( selector, keepData /* Internal Use Only */ ) {
 		var elem,
-			elems = selector ? PanD.filter( selector, this ) : this,
+			elems = selector ? PanLi.filter( selector, this ) : this,
 			i = 0;
 
 		for ( ; (elem = elems[i]) != null; i++ ) {
 
 			if ( !keepData && elem.nodeType === 1 ) {
-				PanD.cleanData( getAll( elem ) );
+				PanLi.cleanData( getAll( elem ) );
 			}
 
 			if ( elem.parentNode ) {
-				if ( keepData && PanD.contains( elem.ownerDocument, elem ) ) {
+				if ( keepData && PanLi.contains( elem.ownerDocument, elem ) ) {
 					setGlobalEval( getAll( elem, "script" ) );
 				}
 				elem.parentNode.removeChild( elem );
@@ -5768,7 +5794,7 @@ PanD.fn.extend({
 		for ( ; (elem = this[i]) != null; i++ ) {
 			// Remove element nodes and prevent memory leaks
 			if ( elem.nodeType === 1 ) {
-				PanD.cleanData( getAll( elem, false ) );
+				PanLi.cleanData( getAll( elem, false ) );
 			}
 
 			// Remove any remaining nodes
@@ -5778,7 +5804,7 @@ PanD.fn.extend({
 
 			// If this is a select, ensure that it displays empty (#12336)
 			// Support: IE<9
-			if ( elem.options && PanD.nodeName( elem, "select" ) ) {
+			if ( elem.options && PanLi.nodeName( elem, "select" ) ) {
 				elem.options.length = 0;
 			}
 		}
@@ -5791,7 +5817,7 @@ PanD.fn.extend({
 		deepDataAndEvents = deepDataAndEvents == null ? dataAndEvents : deepDataAndEvents;
 
 		return this.map(function() {
-			return PanD.clone( this, dataAndEvents, deepDataAndEvents );
+			return PanLi.clone( this, dataAndEvents, deepDataAndEvents );
 		});
 	},
 
@@ -5803,7 +5829,7 @@ PanD.fn.extend({
 
 			if ( value === undefined ) {
 				return elem.nodeType === 1 ?
-					elem.innerHTML.replace( rinlinePanD, "" ) :
+					elem.innerHTML.replace( rinlinePanLi, "" ) :
 					undefined;
 			}
 
@@ -5813,14 +5839,14 @@ PanD.fn.extend({
 				( support.leadingWhitespace || !rleadingWhitespace.test( value ) ) &&
 				!wrapMap[ (rtagName.exec( value ) || [ "", "" ])[ 1 ].toLowerCase() ] ) {
 
-				value = value.replace( rxhtmlTag, "<P1></P2>" );
+				value = value.replace( rxhtmlTag, "<$1></$2>" );
 
 				try {
 					for (; i < l; i++ ) {
 						// Remove element nodes and prevent memory leaks
 						elem = this[i] || {};
 						if ( elem.nodeType === 1 ) {
-							PanD.cleanData( getAll( elem, false ) );
+							PanLi.cleanData( getAll( elem, false ) );
 							elem.innerHTML = value;
 						}
 					}
@@ -5844,7 +5870,7 @@ PanD.fn.extend({
 		this.domManip( arguments, function( elem ) {
 			arg = this.parentNode;
 
-			PanD.cleanData( getAll( this ) );
+			PanLi.cleanData( getAll( this ) );
 
 			if ( arg ) {
 				arg.replaceChild( elem, this );
@@ -5871,7 +5897,7 @@ PanD.fn.extend({
 			set = this,
 			iNoClone = l - 1,
 			value = args[0],
-			isFunction = PanD.isFunction( value );
+			isFunction = PanLi.isFunction( value );
 
 		// We can't cloneNode fragments that contain checked, in WebKit
 		if ( isFunction ||
@@ -5887,7 +5913,7 @@ PanD.fn.extend({
 		}
 
 		if ( l ) {
-			fragment = PanD.buildFragment( args, this[ 0 ].ownerDocument, false, this );
+			fragment = PanLi.buildFragment( args, this[ 0 ].ownerDocument, false, this );
 			first = fragment.firstChild;
 
 			if ( fragment.childNodes.length === 1 ) {
@@ -5895,7 +5921,7 @@ PanD.fn.extend({
 			}
 
 			if ( first ) {
-				scripts = PanD.map( getAll( fragment, "script" ), disableScript );
+				scripts = PanLi.map( getAll( fragment, "script" ), disableScript );
 				hasScripts = scripts.length;
 
 				// Use the original fragment for the last item instead of the first because it can end up
@@ -5904,11 +5930,11 @@ PanD.fn.extend({
 					node = fragment;
 
 					if ( i !== iNoClone ) {
-						node = PanD.clone( node, true, true );
+						node = PanLi.clone( node, true, true );
 
 						// Keep references to cloned scripts for later restoration
 						if ( hasScripts ) {
-							PanD.merge( scripts, getAll( node, "script" ) );
+							PanLi.merge( scripts, getAll( node, "script" ) );
 						}
 					}
 
@@ -5919,21 +5945,21 @@ PanD.fn.extend({
 					doc = scripts[ scripts.length - 1 ].ownerDocument;
 
 					// Reenable scripts
-					PanD.map( scripts, restoreScript );
+					PanLi.map( scripts, restoreScript );
 
 					// Evaluate executable scripts on first document insertion
 					for ( i = 0; i < hasScripts; i++ ) {
 						node = scripts[ i ];
 						if ( rscriptType.test( node.type || "" ) &&
-							!PanD._data( node, "globalEval" ) && PanD.contains( doc, node ) ) {
+							!PanLi._data( node, "globalEval" ) && PanLi.contains( doc, node ) ) {
 
 							if ( node.src ) {
 								// Optional AJAX dependency, but won't run scripts if not present
-								if ( PanD._evalUrl ) {
-									PanD._evalUrl( node.src );
+								if ( PanLi._evalUrl ) {
+									PanLi._evalUrl( node.src );
 								}
 							} else {
-								PanD.globalEval( ( node.text || node.textContent || node.innerHTML || "" ).replace( rcleanScript, "" ) );
+								PanLi.globalEval( ( node.text || node.textContent || node.innerHTML || "" ).replace( rcleanScript, "" ) );
 							}
 						}
 					}
@@ -5948,25 +5974,25 @@ PanD.fn.extend({
 	}
 });
 
-PanD.each({
+PanLi.each({
 	appendTo: "append",
 	prependTo: "prepend",
 	insertBefore: "before",
 	insertAfter: "after",
 	replaceAll: "replaceWith"
 }, function( name, original ) {
-	PanD.fn[ name ] = function( selector ) {
+	PanLi.fn[ name ] = function( selector ) {
 		var elems,
 			i = 0,
 			ret = [],
-			insert = PanD( selector ),
+			insert = PanLi( selector ),
 			last = insert.length - 1;
 
 		for ( ; i <= last; i++ ) {
 			elems = i === last ? this : this.clone(true);
-			PanD( insert[i] )[ original ]( elems );
+			PanLi( insert[i] )[ original ]( elems );
 
-			// Modern browsers can apply PanD collections as arrays, but oldIE needs a .get()
+			// Modern browsers can apply PanLi collections as arrays, but oldIE needs a .get()
 			push.apply( ret, elems.get() );
 		}
 
@@ -5986,14 +6012,14 @@ var iframe,
 // Called only from within defaultDisplay
 function actualDisplay( name, doc ) {
 	var style,
-		elem = PanD( doc.createElement( name ) ).appendTo( doc.body ),
+		elem = PanLi( doc.createElement( name ) ).appendTo( doc.body ),
 
 		// getDefaultComputedStyle might be reliably used only on attached element
 		display = window.getDefaultComputedStyle && ( style = window.getDefaultComputedStyle( elem[ 0 ] ) ) ?
 
 			// Use of this method is a temporary fix (more like optmization) until something better comes along,
 			// since it was removed from specification and supported only in FF
-			style.display : PanD.css( elem[ 0 ], "display" );
+			style.display : PanLi.css( elem[ 0 ], "display" );
 
 	// We don't have any data stored on the element,
 	// so use "detach" method as fast way to get rid of the element
@@ -6017,7 +6043,7 @@ function defaultDisplay( nodeName ) {
 		if ( display === "none" || !display ) {
 
 			// Use the already-created iframe if possible
-			iframe = (iframe || PanD( "<iframe frameborder='0' width='0' height='0'/>" )).appendTo( doc.documentElement );
+			iframe = (iframe || PanLi( "<iframe frameborder='0' width='0' height='0'/>" )).appendTo( doc.documentElement );
 
 			// Always write a new HTML skeleton so Webkit and Firefox don't choke on reuse
 			doc = ( iframe[ 0 ].contentWindow || iframe[ 0 ].contentDocument ).document;
@@ -6086,16 +6112,23 @@ function defaultDisplay( nodeName ) {
 })();
 var rmargin = (/^margin/);
 
-var rnumnonpx = new RegExp( "^(" + pnum + ")(?!px)[a-z%]+P", "i" );
+var rnumnonpx = new RegExp( "^(" + pnum + ")(?!px)[a-z%]+$", "i" );
 
 
 
 var getStyles, curCSS,
-	rposition = /^(top|right|bottom|left)P/;
+	rposition = /^(top|right|bottom|left)$/;
 
 if ( window.getComputedStyle ) {
 	getStyles = function( elem ) {
-		return elem.ownerDocument.defaultView.getComputedStyle( elem, null );
+		// Support: IE<=11+, Firefox<=30+ (#15098, #14150)
+		// IE throws on elements created in popups
+		// FF meanwhile throws on frame elements through "defaultView.getComputedStyle"
+		if ( elem.ownerDocument.defaultView.opener ) {
+			return elem.ownerDocument.defaultView.getComputedStyle( elem, null );
+		}
+
+		return window.getComputedStyle( elem, null );
 	};
 
 	curCSS = function( elem, name, computed ) {
@@ -6109,8 +6142,8 @@ if ( window.getComputedStyle ) {
 
 		if ( computed ) {
 
-			if ( ret === "" && !PanD.contains( elem.ownerDocument, elem ) ) {
-				ret = PanD.style( elem, name );
+			if ( ret === "" && !PanLi.contains( elem.ownerDocument, elem ) ) {
+				ret = PanLi.style( elem, name );
 			}
 
 			// A tribute to the "awesome hack by Dean Edwards"
@@ -6124,11 +6157,11 @@ if ( window.getComputedStyle ) {
 				minWidth = style.minWidth;
 				maxWidth = style.maxWidth;
 
-				// 放入新的值来获得计算值超出
+				// Put in the new values to get a computed value out
 				style.minWidth = style.maxWidth = style.width = ret;
 				ret = computed.width;
 
-				// 还原更改的值
+				// Revert the changed values
 				style.width = width;
 				style.minWidth = minWidth;
 				style.maxWidth = maxWidth;
@@ -6261,7 +6294,7 @@ function addGetHookIf( conditionFn, hookFn ) {
 	support.boxSizing = style.boxSizing === "" || style.MozBoxSizing === "" ||
 		style.WebkitBoxSizing === "";
 
-	PanD.extend(support, {
+	PanLi.extend(support, {
 		reliableHiddenOffsets: function() {
 			if ( reliableHiddenOffsetsVal == null ) {
 				computeStyleTests();
@@ -6343,6 +6376,8 @@ function addGetHookIf( conditionFn, hookFn ) {
 
 			reliableMarginRightVal =
 				!parseFloat( ( window.getComputedStyle( contents, null ) || {} ).marginRight );
+
+			div.removeChild( contents );
 		}
 
 		// Support: IE8
@@ -6369,7 +6404,7 @@ function addGetHookIf( conditionFn, hookFn ) {
 
 
 // A method for quickly swapping in/out CSS properties to get correct calculations.
-PanD.swap = function( elem, options, callback, args ) {
+PanLi.swap = function( elem, options, callback, args ) {
 	var ret, name,
 		old = {};
 
@@ -6397,7 +6432,7 @@ var
 	// swappable if display is none or starts with table except "table", "table-cell", or "table-caption"
 	// see here for display values: https://developer.mozilla.org/en-US/docs/CSS/display
 	rdisplayswap = /^(none|table(?!-c[ea]).+)/,
-	rnumsplit = new RegExp( "^(" + pnum + ")(.*)P", "i" ),
+	rnumsplit = new RegExp( "^(" + pnum + ")(.*)$", "i" ),
 	rrelNum = new RegExp( "^([+-])=(" + pnum + ")", "i" ),
 
 	cssShow = { position: "absolute", visibility: "hidden", display: "block" },
@@ -6444,7 +6479,7 @@ function showHide( elements, show ) {
 			continue;
 		}
 
-		values[ index ] = PanD._data( elem, "olddisplay" );
+		values[ index ] = PanLi._data( elem, "olddisplay" );
 		display = elem.style.display;
 		if ( show ) {
 			// Reset the inline display of this element to learn if it is
@@ -6457,13 +6492,13 @@ function showHide( elements, show ) {
 			// in a stylesheet to whatever the default browser style is
 			// for such an element
 			if ( elem.style.display === "" && isHidden( elem ) ) {
-				values[ index ] = PanD._data( elem, "olddisplay", defaultDisplay(elem.nodeName) );
+				values[ index ] = PanLi._data( elem, "olddisplay", defaultDisplay(elem.nodeName) );
 			}
 		} else {
 			hidden = isHidden( elem );
 
 			if ( display && display !== "none" || !hidden ) {
-				PanD._data( elem, "olddisplay", hidden ? display : PanD.css( elem, "display" ) );
+				PanLi._data( elem, "olddisplay", hidden ? display : PanLi.css( elem, "display" ) );
 			}
 		}
 	}
@@ -6503,26 +6538,26 @@ function augmentWidthOrHeight( elem, name, extra, isBorderBox, styles ) {
 	for ( ; i < 4; i += 2 ) {
 		// both box models exclude margin, so add it if we want it
 		if ( extra === "margin" ) {
-			val += PanD.css( elem, extra + cssExpand[ i ], true, styles );
+			val += PanLi.css( elem, extra + cssExpand[ i ], true, styles );
 		}
 
 		if ( isBorderBox ) {
 			// border-box includes padding, so remove it if we want content
 			if ( extra === "content" ) {
-				val -= PanD.css( elem, "padding" + cssExpand[ i ], true, styles );
+				val -= PanLi.css( elem, "padding" + cssExpand[ i ], true, styles );
 			}
 
 			// at this point, extra isn't border nor margin, so remove border
 			if ( extra !== "margin" ) {
-				val -= PanD.css( elem, "border" + cssExpand[ i ] + "Width", true, styles );
+				val -= PanLi.css( elem, "border" + cssExpand[ i ] + "Width", true, styles );
 			}
 		} else {
 			// at this point, extra isn't content, so add padding
-			val += PanD.css( elem, "padding" + cssExpand[ i ], true, styles );
+			val += PanLi.css( elem, "padding" + cssExpand[ i ], true, styles );
 
 			// at this point, extra isn't content nor padding, so add border
 			if ( extra !== "padding" ) {
-				val += PanD.css( elem, "border" + cssExpand[ i ] + "Width", true, styles );
+				val += PanLi.css( elem, "border" + cssExpand[ i ] + "Width", true, styles );
 			}
 		}
 	}
@@ -6536,7 +6571,7 @@ function getWidthOrHeight( elem, name, extra ) {
 	var valueIsBorderBox = true,
 		val = name === "width" ? elem.offsetWidth : elem.offsetHeight,
 		styles = getStyles( elem ),
-		isBorderBox = support.boxSizing && PanD.css( elem, "boxSizing", false, styles ) === "border-box";
+		isBorderBox = support.boxSizing && PanLi.css( elem, "boxSizing", false, styles ) === "border-box";
 
 	// some non-html elements return undefined for offsetWidth, so check for null/undefined
 	// svg - https://bugzilla.mozilla.org/show_bug.cgi?id=649285
@@ -6573,7 +6608,7 @@ function getWidthOrHeight( elem, name, extra ) {
 	) + "px";
 }
 
-PanD.extend({
+PanLi.extend({
 	// Add in style property hooks for overriding the default
 	// behavior of getting and setting a style property
 	cssHooks: {
@@ -6620,14 +6655,14 @@ PanD.extend({
 
 		// Make sure that we're working with the right name
 		var ret, type, hooks,
-			origName = PanD.camelCase( name ),
+			origName = PanLi.camelCase( name ),
 			style = elem.style;
 
-		name = PanD.cssProps[ origName ] || ( PanD.cssProps[ origName ] = vendorPropName( style, origName ) );
+		name = PanLi.cssProps[ origName ] || ( PanLi.cssProps[ origName ] = vendorPropName( style, origName ) );
 
 		// gets hook for the prefixed version
 		// followed by the unprefixed version
-		hooks = PanD.cssHooks[ name ] || PanD.cssHooks[ origName ];
+		hooks = PanLi.cssHooks[ name ] || PanLi.cssHooks[ origName ];
 
 		// Check if we're setting a value
 		if ( value !== undefined ) {
@@ -6635,7 +6670,7 @@ PanD.extend({
 
 			// convert relative number strings (+= or -=) to relative numbers. #7345
 			if ( type === "string" && (ret = rrelNum.exec( value )) ) {
-				value = ( ret[1] + 1 ) * ret[2] + parseFloat( PanD.css( elem, name ) );
+				value = ( ret[1] + 1 ) * ret[2] + parseFloat( PanLi.css( elem, name ) );
 				// Fixes bug #9237
 				type = "number";
 			}
@@ -6646,7 +6681,7 @@ PanD.extend({
 			}
 
 			// If a number was passed in, add 'px' to the (except for certain CSS properties)
-			if ( type === "number" && !PanD.cssNumber[ origName ] ) {
+			if ( type === "number" && !PanLi.cssNumber[ origName ] ) {
 				value += "px";
 			}
 
@@ -6679,14 +6714,14 @@ PanD.extend({
 
 	css: function( elem, name, extra, styles ) {
 		var num, val, hooks,
-			origName = PanD.camelCase( name );
+			origName = PanLi.camelCase( name );
 
 		// Make sure that we're working with the right name
-		name = PanD.cssProps[ origName ] || ( PanD.cssProps[ origName ] = vendorPropName( elem.style, origName ) );
+		name = PanLi.cssProps[ origName ] || ( PanLi.cssProps[ origName ] = vendorPropName( elem.style, origName ) );
 
 		// gets hook for the prefixed version
 		// followed by the unprefixed version
-		hooks = PanD.cssHooks[ name ] || PanD.cssHooks[ origName ];
+		hooks = PanLi.cssHooks[ name ] || PanLi.cssHooks[ origName ];
 
 		// If a hook was provided get the computed value from there
 		if ( hooks && "get" in hooks ) {
@@ -6706,20 +6741,20 @@ PanD.extend({
 		// Return, converting to number if forced or a qualifier was provided and val looks numeric
 		if ( extra === "" || extra ) {
 			num = parseFloat( val );
-			return extra === true || PanD.isNumeric( num ) ? num || 0 : val;
+			return extra === true || PanLi.isNumeric( num ) ? num || 0 : val;
 		}
 		return val;
 	}
 });
 
-PanD.each([ "height", "width" ], function( i, name ) {
-	PanD.cssHooks[ name ] = {
+PanLi.each([ "height", "width" ], function( i, name ) {
+	PanLi.cssHooks[ name ] = {
 		get: function( elem, computed, extra ) {
 			if ( computed ) {
 				// certain elements can have dimension info if we invisibly show them
 				// however, it must have a current display style that would benefit from this
-				return rdisplayswap.test( PanD.css( elem, "display" ) ) && elem.offsetWidth === 0 ?
-					PanD.swap( elem, cssShow, function() {
+				return rdisplayswap.test( PanLi.css( elem, "display" ) ) && elem.offsetWidth === 0 ?
+					PanLi.swap( elem, cssShow, function() {
 						return getWidthOrHeight( elem, name, extra );
 					}) :
 					getWidthOrHeight( elem, name, extra );
@@ -6733,7 +6768,7 @@ PanD.each([ "height", "width" ], function( i, name ) {
 					elem,
 					name,
 					extra,
-					support.boxSizing && PanD.css( elem, "boxSizing", false, styles ) === "border-box",
+					support.boxSizing && PanLi.css( elem, "boxSizing", false, styles ) === "border-box",
 					styles
 				) : 0
 			);
@@ -6742,18 +6777,18 @@ PanD.each([ "height", "width" ], function( i, name ) {
 });
 
 if ( !support.opacity ) {
-	PanD.cssHooks.opacity = {
+	PanLi.cssHooks.opacity = {
 		get: function( elem, computed ) {
 			// IE uses filters for opacity
 			return ropacity.test( (computed && elem.currentStyle ? elem.currentStyle.filter : elem.style.filter) || "" ) ?
-				( 0.01 * parseFloat( RegExp.P1 ) ) + "" :
+				( 0.01 * parseFloat( RegExp.$1 ) ) + "" :
 				computed ? "1" : "";
 		},
 
 		set: function( elem, value ) {
 			var style = elem.style,
 				currentStyle = elem.currentStyle,
-				opacity = PanD.isNumeric( value ) ? "alpha(opacity=" + value * 100 + ")" : "",
+				opacity = PanLi.isNumeric( value ) ? "alpha(opacity=" + value * 100 + ")" : "",
 				filter = currentStyle && currentStyle.filter || style.filter || "";
 
 			// IE has trouble with opacity if it does not have layout
@@ -6763,7 +6798,7 @@ if ( !support.opacity ) {
 			// if setting opacity to 1, and no other filters exist - attempt to remove filter attribute #6652
 			// if value === "", then remove inline opacity #12685
 			if ( ( value >= 1 || value === "" ) &&
-					PanD.trim( filter.replace( ralpha, "" ) ) === "" &&
+					PanLi.trim( filter.replace( ralpha, "" ) ) === "" &&
 					style.removeAttribute ) {
 
 				// Setting style.filter to null, "" & " " still leave "filter:" in the cssText
@@ -6785,24 +6820,24 @@ if ( !support.opacity ) {
 	};
 }
 
-PanD.cssHooks.marginRight = addGetHookIf( support.reliableMarginRight,
+PanLi.cssHooks.marginRight = addGetHookIf( support.reliableMarginRight,
 	function( elem, computed ) {
 		if ( computed ) {
 			// WebKit Bug 13343 - getComputedStyle returns wrong value for margin-right
 			// Work around by temporarily setting element display to inline-block
-			return PanD.swap( elem, { "display": "inline-block" },
+			return PanLi.swap( elem, { "display": "inline-block" },
 				curCSS, [ elem, "marginRight" ] );
 		}
 	}
 );
 
 // These hooks are used by animate to expand properties
-PanD.each({
+PanLi.each({
 	margin: "",
 	padding: "",
 	border: "Width"
 }, function( prefix, suffix ) {
-	PanD.cssHooks[ prefix + suffix ] = {
+	PanLi.cssHooks[ prefix + suffix ] = {
 		expand: function( value ) {
 			var i = 0,
 				expanded = {},
@@ -6820,31 +6855,31 @@ PanD.each({
 	};
 
 	if ( !rmargin.test( prefix ) ) {
-		PanD.cssHooks[ prefix + suffix ].set = setPositiveNumber;
+		PanLi.cssHooks[ prefix + suffix ].set = setPositiveNumber;
 	}
 });
 
-PanD.fn.extend({
+PanLi.fn.extend({
 	css: function( name, value ) {
 		return access( this, function( elem, name, value ) {
 			var styles, len,
 				map = {},
 				i = 0;
 
-			if ( PanD.isArray( name ) ) {
+			if ( PanLi.isArray( name ) ) {
 				styles = getStyles( elem );
 				len = name.length;
 
 				for ( ; i < len; i++ ) {
-					map[ name[ i ] ] = PanD.css( elem, name[ i ], false, styles );
+					map[ name[ i ] ] = PanLi.css( elem, name[ i ], false, styles );
 				}
 
 				return map;
 			}
 
 			return value !== undefined ?
-				PanD.style( elem, name, value ) :
-				PanD.css( elem, name );
+				PanLi.style( elem, name, value ) :
+				PanLi.css( elem, name );
 		}, name, value, arguments.length > 1 );
 	},
 	show: function() {
@@ -6860,9 +6895,9 @@ PanD.fn.extend({
 
 		return this.each(function() {
 			if ( isHidden( this ) ) {
-				PanD( this ).show();
+				PanLi( this ).show();
 			} else {
-				PanD( this ).hide();
+				PanLi( this ).hide();
 			}
 		});
 	}
@@ -6872,7 +6907,7 @@ PanD.fn.extend({
 function Tween( elem, options, prop, end, easing ) {
 	return new Tween.prototype.init( elem, options, prop, end, easing );
 }
-PanD.Tween = Tween;
+PanLi.Tween = Tween;
 
 Tween.prototype = {
 	constructor: Tween,
@@ -6883,7 +6918,7 @@ Tween.prototype = {
 		this.options = options;
 		this.start = this.now = this.cur();
 		this.end = end;
-		this.unit = unit || ( PanD.cssNumber[ prop ] ? "" : "px" );
+		this.unit = unit || ( PanLi.cssNumber[ prop ] ? "" : "px" );
 	},
 	cur: function() {
 		var hooks = Tween.propHooks[ this.prop ];
@@ -6897,7 +6932,7 @@ Tween.prototype = {
 			hooks = Tween.propHooks[ this.prop ];
 
 		if ( this.options.duration ) {
-			this.pos = eased = PanD.easing[ this.easing ](
+			this.pos = eased = PanLi.easing[ this.easing ](
 				percent, this.options.duration * percent, 0, 1, this.options.duration
 			);
 		} else {
@@ -6934,17 +6969,17 @@ Tween.propHooks = {
 			// attempt a parseFloat and fallback to a string if the parse fails
 			// so, simple values such as "10px" are parsed to Float.
 			// complex values such as "rotate(1rad)" are returned as is.
-			result = PanD.css( tween.elem, tween.prop, "" );
+			result = PanLi.css( tween.elem, tween.prop, "" );
 			// Empty strings, null, undefined and "auto" are converted to 0.
 			return !result || result === "auto" ? 0 : result;
 		},
 		set: function( tween ) {
 			// use step hook for back compat - use cssHook if its there - use .style if its
 			// available and use plain properties where available
-			if ( PanD.fx.step[ tween.prop ] ) {
-				PanD.fx.step[ tween.prop ]( tween );
-			} else if ( tween.elem.style && ( tween.elem.style[ PanD.cssProps[ tween.prop ] ] != null || PanD.cssHooks[ tween.prop ] ) ) {
-				PanD.style( tween.elem, tween.prop, tween.now + tween.unit );
+			if ( PanLi.fx.step[ tween.prop ] ) {
+				PanLi.fx.step[ tween.prop ]( tween );
+			} else if ( tween.elem.style && ( tween.elem.style[ PanLi.cssProps[ tween.prop ] ] != null || PanLi.cssHooks[ tween.prop ] ) ) {
+				PanLi.style( tween.elem, tween.prop, tween.now + tween.unit );
 			} else {
 				tween.elem[ tween.prop ] = tween.now;
 			}
@@ -6963,7 +6998,7 @@ Tween.propHooks.scrollTop = Tween.propHooks.scrollLeft = {
 	}
 };
 
-PanD.easing = {
+PanLi.easing = {
 	linear: function( p ) {
 		return p;
 	},
@@ -6972,35 +7007,35 @@ PanD.easing = {
 	}
 };
 
-PanD.fx = Tween.prototype.init;
+PanLi.fx = Tween.prototype.init;
 
 // Back Compat <1.8 extension point
-PanD.fx.step = {};
+PanLi.fx.step = {};
 
 
 
 
 var
 	fxNow, timerId,
-	rfxtypes = /^(?:toggle|show|hide)P/,
-	rfxnum = new RegExp( "^(?:([+-])=|)(" + pnum + ")([a-z%]*)P", "i" ),
-	rrun = /queueHooksP/,
+	rfxtypes = /^(?:toggle|show|hide)$/,
+	rfxnum = new RegExp( "^(?:([+-])=|)(" + pnum + ")([a-z%]*)$", "i" ),
+	rrun = /queueHooks$/,
 	animationPrefilters = [ defaultPrefilter ],
 	tweeners = {
 		"*": [ function( prop, value ) {
 			var tween = this.createTween( prop, value ),
 				target = tween.cur(),
 				parts = rfxnum.exec( value ),
-				unit = parts && parts[ 3 ] || ( PanD.cssNumber[ prop ] ? "" : "px" ),
+				unit = parts && parts[ 3 ] || ( PanLi.cssNumber[ prop ] ? "" : "px" ),
 
 				// Starting value computation is required for potential unit mismatches
-				start = ( PanD.cssNumber[ prop ] || unit !== "px" && +target ) &&
-					rfxnum.exec( PanD.css( tween.elem, prop ) ),
+				start = ( PanLi.cssNumber[ prop ] || unit !== "px" && +target ) &&
+					rfxnum.exec( PanLi.css( tween.elem, prop ) ),
 				scale = 1,
 				maxIterations = 20;
 
 			if ( start && start[ 3 ] !== unit ) {
-				// Trust units reported by PanD.css
+				// Trust units reported by PanLi.css
 				unit = unit || start[ 3 ];
 
 				// Make sure we update the tween properties later on
@@ -7016,7 +7051,7 @@ var
 
 					// Adjust and apply
 					start = start / scale;
-					PanD.style( tween.elem, prop, start + unit );
+					PanLi.style( tween.elem, prop, start + unit );
 
 				// Update scale, tolerating zero or NaN from tween.cur()
 				// And breaking the loop if scale is unchanged or perfect, or if we've just had enough
@@ -7042,7 +7077,7 @@ function createFxNow() {
 	setTimeout(function() {
 		fxNow = undefined;
 	});
-	return ( fxNow = PanD.now() );
+	return ( fxNow = PanLi.now() );
 }
 
 // Generate parameters to create a standard animation
@@ -7087,11 +7122,11 @@ function defaultPrefilter( elem, props, opts ) {
 		orig = {},
 		style = elem.style,
 		hidden = elem.nodeType && isHidden( elem ),
-		dataShow = PanD._data( elem, "fxshow" );
+		dataShow = PanLi._data( elem, "fxshow" );
 
 	// handle queue: false promises
 	if ( !opts.queue ) {
-		hooks = PanD._queueHooks( elem, "fx" );
+		hooks = PanLi._queueHooks( elem, "fx" );
 		if ( hooks.unqueued == null ) {
 			hooks.unqueued = 0;
 			oldfire = hooks.empty.fire;
@@ -7108,7 +7143,7 @@ function defaultPrefilter( elem, props, opts ) {
 			// before this completes
 			anim.always(function() {
 				hooks.unqueued--;
-				if ( !PanD.queue( elem, "fx" ).length ) {
+				if ( !PanLi.queue( elem, "fx" ).length ) {
 					hooks.empty.fire();
 				}
 			});
@@ -7125,13 +7160,13 @@ function defaultPrefilter( elem, props, opts ) {
 
 		// Set display property to inline-block for height/width
 		// animations on inline elements that are having width/height animated
-		display = PanD.css( elem, "display" );
+		display = PanLi.css( elem, "display" );
 
 		// Test default display if display is currently "none"
 		checkDisplay = display === "none" ?
-			PanD._data( elem, "olddisplay" ) || defaultDisplay( elem.nodeName ) : display;
+			PanLi._data( elem, "olddisplay" ) || defaultDisplay( elem.nodeName ) : display;
 
-		if ( checkDisplay === "inline" && PanD.css( elem, "float" ) === "none" ) {
+		if ( checkDisplay === "inline" && PanLi.css( elem, "float" ) === "none" ) {
 
 			// inline-level elements accept inline-block;
 			// block-level elements need to be inline with layout
@@ -7169,7 +7204,7 @@ function defaultPrefilter( elem, props, opts ) {
 					continue;
 				}
 			}
-			orig[ prop ] = dataShow && dataShow[ prop ] || PanD.style( elem, prop );
+			orig[ prop ] = dataShow && dataShow[ prop ] || PanLi.style( elem, prop );
 
 		// Any non-fx value stops us from restoring the original display value
 		} else {
@@ -7177,13 +7212,13 @@ function defaultPrefilter( elem, props, opts ) {
 		}
 	}
 
-	if ( !PanD.isEmptyObject( orig ) ) {
+	if ( !PanLi.isEmptyObject( orig ) ) {
 		if ( dataShow ) {
 			if ( "hidden" in dataShow ) {
 				hidden = dataShow.hidden;
 			}
 		} else {
-			dataShow = PanD._data( elem, "fxshow", {} );
+			dataShow = PanLi._data( elem, "fxshow", {} );
 		}
 
 		// store state if its toggle - enables .stop().toggle() to "reverse"
@@ -7191,17 +7226,17 @@ function defaultPrefilter( elem, props, opts ) {
 			dataShow.hidden = !hidden;
 		}
 		if ( hidden ) {
-			PanD( elem ).show();
+			PanLi( elem ).show();
 		} else {
 			anim.done(function() {
-				PanD( elem ).hide();
+				PanLi( elem ).hide();
 			});
 		}
 		anim.done(function() {
 			var prop;
-			PanD._removeData( elem, "fxshow" );
+			PanLi._removeData( elem, "fxshow" );
 			for ( prop in orig ) {
-				PanD.style( elem, prop, orig[ prop ] );
+				PanLi.style( elem, prop, orig[ prop ] );
 			}
 		});
 		for ( prop in orig ) {
@@ -7227,10 +7262,10 @@ function propFilter( props, specialEasing ) {
 
 	// camelCase, specialEasing and expand cssHook pass
 	for ( index in props ) {
-		name = PanD.camelCase( index );
+		name = PanLi.camelCase( index );
 		easing = specialEasing[ name ];
 		value = props[ index ];
-		if ( PanD.isArray( value ) ) {
+		if ( PanLi.isArray( value ) ) {
 			easing = value[ 1 ];
 			value = props[ index ] = value[ 0 ];
 		}
@@ -7240,12 +7275,12 @@ function propFilter( props, specialEasing ) {
 			delete props[ index ];
 		}
 
-		hooks = PanD.cssHooks[ name ];
+		hooks = PanLi.cssHooks[ name ];
 		if ( hooks && "expand" in hooks ) {
 			value = hooks.expand( value );
 			delete props[ name ];
 
-			// not quite P.extend, this wont overwrite keys already present.
+			// not quite $.extend, this wont overwrite keys already present.
 			// also - reusing 'index' from above because we have the correct "name"
 			for ( index in value ) {
 				if ( !( index in props ) ) {
@@ -7264,7 +7299,7 @@ function Animation( elem, properties, options ) {
 		stopped,
 		index = 0,
 		length = animationPrefilters.length,
-		deferred = PanD.Deferred().always( function() {
+		deferred = PanLi.Deferred().always( function() {
 			// don't match elem in the :animated selector
 			delete tick.elem;
 		}),
@@ -7295,15 +7330,15 @@ function Animation( elem, properties, options ) {
 		},
 		animation = deferred.promise({
 			elem: elem,
-			props: PanD.extend( {}, properties ),
-			opts: PanD.extend( true, { specialEasing: {} }, options ),
+			props: PanLi.extend( {}, properties ),
+			opts: PanLi.extend( true, { specialEasing: {} }, options ),
 			originalProperties: properties,
 			originalOptions: options,
 			startTime: fxNow || createFxNow(),
 			duration: options.duration,
 			tweens: [],
 			createTween: function( prop, end ) {
-				var tween = PanD.Tween( elem, animation.opts, prop, end,
+				var tween = PanLi.Tween( elem, animation.opts, prop, end,
 						animation.opts.specialEasing[ prop ] || animation.opts.easing );
 				animation.tweens.push( tween );
 				return tween;
@@ -7342,14 +7377,14 @@ function Animation( elem, properties, options ) {
 		}
 	}
 
-	PanD.map( props, createTween, animation );
+	PanLi.map( props, createTween, animation );
 
-	if ( PanD.isFunction( animation.opts.start ) ) {
+	if ( PanLi.isFunction( animation.opts.start ) ) {
 		animation.opts.start.call( elem, animation );
 	}
 
-	PanD.fx.timer(
-		PanD.extend( tick, {
+	PanLi.fx.timer(
+		PanLi.extend( tick, {
 			elem: elem,
 			anim: animation,
 			queue: animation.opts.queue
@@ -7363,9 +7398,9 @@ function Animation( elem, properties, options ) {
 		.always( animation.opts.always );
 }
 
-PanD.Animation = PanD.extend( Animation, {
+PanLi.Animation = PanLi.extend( Animation, {
 	tweener: function( props, callback ) {
-		if ( PanD.isFunction( props ) ) {
+		if ( PanLi.isFunction( props ) ) {
 			callback = props;
 			props = [ "*" ];
 		} else {
@@ -7392,16 +7427,16 @@ PanD.Animation = PanD.extend( Animation, {
 	}
 });
 
-PanD.speed = function( speed, easing, fn ) {
-	var opt = speed && typeof speed === "object" ? PanD.extend( {}, speed ) : {
+PanLi.speed = function( speed, easing, fn ) {
+	var opt = speed && typeof speed === "object" ? PanLi.extend( {}, speed ) : {
 		complete: fn || !fn && easing ||
-			PanD.isFunction( speed ) && speed,
+			PanLi.isFunction( speed ) && speed,
 		duration: speed,
-		easing: fn && easing || easing && !PanD.isFunction( easing ) && easing
+		easing: fn && easing || easing && !PanLi.isFunction( easing ) && easing
 	};
 
-	opt.duration = PanD.fx.off ? 0 : typeof opt.duration === "number" ? opt.duration :
-		opt.duration in PanD.fx.speeds ? PanD.fx.speeds[ opt.duration ] : PanD.fx.speeds._default;
+	opt.duration = PanLi.fx.off ? 0 : typeof opt.duration === "number" ? opt.duration :
+		opt.duration in PanLi.fx.speeds ? PanLi.fx.speeds[ opt.duration ] : PanLi.fx.speeds._default;
 
 	// normalize opt.queue - true/undefined/null -> "fx"
 	if ( opt.queue == null || opt.queue === true ) {
@@ -7412,19 +7447,19 @@ PanD.speed = function( speed, easing, fn ) {
 	opt.old = opt.complete;
 
 	opt.complete = function() {
-		if ( PanD.isFunction( opt.old ) ) {
+		if ( PanLi.isFunction( opt.old ) ) {
 			opt.old.call( this );
 		}
 
 		if ( opt.queue ) {
-			PanD.dequeue( this, opt.queue );
+			PanLi.dequeue( this, opt.queue );
 		}
 	};
 
 	return opt;
 };
 
-PanD.fn.extend({
+PanLi.fn.extend({
 	fadeTo: function( speed, to, easing, callback ) {
 
 		// show any hidden elements after setting opacity to 0
@@ -7434,14 +7469,14 @@ PanD.fn.extend({
 			.end().animate({ opacity: to }, speed, easing, callback );
 	},
 	animate: function( prop, speed, easing, callback ) {
-		var empty = PanD.isEmptyObject( prop ),
-			optall = PanD.speed( speed, easing, callback ),
+		var empty = PanLi.isEmptyObject( prop ),
+			optall = PanLi.speed( speed, easing, callback ),
 			doAnimation = function() {
 				// Operate on a copy of prop so per-property easing won't be lost
-				var anim = Animation( this, PanD.extend( {}, prop ), optall );
+				var anim = Animation( this, PanLi.extend( {}, prop ), optall );
 
 				// Empty animations, or finishing resolves immediately
-				if ( empty || PanD._data( this, "finish" ) ) {
+				if ( empty || PanLi._data( this, "finish" ) ) {
 					anim.stop( true );
 				}
 			};
@@ -7470,8 +7505,8 @@ PanD.fn.extend({
 		return this.each(function() {
 			var dequeue = true,
 				index = type != null && type + "queueHooks",
-				timers = PanD.timers,
-				data = PanD._data( this );
+				timers = PanLi.timers,
+				data = PanLi._data( this );
 
 			if ( index ) {
 				if ( data[ index ] && data[ index ].stop ) {
@@ -7497,7 +7532,7 @@ PanD.fn.extend({
 			// timers currently will call their complete callbacks, which will dequeue
 			// but only if they were gotoEnd
 			if ( dequeue || !gotoEnd ) {
-				PanD.dequeue( this, type );
+				PanLi.dequeue( this, type );
 			}
 		});
 	},
@@ -7507,17 +7542,17 @@ PanD.fn.extend({
 		}
 		return this.each(function() {
 			var index,
-				data = PanD._data( this ),
+				data = PanLi._data( this ),
 				queue = data[ type + "queue" ],
 				hooks = data[ type + "queueHooks" ],
-				timers = PanD.timers,
+				timers = PanLi.timers,
 				length = queue ? queue.length : 0;
 
 			// enable finishing flag on private data
 			data.finish = true;
 
 			// empty the queue first
-			PanD.queue( this, type, [] );
+			PanLi.queue( this, type, [] );
 
 			if ( hooks && hooks.stop ) {
 				hooks.stop.call( this, true );
@@ -7544,9 +7579,9 @@ PanD.fn.extend({
 	}
 });
 
-PanD.each([ "toggle", "show", "hide" ], function( i, name ) {
-	var cssFn = PanD.fn[ name ];
-	PanD.fn[ name ] = function( speed, easing, callback ) {
+PanLi.each([ "toggle", "show", "hide" ], function( i, name ) {
+	var cssFn = PanLi.fn[ name ];
+	PanLi.fn[ name ] = function( speed, easing, callback ) {
 		return speed == null || typeof speed === "boolean" ?
 			cssFn.apply( this, arguments ) :
 			this.animate( genFx( name, true ), speed, easing, callback );
@@ -7554,7 +7589,7 @@ PanD.each([ "toggle", "show", "hide" ], function( i, name ) {
 });
 
 // Generate shortcuts for custom animations
-PanD.each({
+PanLi.each({
 	slideDown: genFx("show"),
 	slideUp: genFx("hide"),
 	slideToggle: genFx("toggle"),
@@ -7562,18 +7597,18 @@ PanD.each({
 	fadeOut: { opacity: "hide" },
 	fadeToggle: { opacity: "toggle" }
 }, function( name, props ) {
-	PanD.fn[ name ] = function( speed, easing, callback ) {
+	PanLi.fn[ name ] = function( speed, easing, callback ) {
 		return this.animate( props, speed, easing, callback );
 	};
 });
 
-PanD.timers = [];
-PanD.fx.tick = function() {
+PanLi.timers = [];
+PanLi.fx.tick = function() {
 	var timer,
-		timers = PanD.timers,
+		timers = PanLi.timers,
 		i = 0;
 
-	fxNow = PanD.now();
+	fxNow = PanLi.now();
 
 	for ( ; i < timers.length; i++ ) {
 		timer = timers[ i ];
@@ -7584,34 +7619,34 @@ PanD.fx.tick = function() {
 	}
 
 	if ( !timers.length ) {
-		PanD.fx.stop();
+		PanLi.fx.stop();
 	}
 	fxNow = undefined;
 };
 
-PanD.fx.timer = function( timer ) {
-	PanD.timers.push( timer );
+PanLi.fx.timer = function( timer ) {
+	PanLi.timers.push( timer );
 	if ( timer() ) {
-		PanD.fx.start();
+		PanLi.fx.start();
 	} else {
-		PanD.timers.pop();
+		PanLi.timers.pop();
 	}
 };
 
-PanD.fx.interval = 13;
+PanLi.fx.interval = 13;
 
-PanD.fx.start = function() {
+PanLi.fx.start = function() {
 	if ( !timerId ) {
-		timerId = setInterval( PanD.fx.tick, PanD.fx.interval );
+		timerId = setInterval( PanLi.fx.tick, PanLi.fx.interval );
 	}
 };
 
-PanD.fx.stop = function() {
+PanLi.fx.stop = function() {
 	clearInterval( timerId );
 	timerId = null;
 };
 
-PanD.fx.speeds = {
+PanLi.fx.speeds = {
 	slow: 600,
 	fast: 200,
 	// Default speed
@@ -7620,9 +7655,9 @@ PanD.fx.speeds = {
 
 
 // Based off of the plugin by Clint Helfers, with permission.
-// http://blindsignals.com/index.php/2009/07/PanD-delay/
-PanD.fn.delay = function( time, type ) {
-	time = PanD.fx ? PanD.fx.speeds[ time ] || time : time;
+// http://blindsignals.com/index.php/2009/07/PanLi-delay/
+PanLi.fn.delay = function( time, type ) {
+	time = PanLi.fx ? PanLi.fx.speeds[ time ] || time : time;
 	type = type || "fx";
 
 	return this.queue( type, function( next, hooks ) {
@@ -7692,14 +7727,14 @@ PanD.fn.delay = function( time, type ) {
 
 var rreturn = /\r/g;
 
-PanD.fn.extend({
+PanLi.fn.extend({
 	val: function( value ) {
 		var hooks, ret, isFunction,
 			elem = this[0];
 
 		if ( !arguments.length ) {
 			if ( elem ) {
-				hooks = PanD.valHooks[ elem.type ] || PanD.valHooks[ elem.nodeName.toLowerCase() ];
+				hooks = PanLi.valHooks[ elem.type ] || PanLi.valHooks[ elem.nodeName.toLowerCase() ];
 
 				if ( hooks && "get" in hooks && (ret = hooks.get( elem, "value" )) !== undefined ) {
 					return ret;
@@ -7717,7 +7752,7 @@ PanD.fn.extend({
 			return;
 		}
 
-		isFunction = PanD.isFunction( value );
+		isFunction = PanLi.isFunction( value );
 
 		return this.each(function( i ) {
 			var val;
@@ -7727,7 +7762,7 @@ PanD.fn.extend({
 			}
 
 			if ( isFunction ) {
-				val = value.call( this, i, PanD( this ).val() );
+				val = value.call( this, i, PanLi( this ).val() );
 			} else {
 				val = value;
 			}
@@ -7737,13 +7772,13 @@ PanD.fn.extend({
 				val = "";
 			} else if ( typeof val === "number" ) {
 				val += "";
-			} else if ( PanD.isArray( val ) ) {
-				val = PanD.map( val, function( value ) {
+			} else if ( PanLi.isArray( val ) ) {
+				val = PanLi.map( val, function( value ) {
 					return value == null ? "" : value + "";
 				});
 			}
 
-			hooks = PanD.valHooks[ this.type ] || PanD.valHooks[ this.nodeName.toLowerCase() ];
+			hooks = PanLi.valHooks[ this.type ] || PanLi.valHooks[ this.nodeName.toLowerCase() ];
 
 			// If set returns undefined, fall back to normal setting
 			if ( !hooks || !("set" in hooks) || hooks.set( this, val, "value" ) === undefined ) {
@@ -7753,16 +7788,16 @@ PanD.fn.extend({
 	}
 });
 
-PanD.extend({
+PanLi.extend({
 	valHooks: {
 		option: {
 			get: function( elem ) {
-				var val = PanD.find.attr( elem, "value" );
+				var val = PanLi.find.attr( elem, "value" );
 				return val != null ?
 					val :
 					// Support: IE10-11+
 					// option.text throws exceptions (#14686, #14858)
-					PanD.trim( PanD.text( elem ) );
+					PanLi.trim( PanLi.text( elem ) );
 			}
 		},
 		select: {
@@ -7785,10 +7820,10 @@ PanD.extend({
 					if ( ( option.selected || i === index ) &&
 							// Don't return options that are disabled or in a disabled optgroup
 							( support.optDisabled ? !option.disabled : option.getAttribute("disabled") === null ) &&
-							( !option.parentNode.disabled || !PanD.nodeName( option.parentNode, "optgroup" ) ) ) {
+							( !option.parentNode.disabled || !PanLi.nodeName( option.parentNode, "optgroup" ) ) ) {
 
 						// Get the specific value for the option
-						value = PanD( option ).val();
+						value = PanLi( option ).val();
 
 						// We don't need an array for one selects
 						if ( one ) {
@@ -7806,13 +7841,13 @@ PanD.extend({
 			set: function( elem, value ) {
 				var optionSet, option,
 					options = elem.options,
-					values = PanD.makeArray( value ),
+					values = PanLi.makeArray( value ),
 					i = options.length;
 
 				while ( i-- ) {
 					option = options[ i ];
 
-					if ( PanD.inArray( PanD.valHooks.option.get( option ), values ) >= 0 ) {
+					if ( PanLi.inArray( PanLi.valHooks.option.get( option ), values ) >= 0 ) {
 
 						// Support: IE6
 						// When new option element is added to select box we need to
@@ -7844,16 +7879,16 @@ PanD.extend({
 });
 
 // Radios and checkboxes getter/setter
-PanD.each([ "radio", "checkbox" ], function() {
-	PanD.valHooks[ this ] = {
+PanLi.each([ "radio", "checkbox" ], function() {
+	PanLi.valHooks[ this ] = {
 		set: function( elem, value ) {
-			if ( PanD.isArray( value ) ) {
-				return ( elem.checked = PanD.inArray( PanD(elem).val(), value ) >= 0 );
+			if ( PanLi.isArray( value ) ) {
+				return ( elem.checked = PanLi.inArray( PanLi(elem).val(), value ) >= 0 );
 			}
 		}
 	};
 	if ( !support.checkOn ) {
-		PanD.valHooks[ this ].get = function( elem ) {
+		PanLi.valHooks[ this ].get = function( elem ) {
 			// Support: Webkit
 			// "" is returned instead of "on" if a value isn't specified
 			return elem.getAttribute("value") === null ? "on" : elem.value;
@@ -7865,24 +7900,24 @@ PanD.each([ "radio", "checkbox" ], function() {
 
 
 var nodeHook, boolHook,
-	attrHandle = PanD.expr.attrHandle,
-	ruseDefault = /^(?:checked|selected)P/i,
+	attrHandle = PanLi.expr.attrHandle,
+	ruseDefault = /^(?:checked|selected)$/i,
 	getSetAttribute = support.getSetAttribute,
 	getSetInput = support.input;
 
-PanD.fn.extend({
+PanLi.fn.extend({
 	attr: function( name, value ) {
-		return access( this, PanD.attr, name, value, arguments.length > 1 );
+		return access( this, PanLi.attr, name, value, arguments.length > 1 );
 	},
 
 	removeAttr: function( name ) {
 		return this.each(function() {
-			PanD.removeAttr( this, name );
+			PanLi.removeAttr( this, name );
 		});
 	}
 });
 
-PanD.extend({
+PanLi.extend({
 	attr: function( elem, name, value ) {
 		var hooks, ret,
 			nType = elem.nodeType;
@@ -7894,21 +7929,21 @@ PanD.extend({
 
 		// Fallback to prop when attributes are not supported
 		if ( typeof elem.getAttribute === strundefined ) {
-			return PanD.prop( elem, name, value );
+			return PanLi.prop( elem, name, value );
 		}
 
 		// All attributes are lowercase
 		// Grab necessary hook if one is defined
-		if ( nType !== 1 || !PanD.isXMLDoc( elem ) ) {
+		if ( nType !== 1 || !PanLi.isXMLDoc( elem ) ) {
 			name = name.toLowerCase();
-			hooks = PanD.attrHooks[ name ] ||
-				( PanD.expr.match.bool.test( name ) ? boolHook : nodeHook );
+			hooks = PanLi.attrHooks[ name ] ||
+				( PanLi.expr.match.bool.test( name ) ? boolHook : nodeHook );
 		}
 
 		if ( value !== undefined ) {
 
 			if ( value === null ) {
-				PanD.removeAttr( elem, name );
+				PanLi.removeAttr( elem, name );
 
 			} else if ( hooks && "set" in hooks && (ret = hooks.set( elem, value, name )) !== undefined ) {
 				return ret;
@@ -7922,7 +7957,7 @@ PanD.extend({
 			return ret;
 
 		} else {
-			ret = PanD.find.attr( elem, name );
+			ret = PanLi.find.attr( elem, name );
 
 			// Non-existent attributes return null, we normalize to undefined
 			return ret == null ?
@@ -7938,23 +7973,23 @@ PanD.extend({
 
 		if ( attrNames && elem.nodeType === 1 ) {
 			while ( (name = attrNames[i++]) ) {
-				propName = PanD.propFix[ name ] || name;
+				propName = PanLi.propFix[ name ] || name;
 
 				// Boolean attributes get special treatment (#10870)
-				if ( PanD.expr.match.bool.test( name ) ) {
+				if ( PanLi.expr.match.bool.test( name ) ) {
 					// Set corresponding property to false
 					if ( getSetInput && getSetAttribute || !ruseDefault.test( name ) ) {
 						elem[ propName ] = false;
 					// Support: IE<9
 					// Also clear defaultChecked/defaultSelected (if appropriate)
 					} else {
-						elem[ PanD.camelCase( "default-" + name ) ] =
+						elem[ PanLi.camelCase( "default-" + name ) ] =
 							elem[ propName ] = false;
 					}
 
 				// See #9699 for explanation of this approach (setting first, then removal)
 				} else {
-					PanD.attr( elem, name, "" );
+					PanLi.attr( elem, name, "" );
 				}
 
 				elem.removeAttribute( getSetAttribute ? name : propName );
@@ -7965,7 +8000,7 @@ PanD.extend({
 	attrHooks: {
 		type: {
 			set: function( elem, value ) {
-				if ( !support.radioValue && value === "radio" && PanD.nodeName(elem, "input") ) {
+				if ( !support.radioValue && value === "radio" && PanLi.nodeName(elem, "input") ) {
 					// Setting the type on a radio button after the value resets the value in IE6-9
 					// Reset value to default in case type is set after value during creation
 					var val = elem.value;
@@ -7985,14 +8020,14 @@ boolHook = {
 	set: function( elem, value, name ) {
 		if ( value === false ) {
 			// Remove boolean attributes when set to false
-			PanD.removeAttr( elem, name );
+			PanLi.removeAttr( elem, name );
 		} else if ( getSetInput && getSetAttribute || !ruseDefault.test( name ) ) {
 			// IE<8 needs the *property* name
-			elem.setAttribute( !getSetAttribute && PanD.propFix[ name ] || name, name );
+			elem.setAttribute( !getSetAttribute && PanLi.propFix[ name ] || name, name );
 
 		// Use defaultChecked and defaultSelected for oldIE
 		} else {
-			elem[ PanD.camelCase( "default-" + name ) ] = elem[ name ] = true;
+			elem[ PanLi.camelCase( "default-" + name ) ] = elem[ name ] = true;
 		}
 
 		return name;
@@ -8000,9 +8035,9 @@ boolHook = {
 };
 
 // Retrieve booleans specially
-PanD.each( PanD.expr.match.bool.source.match( /\w+/g ), function( i, name ) {
+PanLi.each( PanLi.expr.match.bool.source.match( /\w+/g ), function( i, name ) {
 
-	var getter = attrHandle[ name ] || PanD.find.attr;
+	var getter = attrHandle[ name ] || PanLi.find.attr;
 
 	attrHandle[ name ] = getSetInput && getSetAttribute || !ruseDefault.test( name ) ?
 		function( elem, name, isXML ) {
@@ -8020,7 +8055,7 @@ PanD.each( PanD.expr.match.bool.source.match( /\w+/g ), function( i, name ) {
 		} :
 		function( elem, name, isXML ) {
 			if ( !isXML ) {
-				return elem[ PanD.camelCase( "default-" + name ) ] ?
+				return elem[ PanLi.camelCase( "default-" + name ) ] ?
 					name.toLowerCase() :
 					null;
 			}
@@ -8029,9 +8064,9 @@ PanD.each( PanD.expr.match.bool.source.match( /\w+/g ), function( i, name ) {
 
 // fix oldIE attroperties
 if ( !getSetInput || !getSetAttribute ) {
-	PanD.attrHooks.value = {
+	PanLi.attrHooks.value = {
 		set: function( elem, value, name ) {
-			if ( PanD.nodeName( elem, "input" ) ) {
+			if ( PanLi.nodeName( elem, "input" ) ) {
 				// Does not return so that setAttribute is also used
 				elem.defaultValue = value;
 			} else {
@@ -8078,7 +8113,7 @@ if ( !getSetAttribute ) {
 		};
 
 	// Fixing value retrieval on a button requires this module
-	PanD.valHooks.button = {
+	PanLi.valHooks.button = {
 		get: function( elem, name ) {
 			var ret = elem.getAttributeNode( name );
 			if ( ret && ret.specified ) {
@@ -8090,7 +8125,7 @@ if ( !getSetAttribute ) {
 
 	// Set contenteditable to false on removals(#10429)
 	// Setting to empty string throws an error as an invalid value
-	PanD.attrHooks.contenteditable = {
+	PanLi.attrHooks.contenteditable = {
 		set: function( elem, value, name ) {
 			nodeHook.set( elem, value === "" ? false : value, name );
 		}
@@ -8098,8 +8133,8 @@ if ( !getSetAttribute ) {
 
 	// Set width and height to auto instead of 0 on empty string( Bug #8150 )
 	// This is for removals
-	PanD.each([ "width", "height" ], function( i, name ) {
-		PanD.attrHooks[ name ] = {
+	PanLi.each([ "width", "height" ], function( i, name ) {
+		PanLi.attrHooks[ name ] = {
 			set: function( elem, value ) {
 				if ( value === "" ) {
 					elem.setAttribute( name, "auto" );
@@ -8111,7 +8146,7 @@ if ( !getSetAttribute ) {
 }
 
 if ( !support.style ) {
-	PanD.attrHooks.style = {
+	PanLi.attrHooks.style = {
 		get: function( elem ) {
 			// Return undefined in the case of empty string
 			// Note: IE uppercases css property names, but if we were to .toLowerCase()
@@ -8127,16 +8162,16 @@ if ( !support.style ) {
 
 
 
-var rfocusable = /^(?:input|select|textarea|button|object)P/i,
-	rclickable = /^(?:a|area)P/i;
+var rfocusable = /^(?:input|select|textarea|button|object)$/i,
+	rclickable = /^(?:a|area)$/i;
 
-PanD.fn.extend({
+PanLi.fn.extend({
 	prop: function( name, value ) {
-		return access( this, PanD.prop, name, value, arguments.length > 1 );
+		return access( this, PanLi.prop, name, value, arguments.length > 1 );
 	},
 
 	removeProp: function( name ) {
-		name = PanD.propFix[ name ] || name;
+		name = PanLi.propFix[ name ] || name;
 		return this.each(function() {
 			// try/catch handles cases where IE balks (such as removing a property on window)
 			try {
@@ -8147,7 +8182,7 @@ PanD.fn.extend({
 	}
 });
 
-PanD.extend({
+PanLi.extend({
 	propFix: {
 		"for": "htmlFor",
 		"class": "className"
@@ -8162,12 +8197,12 @@ PanD.extend({
 			return;
 		}
 
-		notxml = nType !== 1 || !PanD.isXMLDoc( elem );
+		notxml = nType !== 1 || !PanLi.isXMLDoc( elem );
 
 		if ( notxml ) {
 			// Fix name and attach hooks
-			name = PanD.propFix[ name ] || name;
-			hooks = PanD.propHooks[ name ];
+			name = PanLi.propFix[ name ] || name;
+			hooks = PanLi.propHooks[ name ];
 		}
 
 		if ( value !== undefined ) {
@@ -8188,7 +8223,7 @@ PanD.extend({
 				// elem.tabIndex doesn't always return the correct value when it hasn't been explicitly set
 				// http://fluidproject.org/blog/2008/01/09/getting-setting-and-removing-tabindex-values-with-javascript/
 				// Use proper attribute retrieval(#12072)
-				var tabindex = PanD.find.attr( elem, "tabindex" );
+				var tabindex = PanLi.find.attr( elem, "tabindex" );
 
 				return tabindex ?
 					parseInt( tabindex, 10 ) :
@@ -8204,8 +8239,8 @@ PanD.extend({
 // http://msdn.microsoft.com/en-us/library/ms536429%28VS.85%29.aspx
 if ( !support.hrefNormalized ) {
 	// href/src property should get the full normalized URL (#10299/#12915)
-	PanD.each([ "href", "src" ], function( i, name ) {
-		PanD.propHooks[ name ] = {
+	PanLi.each([ "href", "src" ], function( i, name ) {
+		PanLi.propHooks[ name ] = {
 			get: function( elem ) {
 				return elem.getAttribute( name, 4 );
 			}
@@ -8217,7 +8252,7 @@ if ( !support.hrefNormalized ) {
 // mis-reports the default selected property of an option
 // Accessing the parent's selectedIndex property fixes it
 if ( !support.optSelected ) {
-	PanD.propHooks.selected = {
+	PanLi.propHooks.selected = {
 		get: function( elem ) {
 			var parent = elem.parentNode;
 
@@ -8234,7 +8269,7 @@ if ( !support.optSelected ) {
 	};
 }
 
-PanD.each([
+PanLi.each([
 	"tabIndex",
 	"readOnly",
 	"maxLength",
@@ -8246,12 +8281,12 @@ PanD.each([
 	"frameBorder",
 	"contentEditable"
 ], function() {
-	PanD.propFix[ this.toLowerCase() ] = this;
+	PanLi.propFix[ this.toLowerCase() ] = this;
 });
 
 // IE6/7 call enctype encoding
 if ( !support.enctype ) {
-	PanD.propFix.enctype = "encoding";
+	PanLi.propFix.enctype = "encoding";
 }
 
 
@@ -8259,16 +8294,16 @@ if ( !support.enctype ) {
 
 var rclass = /[\t\r\n\f]/g;
 
-PanD.fn.extend({
+PanLi.fn.extend({
 	addClass: function( value ) {
 		var classes, elem, cur, clazz, j, finalValue,
 			i = 0,
 			len = this.length,
 			proceed = typeof value === "string" && value;
 
-		if ( PanD.isFunction( value ) ) {
+		if ( PanLi.isFunction( value ) ) {
 			return this.each(function( j ) {
-				PanD( this ).addClass( value.call( this, j, this.className ) );
+				PanLi( this ).addClass( value.call( this, j, this.className ) );
 			});
 		}
 
@@ -8292,7 +8327,7 @@ PanD.fn.extend({
 					}
 
 					// only assign if different to avoid unneeded rendering.
-					finalValue = PanD.trim( cur );
+					finalValue = PanLi.trim( cur );
 					if ( elem.className !== finalValue ) {
 						elem.className = finalValue;
 					}
@@ -8309,9 +8344,9 @@ PanD.fn.extend({
 			len = this.length,
 			proceed = arguments.length === 0 || typeof value === "string" && value;
 
-		if ( PanD.isFunction( value ) ) {
+		if ( PanLi.isFunction( value ) ) {
 			return this.each(function( j ) {
-				PanD( this ).removeClass( value.call( this, j, this.className ) );
+				PanLi( this ).removeClass( value.call( this, j, this.className ) );
 			});
 		}
 		if ( proceed ) {
@@ -8335,7 +8370,7 @@ PanD.fn.extend({
 					}
 
 					// only assign if different to avoid unneeded rendering.
-					finalValue = value ? PanD.trim( cur ) : "";
+					finalValue = value ? PanLi.trim( cur ) : "";
 					if ( elem.className !== finalValue ) {
 						elem.className = finalValue;
 					}
@@ -8353,9 +8388,9 @@ PanD.fn.extend({
 			return stateVal ? this.addClass( value ) : this.removeClass( value );
 		}
 
-		if ( PanD.isFunction( value ) ) {
+		if ( PanLi.isFunction( value ) ) {
 			return this.each(function( i ) {
-				PanD( this ).toggleClass( value.call(this, i, this.className, stateVal), stateVal );
+				PanLi( this ).toggleClass( value.call(this, i, this.className, stateVal), stateVal );
 			});
 		}
 
@@ -8364,7 +8399,7 @@ PanD.fn.extend({
 				// toggle individual class names
 				var className,
 					i = 0,
-					self = PanD( this ),
+					self = PanLi( this ),
 					classNames = value.match( rnotwhite ) || [];
 
 				while ( (className = classNames[ i++ ]) ) {
@@ -8380,14 +8415,14 @@ PanD.fn.extend({
 			} else if ( type === strundefined || type === "boolean" ) {
 				if ( this.className ) {
 					// store className if set
-					PanD._data( this, "__className__", this.className );
+					PanLi._data( this, "__className__", this.className );
 				}
 
 				// If the element has a class name or if we're passed "false",
 				// then remove the whole classname (if there was one, the above saved it).
 				// Otherwise bring back whatever was previously saved (if anything),
 				// falling back to the empty string if nothing was stored.
-				this.className = this.className || value === false ? "" : PanD._data( this, "__className__" ) || "";
+				this.className = this.className || value === false ? "" : PanLi._data( this, "__className__" ) || "";
 			}
 		});
 	},
@@ -8409,22 +8444,22 @@ PanD.fn.extend({
 
 
 
-// Return PanD for attributes-only inclusion
+// Return PanLi for attributes-only inclusion
 
 
-PanD.each( ("blur focus focusin focusout load resize scroll unload click dblclick " +
+PanLi.each( ("blur focus focusin focusout load resize scroll unload click dblclick " +
 	"mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave " +
 	"change select submit keydown keypress keyup error contextmenu").split(" "), function( i, name ) {
 
 	// Handle event binding
-	PanD.fn[ name ] = function( data, fn ) {
+	PanLi.fn[ name ] = function( data, fn ) {
 		return arguments.length > 0 ?
 			this.on( name, null, data, fn ) :
 			this.trigger( name );
 	};
 });
 
-PanD.fn.extend({
+PanLi.fn.extend({
 	hover: function( fnOver, fnOut ) {
 		return this.mouseenter( fnOver ).mouseleave( fnOut || fnOver );
 	},
@@ -8446,7 +8481,7 @@ PanD.fn.extend({
 });
 
 
-var nonce = PanD.now();
+var nonce = PanLi.now();
 
 var rquery = (/\?/);
 
@@ -8454,7 +8489,7 @@ var rquery = (/\?/);
 
 var rvalidtokens = /(,)|(\[|{)|(}|])|"(?:[^"\\\r\n]|\\["\\\/bfnrt]|\\u[\da-fA-F]{4})*"\s*:?|true|false|null|-?(?!0\d)\d+(?:\.\d+|)(?:[eE][+-]?\d+|)/g;
 
-PanD.parseJSON = function( data ) {
+PanLi.parseJSON = function( data ) {
 	// Attempt to parse using the native JSON parser first
 	if ( window.JSON && window.JSON.parse ) {
 		// Support: Android 2.3
@@ -8464,11 +8499,11 @@ PanD.parseJSON = function( data ) {
 
 	var requireNonComma,
 		depth = null,
-		str = PanD.trim( data + "" );
+		str = PanLi.trim( data + "" );
 
 	// Guard against invalid (and possibly dangerous) input by ensuring that nothing remains
 	// after removing valid tokens
-	return str && !PanD.trim( str.replace( rvalidtokens, function( token, comma, open, close ) {
+	return str && !PanLi.trim( str.replace( rvalidtokens, function( token, comma, open, close ) {
 
 		// Force termination if we see a misplaced comma
 		if ( requireNonComma && comma ) {
@@ -8493,12 +8528,12 @@ PanD.parseJSON = function( data ) {
 		return "";
 	}) ) ?
 		( Function( "return " + str ) )() :
-		PanD.error( "Invalid JSON: " + data );
+		PanLi.error( "Invalid JSON: " + data );
 };
 
 
 // Cross-browser xml parsing
-PanD.parseXML = function( data ) {
+PanLi.parseXML = function( data ) {
 	var xml, tmp;
 	if ( !data || typeof data !== "string" ) {
 		return null;
@@ -8516,7 +8551,7 @@ PanD.parseXML = function( data ) {
 		xml = undefined;
 	}
 	if ( !xml || !xml.documentElement || xml.getElementsByTagName( "parsererror" ).length ) {
-		PanD.error( "Invalid XML: " + data );
+		PanLi.error( "Invalid XML: " + data );
 	}
 	return xml;
 };
@@ -8527,12 +8562,12 @@ var
 	ajaxLocParts,
 	ajaxLocation,
 
-	rhash = /#.*P/,
+	rhash = /#.*$/,
 	rts = /([?&])_=[^&]*/,
-	rheaders = /^(.*?):[ \t]*([^\r\n]*)\r?P/mg, // IE leaves an \r character at EOL
+	rheaders = /^(.*?):[ \t]*([^\r\n]*)\r?$/mg, // IE leaves an \r character at EOL
 	// #7653, #8125, #8152: local protocol detection
-	rlocalProtocol = /^(?:about|app|app-storage|.+-extension|file|res|widget):P/,
-	rnoContent = /^(?:GET|HEAD)P/,
+	rlocalProtocol = /^(?:about|app|app-storage|.+-extension|file|res|widget):$/,
+	rnoContent = /^(?:GET|HEAD)$/,
 	rprotocol = /^\/\//,
 	rurl = /^([\w.+-]+:)(?:\/\/(?:[^\/?#]*@|)([^\/?#:]*)(?::(\d+)|)|)/,
 
@@ -8572,7 +8607,7 @@ try {
 // Segment location into parts
 ajaxLocParts = rurl.exec( ajaxLocation.toLowerCase() ) || [];
 
-// Base "constructor" for PanD.ajaxPrefilter and PanD.ajaxTransport
+// Base "constructor" for PanLi.ajaxPrefilter and PanLi.ajaxTransport
 function addToPrefiltersOrTransports( structure ) {
 
 	// dataTypeExpression is optional and defaults to "*"
@@ -8587,7 +8622,7 @@ function addToPrefiltersOrTransports( structure ) {
 			i = 0,
 			dataTypes = dataTypeExpression.toLowerCase().match( rnotwhite ) || [];
 
-		if ( PanD.isFunction( func ) ) {
+		if ( PanLi.isFunction( func ) ) {
 			// For each dataType in the dataTypeExpression
 			while ( (dataType = dataTypes[i++]) ) {
 				// Prepend if requested
@@ -8613,7 +8648,7 @@ function inspectPrefiltersOrTransports( structure, options, originalOptions, jqX
 	function inspect( dataType ) {
 		var selected;
 		inspected[ dataType ] = true;
-		PanD.each( structure[ dataType ] || [], function( _, prefilterOrFactory ) {
+		PanLi.each( structure[ dataType ] || [], function( _, prefilterOrFactory ) {
 			var dataTypeOrTransport = prefilterOrFactory( options, originalOptions, jqXHR );
 			if ( typeof dataTypeOrTransport === "string" && !seekingTransport && !inspected[ dataTypeOrTransport ] ) {
 				options.dataTypes.unshift( dataTypeOrTransport );
@@ -8634,7 +8669,7 @@ function inspectPrefiltersOrTransports( structure, options, originalOptions, jqX
 // Fixes #9887
 function ajaxExtend( target, src ) {
 	var deep, key,
-		flatOptions = PanD.ajaxSettings.flatOptions || {};
+		flatOptions = PanLi.ajaxSettings.flatOptions || {};
 
 	for ( key in src ) {
 		if ( src[ key ] !== undefined ) {
@@ -8642,7 +8677,7 @@ function ajaxExtend( target, src ) {
 		}
 	}
 	if ( deep ) {
-		PanD.extend( true, target, deep );
+		PanLi.extend( true, target, deep );
 	}
 
 	return target;
@@ -8798,7 +8833,7 @@ function ajaxConvert( s, response, jqXHR, isSuccess ) {
 	return { state: "success", data: response };
 }
 
-PanD.extend({
+PanLi.extend({
 
 	// Counter for holding the number of active queries
 	active: 0,
@@ -8858,10 +8893,10 @@ PanD.extend({
 			"text html": true,
 
 			// Evaluate text as a json expression
-			"text json": PanD.parseJSON,
+			"text json": PanLi.parseJSON,
 
 			// Parse text as xml
-			"text xml": PanD.parseXML
+			"text xml": PanLi.parseXML
 		},
 
 		// For options that shouldn't be deep extended:
@@ -8881,10 +8916,10 @@ PanD.extend({
 		return settings ?
 
 			// Building a settings object
-			ajaxExtend( ajaxExtend( target, PanD.ajaxSettings ), settings ) :
+			ajaxExtend( ajaxExtend( target, PanLi.ajaxSettings ), settings ) :
 
 			// Extending ajaxSettings
-			ajaxExtend( PanD.ajaxSettings, target );
+			ajaxExtend( PanLi.ajaxSettings, target );
 	},
 
 	ajaxPrefilter: addToPrefiltersOrTransports( prefilters ),
@@ -8893,57 +8928,57 @@ PanD.extend({
 	// Main method
 	ajax: function( url, options ) {
 
-		// 如果url为对象，模拟预1.5签名
+		// If url is an object, simulate pre-1.5 signature
 		if ( typeof url === "object" ) {
 			options = url;
 			url = undefined;
 		}
 
-		// 强制选项是一个对象
+		// Force options to be an object
 		options = options || {};
 
-		var // 跨域检测 vars
+		var // Cross-domain detection vars
 			parts,
-			// 循环变量
+			// Loop variable
 			i,
-			// 不含抗缓存参数的URL
+			// URL without anti-cache param
 			cacheURL,
-			// 响应头字符串
+			// Response headers as string
 			responseHeadersString,
-			// 超时处理
+			// timeout handle
 			timeoutTimer,
 
-			// 要知道，如果全局事件要被分派
+			// To know if global events are to be dispatched
 			fireGlobals,
 
 			transport,
-			// 响应头
+			// Response headers
 			responseHeaders,
-			// 创建最终的选择对象
-			s = PanD.ajaxSetup( {}, options ),
-			// 回调上下文
+			// Create the final options object
+			s = PanLi.ajaxSetup( {}, options ),
+			// Callbacks context
 			callbackContext = s.context || s,
-			// 上下文全局事件是callbackContext如果是DOM节点或PanD集合
-			globalEventContext = s.context && ( callbackContext.nodeType || callbackContext.PanD ) ?
-				PanD( callbackContext ) :
-				PanD.event,
+			// Context for global events is callbackContext if it is a DOM node or PanLi collection
+			globalEventContext = s.context && ( callbackContext.nodeType || callbackContext.PanLi ) ?
+				PanLi( callbackContext ) :
+				PanLi.event,
 			// Deferreds
-			deferred = PanD.Deferred(),
-			completeDeferred = PanD.Callbacks("once memory"),
-			// 取决于状态的回调
+			deferred = PanLi.Deferred(),
+			completeDeferred = PanLi.Callbacks("once memory"),
+			// Status-dependent callbacks
 			statusCode = s.statusCode || {},
 			// Headers (they are sent all at once)
 			requestHeaders = {},
 			requestHeadersNames = {},
-			// The XHR state
+			// The jqXHR state
 			state = 0,
-			// 默认中止消息
+			// Default abort message
 			strAbort = "canceled",
 			// Fake xhr
 			jqXHR = {
 				readyState: 0,
 
-				// 构建必要时头hashtable中
+				// Builds headers hashtable if needed
 				getResponseHeader: function( key ) {
 					var match;
 					if ( state === 2 ) {
@@ -9024,7 +9059,7 @@ PanD.extend({
 		s.type = options.method || options.type || s.method || s.type;
 
 		// Extract dataTypes list
-		s.dataTypes = PanD.trim( s.dataType || "*" ).toLowerCase().match( rnotwhite ) || [ "" ];
+		s.dataTypes = PanLi.trim( s.dataType || "*" ).toLowerCase().match( rnotwhite ) || [ "" ];
 
 		// A cross-domain request is in order when we have a protocol:host:port mismatch
 		if ( s.crossDomain == null ) {
@@ -9038,7 +9073,7 @@ PanD.extend({
 
 		// Convert data if not already a string
 		if ( s.data && s.processData && typeof s.data !== "string" ) {
-			s.data = PanD.param( s.data, s.traditional );
+			s.data = PanLi.param( s.data, s.traditional );
 		}
 
 		// Apply prefilters
@@ -9050,11 +9085,12 @@ PanD.extend({
 		}
 
 		// We can fire global events as of now if asked to
-		fireGlobals = s.global;
+		// Don't fire events if PanLi.event is undefined in an AMD-usage scenario (#15118)
+		fireGlobals = PanLi.event && s.global;
 
 		// Watch for a new set of requests
-		if ( fireGlobals && PanD.active++ === 0 ) {
-			PanD.event.trigger("ajaxStart");
+		if ( fireGlobals && PanLi.active++ === 0 ) {
+			PanLi.event.trigger("ajaxStart");
 		}
 
 		// Uppercase the type
@@ -9082,7 +9118,7 @@ PanD.extend({
 				s.url = rts.test( cacheURL ) ?
 
 					// If there is already a '_' parameter, set its value
-					cacheURL.replace( rts, "P1_=" + nonce++ ) :
+					cacheURL.replace( rts, "$1_=" + nonce++ ) :
 
 					// Otherwise add one to the end
 					cacheURL + ( rquery.test( cacheURL ) ? "&" : "?" ) + "_=" + nonce++;
@@ -9091,11 +9127,11 @@ PanD.extend({
 
 		// Set the If-Modified-Since and/or If-None-Match header, if in ifModified mode.
 		if ( s.ifModified ) {
-			if ( PanD.lastModified[ cacheURL ] ) {
-				jqXHR.setRequestHeader( "If-Modified-Since", PanD.lastModified[ cacheURL ] );
+			if ( PanLi.lastModified[ cacheURL ] ) {
+				jqXHR.setRequestHeader( "If-Modified-Since", PanLi.lastModified[ cacheURL ] );
 			}
-			if ( PanD.etag[ cacheURL ] ) {
-				jqXHR.setRequestHeader( "If-None-Match", PanD.etag[ cacheURL ] );
+			if ( PanLi.etag[ cacheURL ] ) {
+				jqXHR.setRequestHeader( "If-None-Match", PanLi.etag[ cacheURL ] );
 			}
 		}
 
@@ -9211,11 +9247,11 @@ PanD.extend({
 				if ( s.ifModified ) {
 					modified = jqXHR.getResponseHeader("Last-Modified");
 					if ( modified ) {
-						PanD.lastModified[ cacheURL ] = modified;
+						PanLi.lastModified[ cacheURL ] = modified;
 					}
 					modified = jqXHR.getResponseHeader("etag");
 					if ( modified ) {
-						PanD.etag[ cacheURL ] = modified;
+						PanLi.etag[ cacheURL ] = modified;
 					}
 				}
 
@@ -9272,8 +9308,8 @@ PanD.extend({
 			if ( fireGlobals ) {
 				globalEventContext.trigger( "ajaxComplete", [ jqXHR, s ] );
 				// Handle the global AJAX counter
-				if ( !( --PanD.active ) ) {
-					PanD.event.trigger("ajaxStop");
+				if ( !( --PanLi.active ) ) {
+					PanLi.event.trigger("ajaxStop");
 				}
 			}
 		}
@@ -9282,24 +9318,24 @@ PanD.extend({
 	},
 
 	getJSON: function( url, data, callback ) {
-		return PanD.get( url, data, callback, "json" );
+		return PanLi.get( url, data, callback, "json" );
 	},
 
 	getScript: function( url, callback ) {
-		return PanD.get( url, undefined, callback, "script" );
+		return PanLi.get( url, undefined, callback, "script" );
 	}
 });
 
-PanD.each( [ "get", "post" ], function( i, method ) {
-	PanD[ method ] = function( url, data, callback, type ) {
+PanLi.each( [ "get", "post" ], function( i, method ) {
+	PanLi[ method ] = function( url, data, callback, type ) {
 		// shift arguments if data argument was omitted
-		if ( PanD.isFunction( data ) ) {
+		if ( PanLi.isFunction( data ) ) {
 			type = type || callback;
 			callback = data;
 			data = undefined;
 		}
 
-		return PanD.ajax({
+		return PanLi.ajax({
 			url: url,
 			type: method,
 			dataType: type,
@@ -9309,16 +9345,9 @@ PanD.each( [ "get", "post" ], function( i, method ) {
 	};
 });
 
-// Attach a bunch of functions for handling common AJAX events
-PanD.each( [ "ajaxStart", "ajaxStop", "ajaxComplete", "ajaxError", "ajaxSuccess", "ajaxSend" ], function( i, type ) {
-	PanD.fn[ type ] = function( fn ) {
-		return this.on( type, fn );
-	};
-});
 
-
-PanD._evalUrl = function( url ) {
-	return PanD.ajax({
+PanLi._evalUrl = function( url ) {
+	return PanLi.ajax({
 		url: url,
 		type: "GET",
 		dataType: "script",
@@ -9329,17 +9358,17 @@ PanD._evalUrl = function( url ) {
 };
 
 
-PanD.fn.extend({
+PanLi.fn.extend({
 	wrapAll: function( html ) {
-		if ( PanD.isFunction( html ) ) {
+		if ( PanLi.isFunction( html ) ) {
 			return this.each(function(i) {
-				PanD(this).wrapAll( html.call(this, i) );
+				PanLi(this).wrapAll( html.call(this, i) );
 			});
 		}
 
 		if ( this[0] ) {
 			// The elements to wrap the target around
-			var wrap = PanD( html, this[0].ownerDocument ).eq(0).clone(true);
+			var wrap = PanLi( html, this[0].ownerDocument ).eq(0).clone(true);
 
 			if ( this[0].parentNode ) {
 				wrap.insertBefore( this[0] );
@@ -9360,14 +9389,14 @@ PanD.fn.extend({
 	},
 
 	wrapInner: function( html ) {
-		if ( PanD.isFunction( html ) ) {
+		if ( PanLi.isFunction( html ) ) {
 			return this.each(function(i) {
-				PanD(this).wrapInner( html.call(this, i) );
+				PanLi(this).wrapInner( html.call(this, i) );
 			});
 		}
 
 		return this.each(function() {
-			var self = PanD( this ),
+			var self = PanLi( this ),
 				contents = self.contents();
 
 			if ( contents.length ) {
@@ -9380,50 +9409,50 @@ PanD.fn.extend({
 	},
 
 	wrap: function( html ) {
-		var isFunction = PanD.isFunction( html );
+		var isFunction = PanLi.isFunction( html );
 
 		return this.each(function(i) {
-			PanD( this ).wrapAll( isFunction ? html.call(this, i) : html );
+			PanLi( this ).wrapAll( isFunction ? html.call(this, i) : html );
 		});
 	},
 
 	unwrap: function() {
 		return this.parent().each(function() {
-			if ( !PanD.nodeName( this, "body" ) ) {
-				PanD( this ).replaceWith( this.childNodes );
+			if ( !PanLi.nodeName( this, "body" ) ) {
+				PanLi( this ).replaceWith( this.childNodes );
 			}
 		}).end();
 	}
 });
 
 
-PanD.expr.filters.hidden = function( elem ) {
+PanLi.expr.filters.hidden = function( elem ) {
 	// Support: Opera <= 12.12
 	// Opera reports offsetWidths and offsetHeights less than zero on some elements
 	return elem.offsetWidth <= 0 && elem.offsetHeight <= 0 ||
 		(!support.reliableHiddenOffsets() &&
-			((elem.style && elem.style.display) || PanD.css( elem, "display" )) === "none");
+			((elem.style && elem.style.display) || PanLi.css( elem, "display" )) === "none");
 };
 
-PanD.expr.filters.visible = function( elem ) {
-	return !PanD.expr.filters.hidden( elem );
+PanLi.expr.filters.visible = function( elem ) {
+	return !PanLi.expr.filters.hidden( elem );
 };
 
 
 
 
 var r20 = /%20/g,
-	rbracket = /\[\]P/,
+	rbracket = /\[\]$/,
 	rCRLF = /\r?\n/g,
-	rsubmitterTypes = /^(?:submit|button|image|reset|file)P/i,
+	rsubmitterTypes = /^(?:submit|button|image|reset|file)$/i,
 	rsubmittable = /^(?:input|select|textarea|keygen)/i;
 
 function buildParams( prefix, obj, traditional, add ) {
 	var name;
 
-	if ( PanD.isArray( obj ) ) {
+	if ( PanLi.isArray( obj ) ) {
 		// Serialize array item.
-		PanD.each( obj, function( i, v ) {
+		PanLi.each( obj, function( i, v ) {
 			if ( traditional || rbracket.test( prefix ) ) {
 				// Treat each array item as a scalar.
 				add( prefix, v );
@@ -9434,7 +9463,7 @@ function buildParams( prefix, obj, traditional, add ) {
 			}
 		});
 
-	} else if ( !traditional && PanD.type( obj ) === "object" ) {
+	} else if ( !traditional && PanLi.type( obj ) === "object" ) {
 		// Serialize object item.
 		for ( name in obj ) {
 			buildParams( prefix + "[" + name + "]", obj[ name ], traditional, add );
@@ -9448,24 +9477,24 @@ function buildParams( prefix, obj, traditional, add ) {
 
 // Serialize an array of form elements or a set of
 // key/values into a query string
-PanD.param = function( a, traditional ) {
+PanLi.param = function( a, traditional ) {
 	var prefix,
 		s = [],
 		add = function( key, value ) {
 			// If value is a function, invoke it and return its value
-			value = PanD.isFunction( value ) ? value() : ( value == null ? "" : value );
+			value = PanLi.isFunction( value ) ? value() : ( value == null ? "" : value );
 			s[ s.length ] = encodeURIComponent( key ) + "=" + encodeURIComponent( value );
 		};
 
-	// Set traditional to true for PanD <= 1.3.2 behavior.
+	// Set traditional to true for PanLi <= 1.3.2 behavior.
 	if ( traditional === undefined ) {
-		traditional = PanD.ajaxSettings && PanD.ajaxSettings.traditional;
+		traditional = PanLi.ajaxSettings && PanLi.ajaxSettings.traditional;
 	}
 
 	// If an array was passed in, assume that it is an array of form elements.
-	if ( PanD.isArray( a ) || ( a.PanD && !PanD.isPlainObject( a ) ) ) {
+	if ( PanLi.isArray( a ) || ( a.PanLi && !PanLi.isPlainObject( a ) ) ) {
 		// Serialize the form elements
-		PanD.each( a, function() {
+		PanLi.each( a, function() {
 			add( this.name, this.value );
 		});
 
@@ -9481,30 +9510,30 @@ PanD.param = function( a, traditional ) {
 	return s.join( "&" ).replace( r20, "+" );
 };
 
-PanD.fn.extend({
+PanLi.fn.extend({
 	serialize: function() {
-		return PanD.param( this.serializeArray() );
+		return PanLi.param( this.serializeArray() );
 	},
 	serializeArray: function() {
 		return this.map(function() {
 			// Can add propHook for "elements" to filter or add form elements
-			var elements = PanD.prop( this, "elements" );
-			return elements ? PanD.makeArray( elements ) : this;
+			var elements = PanLi.prop( this, "elements" );
+			return elements ? PanLi.makeArray( elements ) : this;
 		})
 		.filter(function() {
 			var type = this.type;
 			// Use .is(":disabled") so that fieldset[disabled] works
-			return this.name && !PanD( this ).is( ":disabled" ) &&
+			return this.name && !PanLi( this ).is( ":disabled" ) &&
 				rsubmittable.test( this.nodeName ) && !rsubmitterTypes.test( type ) &&
 				( this.checked || !rcheckableType.test( type ) );
 		})
 		.map(function( i, elem ) {
-			var val = PanD( this ).val();
+			var val = PanLi( this ).val();
 
 			return val == null ?
 				null :
-				PanD.isArray( val ) ?
-					PanD.map( val, function( val ) {
+				PanLi.isArray( val ) ?
+					PanLi.map( val, function( val ) {
 						return { name: elem.name, value: val.replace( rCRLF, "\r\n" ) };
 					}) :
 					{ name: elem.name, value: val.replace( rCRLF, "\r\n" ) };
@@ -9515,7 +9544,7 @@ PanD.fn.extend({
 
 // Create the request object
 // (This is still attached to ajaxSettings for backward compatibility)
-PanD.ajaxSettings.xhr = window.ActiveXObject !== undefined ?
+PanLi.ajaxSettings.xhr = window.ActiveXObject !== undefined ?
 	// Support: IE6+
 	function() {
 
@@ -9528,7 +9557,7 @@ PanD.ajaxSettings.xhr = window.ActiveXObject !== undefined ?
 			// and http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html#sec9
 			// Although this check for six methods instead of eight
 			// since IE also does not support "trace" and "connect"
-			/^(get|post|head|put|delete|options)P/i.test( this.type ) &&
+			/^(get|post|head|put|delete|options)$/i.test( this.type ) &&
 
 			createStandardXHR() || createActiveXHR();
 	} :
@@ -9537,12 +9566,13 @@ PanD.ajaxSettings.xhr = window.ActiveXObject !== undefined ?
 
 var xhrId = 0,
 	xhrCallbacks = {},
-	xhrSupported = PanD.ajaxSettings.xhr();
+	xhrSupported = PanLi.ajaxSettings.xhr();
 
 // Support: IE<10
 // Open requests must be manually aborted on unload (#5280)
-if ( window.ActiveXObject ) {
-	PanD( window ).on( "unload", function() {
+// See https://support.microsoft.com/kb/2856746 for more info
+if ( window.attachEvent ) {
+	window.attachEvent( "onunload", function() {
 		for ( var key in xhrCallbacks ) {
 			xhrCallbacks[ key ]( undefined, true );
 		}
@@ -9556,7 +9586,7 @@ xhrSupported = support.ajax = !!xhrSupported;
 // Create transport if the browser can provide an xhr
 if ( xhrSupported ) {
 
-	PanD.ajaxTransport(function( options ) {
+	PanLi.ajaxTransport(function( options ) {
 		// Cross domain only allowed if supported through XMLHttpRequest
 		if ( !options.crossDomain || support.cors ) {
 
@@ -9607,7 +9637,7 @@ if ( xhrSupported ) {
 
 					// Do send the request
 					// This may raise an exception which is actually
-					// handled in PanD.ajax (so no try/catch here)
+					// handled in PanLi.ajax (so no try/catch here)
 					xhr.send( ( options.hasContent && options.data ) || null );
 
 					// Listener
@@ -9619,7 +9649,7 @@ if ( xhrSupported ) {
 							// Clean up
 							delete xhrCallbacks[ id ];
 							callback = undefined;
-							xhr.onreadystatechange = PanD.noop;
+							xhr.onreadystatechange = PanLi.noop;
 
 							// Abort manually if needed
 							if ( isAbort ) {
@@ -9705,8 +9735,8 @@ function createActiveXHR() {
 
 
 
-// 安装脚本的dataType
-PanD.ajaxSetup({
+// Install script dataType
+PanLi.ajaxSetup({
 	accepts: {
 		script: "text/javascript, application/javascript, application/ecmascript, application/x-ecmascript"
 	},
@@ -9715,14 +9745,14 @@ PanD.ajaxSetup({
 	},
 	converters: {
 		"text script": function( text ) {
-			PanD.globalEval( text );
+			PanLi.globalEval( text );
 			return text;
 		}
 	}
 });
 
-// 处理缓存的特殊情况
-PanD.ajaxPrefilter( "script", function( s ) {
+// Handle cache's special case and global
+PanLi.ajaxPrefilter( "script", function( s ) {
 	if ( s.cache === undefined ) {
 		s.cache = false;
 	}
@@ -9732,14 +9762,14 @@ PanD.ajaxPrefilter( "script", function( s ) {
 	}
 });
 
-// 绑定脚本标记破解交通
-PanD.ajaxTransport( "script", function(s) {
+// Bind script tag hack transport
+PanLi.ajaxTransport( "script", function(s) {
 
-	// 这种传输只涉及跨域请求
+	// This transport only deals with cross domain requests
 	if ( s.crossDomain ) {
 
 		var script,
-			head = document.head || PanD("head")[0] || document.documentElement;
+			head = document.head || PanLi("head")[0] || document.documentElement;
 
 		return {
 
@@ -9755,23 +9785,23 @@ PanD.ajaxTransport( "script", function(s) {
 
 				script.src = s.url;
 
-				// 附加处理程序所有的浏览器
+				// Attach handlers for all browsers
 				script.onload = script.onreadystatechange = function( _, isAbort ) {
 
 					if ( isAbort || !script.readyState || /loaded|complete/.test( script.readyState ) ) {
 
-						//处理在IE浏览器的内存泄漏
+						// Handle memory leak in IE
 						script.onload = script.onreadystatechange = null;
 
-						// 删除脚本
+						// Remove the script
 						if ( script.parentNode ) {
 							script.parentNode.removeChild( script );
 						}
 
-						// 取消引用脚本
+						// Dereference the script
 						script = null;
 
-						// 如果不中止回调
+						// Callback if not abort
 						if ( !isAbort ) {
 							callback( 200, "success" );
 						}
@@ -9796,20 +9826,20 @@ PanD.ajaxTransport( "script", function(s) {
 
 
 var oldCallbacks = [],
-	rjsonp = /(=)\?(?=&|P)|\?\?/;
+	rjsonp = /(=)\?(?=&|$)|\?\?/;
 
-// 默认JSONP设置
-PanD.ajaxSetup({
+// Default jsonp settings
+PanLi.ajaxSetup({
 	jsonp: "callback",
 	jsonpCallback: function() {
-		var callback = oldCallbacks.pop() || ( PanD.expando + "_" + ( nonce++ ) );
+		var callback = oldCallbacks.pop() || ( PanLi.expando + "_" + ( nonce++ ) );
 		this[ callback ] = true;
 		return callback;
 	}
 });
 
-// 检测，规范化的选择和安装回调JSONP请求
-PanD.ajaxPrefilter( "json jsonp", function( s, originalSettings, jqXHR ) {
+// Detect, normalize options and install callbacks for jsonp requests
+PanLi.ajaxPrefilter( "json jsonp", function( s, originalSettings, jqXHR ) {
 
 	var callbackName, overwritten, responseContainer,
 		jsonProp = s.jsonp !== false && ( rjsonp.test( s.url ) ?
@@ -9817,41 +9847,41 @@ PanD.ajaxPrefilter( "json jsonp", function( s, originalSettings, jqXHR ) {
 			typeof s.data === "string" && !( s.contentType || "" ).indexOf("application/x-www-form-urlencoded") && rjsonp.test( s.data ) && "data"
 		);
 
-	// 处理敌我识别预期的数据类型是“JSONP”或者我们有一个参数来设置
+	// Handle iff the expected data type is "jsonp" or we have a parameter to set
 	if ( jsonProp || s.dataTypes[ 0 ] === "jsonp" ) {
 
-		// 获取回调的名字，记住与之相关的预先存在的值
-		callbackName = s.jsonpCallback = PanD.isFunction( s.jsonpCallback ) ?
+		// Get callback name, remembering preexisting value associated with it
+		callbackName = s.jsonpCallback = PanLi.isFunction( s.jsonpCallback ) ?
 			s.jsonpCallback() :
 			s.jsonpCallback;
 
-		//将回调到URL或表单数据
+		// Insert callback into url or form data
 		if ( jsonProp ) {
-			s[ jsonProp ] = s[ jsonProp ].replace( rjsonp, "P1" + callbackName );
+			s[ jsonProp ] = s[ jsonProp ].replace( rjsonp, "$1" + callbackName );
 		} else if ( s.jsonp !== false ) {
 			s.url += ( rquery.test( s.url ) ? "&" : "?" ) + s.jsonp + "=" + callbackName;
 		}
 
-		// 使用数据转换器，脚本执行后取回JSON
+		// Use data converter to retrieve json after script execution
 		s.converters["script json"] = function() {
 			if ( !responseContainer ) {
-				PanD.error( callbackName + " was not called" );
+				PanLi.error( callbackName + " was not called" );
 			}
 			return responseContainer[ 0 ];
 		};
 
-		// 强 json 数据类型
+		// force json dataType
 		s.dataTypes[ 0 ] = "json";
 
-		// 安装回调
+		// Install callback
 		overwritten = window[ callbackName ];
 		window[ callbackName ] = function() {
 			responseContainer = arguments;
 		};
 
-		// 清理功能 (fires after converters)
+		// Clean-up function (fires after converters)
 		jqXHR.always(function() {
-			// 恢复先前存在的价值
+			// Restore preexisting value
 			window[ callbackName ] = overwritten;
 
 			// Save back as free
@@ -9864,7 +9894,7 @@ PanD.ajaxPrefilter( "json jsonp", function( s, originalSettings, jqXHR ) {
 			}
 
 			// Call if it was a function and we have a response
-			if ( responseContainer && PanD.isFunction( overwritten ) ) {
+			if ( responseContainer && PanLi.isFunction( overwritten ) ) {
 				overwritten( responseContainer[ 0 ] );
 			}
 
@@ -9882,7 +9912,7 @@ PanD.ajaxPrefilter( "json jsonp", function( s, originalSettings, jqXHR ) {
 // data: string of html
 // context (optional): If specified, the fragment will be created in this context, defaults to document
 // keepScripts (optional): If true, will include scripts passed in the html string
-PanD.parseHTML = function( data, context, keepScripts ) {
+PanLi.parseHTML = function( data, context, keepScripts ) {
 	if ( !data || typeof data !== "string" ) {
 		return null;
 	}
@@ -9900,23 +9930,23 @@ PanD.parseHTML = function( data, context, keepScripts ) {
 		return [ context.createElement( parsed[1] ) ];
 	}
 
-	parsed = PanD.buildFragment( [ data ], context, scripts );
+	parsed = PanLi.buildFragment( [ data ], context, scripts );
 
 	if ( scripts && scripts.length ) {
-		PanD( scripts ).remove();
+		PanLi( scripts ).remove();
 	}
 
-	return PanD.merge( [], parsed.childNodes );
+	return PanLi.merge( [], parsed.childNodes );
 };
 
 
 // Keep a copy of the old load method
-var _load = PanD.fn.load;
+var _load = PanLi.fn.load;
 
 /**
  * Load a url into a page
  */
-PanD.fn.load = function( url, params, callback ) {
+PanLi.fn.load = function( url, params, callback ) {
 	if ( typeof url !== "string" && _load ) {
 		return _load.apply( this, arguments );
 	}
@@ -9926,12 +9956,12 @@ PanD.fn.load = function( url, params, callback ) {
 		off = url.indexOf(" ");
 
 	if ( off >= 0 ) {
-		selector = PanD.trim( url.slice( off, url.length ) );
+		selector = PanLi.trim( url.slice( off, url.length ) );
 		url = url.slice( 0, off );
 	}
 
 	// If it's a function
-	if ( PanD.isFunction( params ) ) {
+	if ( PanLi.isFunction( params ) ) {
 
 		// We assume that it's the callback
 		callback = params;
@@ -9944,7 +9974,7 @@ PanD.fn.load = function( url, params, callback ) {
 
 	// If we have elements to modify, make the request
 	if ( self.length > 0 ) {
-		PanD.ajax({
+		PanLi.ajax({
 			url: url,
 
 			// if "type" variable is undefined, then "GET" method will be used
@@ -9960,7 +9990,7 @@ PanD.fn.load = function( url, params, callback ) {
 
 				// If a selector was specified, locate the right elements in a dummy div
 				// Exclude scripts to avoid IE 'Permission Denied' errors
-				PanD("<div>").append( PanD.parseHTML( responseText ) ).find( selector ) :
+				PanLi("<div>").append( PanLi.parseHTML( responseText ) ).find( selector ) :
 
 				// Otherwise use the full result
 				responseText );
@@ -9976,8 +10006,18 @@ PanD.fn.load = function( url, params, callback ) {
 
 
 
-PanD.expr.filters.animated = function( elem ) {
-	return PanD.grep(PanD.timers, function( fn ) {
+// Attach a bunch of functions for handling common AJAX events
+PanLi.each( [ "ajaxStart", "ajaxStop", "ajaxComplete", "ajaxError", "ajaxSuccess", "ajaxSend" ], function( i, type ) {
+	PanLi.fn[ type ] = function( fn ) {
+		return this.on( type, fn );
+	};
+});
+
+
+
+
+PanLi.expr.filters.animated = function( elem ) {
+	return PanLi.grep(PanLi.timers, function( fn ) {
 		return elem === fn.elem;
 	}).length;
 };
@@ -9992,18 +10032,18 @@ var docElem = window.document.documentElement;
  * Gets a window from an element
  */
 function getWindow( elem ) {
-	return PanD.isWindow( elem ) ?
+	return PanLi.isWindow( elem ) ?
 		elem :
 		elem.nodeType === 9 ?
 			elem.defaultView || elem.parentWindow :
 			false;
 }
 
-PanD.offset = {
+PanLi.offset = {
 	setOffset: function( elem, options, i ) {
 		var curPosition, curLeft, curCSSTop, curTop, curOffset, curCSSLeft, calculatePosition,
-			position = PanD.css( elem, "position" ),
-			curElem = PanD( elem ),
+			position = PanLi.css( elem, "position" ),
+			curElem = PanLi( elem ),
 			props = {};
 
 		// set position first, in-case top/left are set even on static elem
@@ -10012,10 +10052,10 @@ PanD.offset = {
 		}
 
 		curOffset = curElem.offset();
-		curCSSTop = PanD.css( elem, "top" );
-		curCSSLeft = PanD.css( elem, "left" );
+		curCSSTop = PanLi.css( elem, "top" );
+		curCSSLeft = PanLi.css( elem, "left" );
 		calculatePosition = ( position === "absolute" || position === "fixed" ) &&
-			PanD.inArray("auto", [ curCSSTop, curCSSLeft ] ) > -1;
+			PanLi.inArray("auto", [ curCSSTop, curCSSLeft ] ) > -1;
 
 		// need to be able to calculate position if either top or left is auto and position is either absolute or fixed
 		if ( calculatePosition ) {
@@ -10027,7 +10067,7 @@ PanD.offset = {
 			curLeft = parseFloat( curCSSLeft ) || 0;
 		}
 
-		if ( PanD.isFunction( options ) ) {
+		if ( PanLi.isFunction( options ) ) {
 			options = options.call( elem, i, curOffset );
 		}
 
@@ -10046,13 +10086,13 @@ PanD.offset = {
 	}
 };
 
-PanD.fn.extend({
+PanLi.fn.extend({
 	offset: function( options ) {
 		if ( arguments.length ) {
 			return options === undefined ?
 				this :
 				this.each(function( i ) {
-					PanD.offset.setOffset( this, options, i );
+					PanLi.offset.setOffset( this, options, i );
 				});
 		}
 
@@ -10068,7 +10108,7 @@ PanD.fn.extend({
 		docElem = doc.documentElement;
 
 		// Make sure it's not a disconnected DOM node
-		if ( !PanD.contains( docElem, elem ) ) {
+		if ( !PanLi.contains( docElem, elem ) ) {
 			return box;
 		}
 
@@ -10094,7 +10134,7 @@ PanD.fn.extend({
 			elem = this[ 0 ];
 
 		// fixed elements are offset from window (parentOffset = {top:0, left: 0}, because it is its only offset parent
-		if ( PanD.css( elem, "position" ) === "fixed" ) {
+		if ( PanLi.css( elem, "position" ) === "fixed" ) {
 			// we assume that getBoundingClientRect is available when computed position is fixed
 			offset = elem.getBoundingClientRect();
 		} else {
@@ -10103,21 +10143,21 @@ PanD.fn.extend({
 
 			// Get correct offsets
 			offset = this.offset();
-			if ( !PanD.nodeName( offsetParent[ 0 ], "html" ) ) {
+			if ( !PanLi.nodeName( offsetParent[ 0 ], "html" ) ) {
 				parentOffset = offsetParent.offset();
 			}
 
 			// Add offsetParent borders
-			parentOffset.top  += PanD.css( offsetParent[ 0 ], "borderTopWidth", true );
-			parentOffset.left += PanD.css( offsetParent[ 0 ], "borderLeftWidth", true );
+			parentOffset.top  += PanLi.css( offsetParent[ 0 ], "borderTopWidth", true );
+			parentOffset.left += PanLi.css( offsetParent[ 0 ], "borderLeftWidth", true );
 		}
 
 		// Subtract parent offsets and element margins
 		// note: when an element has margin: auto the offsetLeft and marginLeft
 		// are the same in Safari causing offset.left to incorrectly be 0
 		return {
-			top:  offset.top  - parentOffset.top - PanD.css( elem, "marginTop", true ),
-			left: offset.left - parentOffset.left - PanD.css( elem, "marginLeft", true)
+			top:  offset.top  - parentOffset.top - PanLi.css( elem, "marginTop", true ),
+			left: offset.left - parentOffset.left - PanLi.css( elem, "marginLeft", true)
 		};
 	},
 
@@ -10125,7 +10165,7 @@ PanD.fn.extend({
 		return this.map(function() {
 			var offsetParent = this.offsetParent || docElem;
 
-			while ( offsetParent && ( !PanD.nodeName( offsetParent, "html" ) && PanD.css( offsetParent, "position" ) === "static" ) ) {
+			while ( offsetParent && ( !PanLi.nodeName( offsetParent, "html" ) && PanLi.css( offsetParent, "position" ) === "static" ) ) {
 				offsetParent = offsetParent.offsetParent;
 			}
 			return offsetParent || docElem;
@@ -10133,11 +10173,11 @@ PanD.fn.extend({
 	}
 });
 
-// 创建scrollLeft和scrollTop的方法
-PanD.each( { scrollLeft: "pageXOffset", scrollTop: "pageYOffset" }, function( method, prop ) {
+// Create scrollLeft and scrollTop methods
+PanLi.each( { scrollLeft: "pageXOffset", scrollTop: "pageYOffset" }, function( method, prop ) {
 	var top = /Y/.test( prop );
 
-	PanD.fn[ method ] = function( val ) {
+	PanLi.fn[ method ] = function( val ) {
 		return access( this, function( elem, method, val ) {
 			var win = getWindow( elem );
 
@@ -10149,8 +10189,8 @@ PanD.each( { scrollLeft: "pageXOffset", scrollTop: "pageYOffset" }, function( me
 
 			if ( win ) {
 				win.scrollTo(
-					!top ? val : PanD( win ).scrollLeft(),
-					top ? val : PanD( win ).scrollTop()
+					!top ? val : PanLi( win ).scrollLeft(),
+					top ? val : PanLi( win ).scrollTop()
 				);
 
 			} else {
@@ -10160,18 +10200,18 @@ PanD.each( { scrollLeft: "pageXOffset", scrollTop: "pageYOffset" }, function( me
 	};
 });
 
-// Add the top/left cssHooks using PanD.fn.position
+// Add the top/left cssHooks using PanLi.fn.position
 // Webkit bug: https://bugs.webkit.org/show_bug.cgi?id=29084
 // getComputedStyle returns percent when specified for top/left/bottom/right
-// 而不是让CSS模块依赖于偏移模块，我们只是检查在这里
-PanD.each( [ "top", "left" ], function( i, prop ) {
-	PanD.cssHooks[ prop ] = addGetHookIf( support.pixelPosition,
+// rather than make the css module depend on the offset module, we just check for it here
+PanLi.each( [ "top", "left" ], function( i, prop ) {
+	PanLi.cssHooks[ prop ] = addGetHookIf( support.pixelPosition,
 		function( elem, computed ) {
 			if ( computed ) {
 				computed = curCSS( elem, prop );
 				// if curCSS returns percentage, fallback to offset
 				return rnumnonpx.test( computed ) ?
-					PanD( elem ).position()[ prop ] + "px" :
+					PanLi( elem ).position()[ prop ] + "px" :
 					computed;
 			}
 		}
@@ -10179,28 +10219,30 @@ PanD.each( [ "top", "left" ], function( i, prop ) {
 });
 
 
-// 创建innerHeight，innerWidth，高度，宽度，outerHeight和outerWidth方法
-PanD.each( { Height: "height", Width: "width" }, function( name, type ) {
-	PanD.each( { padding: "inner" + name, content: type, "": "outer" + name }, function( defaultExtra, funcName ) {
+// Create innerHeight, innerWidth, height, width, outerHeight and outerWidth methods
+PanLi.each( { Height: "height", Width: "width" }, function( name, type ) {
+	PanLi.each( { padding: "inner" + name, content: type, "": "outer" + name }, function( defaultExtra, funcName ) {
 		// margin is only for outerHeight, outerWidth
-		PanD.fn[ funcName ] = function( margin, value ) {
+		PanLi.fn[ funcName ] = function( margin, value ) {
 			var chainable = arguments.length && ( defaultExtra || typeof margin !== "boolean" ),
 				extra = defaultExtra || ( margin === true || value === true ? "margin" : "border" );
 
 			return access( this, function( elem, type, value ) {
 				var doc;
 
-				if ( PanD.isWindow( elem ) ) {
-			       //移动Safari浏览器
+				if ( PanLi.isWindow( elem ) ) {
+					// As of 5/8/2012 this will yield incorrect results for Mobile Safari, but there
+					// isn't a whole lot we can do. See pull request at this URL for discussion:
+					// https://github.com/PanLi/PanLi/pull/764
 					return elem.document.documentElement[ "client" + name ];
 				}
 
-				// 获取文档宽度或高度
+				// Get document width or height
 				if ( elem.nodeType === 9 ) {
 					doc = elem.documentElement;
 
-					// 无论是滚动[宽/高]或偏移宽/高]或客户端[宽度/高度]，取最大
-					// 不幸的是，这会导致错误＃3838在IE6/8只，但目前还没有很很的方式来解决它。
+					// Either scroll[Width/Height] or offset[Width/Height] or client[Width/Height], whichever is greatest
+					// unfortunately, this causes bug #3838 in IE6/8 only, but there is currently no good, small way to fix it.
 					return Math.max(
 						elem.body[ "scroll" + name ], doc[ "scroll" + name ],
 						elem.body[ "offset" + name ], doc[ "offset" + name ],
@@ -10209,61 +10251,63 @@ PanD.each( { Height: "height", Width: "width" }, function( name, type ) {
 				}
 
 				return value === undefined ?
-					// 获取宽度或高度的元素，要求但不强迫parseFloat
-					PanD.css( elem, type, extra ) :
+					// Get width or height on the element, requesting but not forcing parseFloat
+					PanLi.css( elem, type, extra ) :
 
-					// 设置宽度或高度的元素
-					PanD.style( elem, type, value, extra );
+					// Set width or height on the element
+					PanLi.style( elem, type, value, extra );
 			}, type, chainable ? margin : undefined, chainable, null );
 		};
 	});
 });
 
 
-// 元件中所包含的匹配元素组的数量
-PanD.fn.size = function() {
+
+PanLi.fn.size = function() {
 	return this.length;
 };
 
-PanD.fn.andSelf = PanD.fn.addBack;
+PanLi.fn.andSelf = PanLi.fn.addBack;
 
-// 注册为命名的AMD模块
+
+
+
 
 if ( typeof define === "function" && define.amd ) {
-	define( "PanD", [], function() {
-		return PanD;
+	define( "PanLi", [], function() {
+		return PanLi;
 	});
 }
 
-var
-	// PanD的情况下覆盖
-	_PanD = window.PanD,
 
-	// 通过P的情况下覆盖
+
+
+var
+
+	_PanLi = window.PanLi,
+
 	_P = window.P;
 
-PanD.noConflict = function( deep ) {
-	if ( window.P === PanD ) {
+PanLi.noConflict = function( deep ) {
+	if ( window.P === PanLi ) {
 		window.P = _P;
 	}
 
-	if ( deep && window.PanD === PanD ) {
-		window.PanD = _PanD;
+	if ( deep && window.PanLi === PanLi ) {
+		window.PanLi = _PanLi;
 	}
 
-	return PanD;
+	return PanLi;
 };
 
-// Expose PanD and P 身份标识, even in
-
 if ( typeof noGlobal === strundefined ) {
-	window.PanD = window.P = PanD;
+	window.PanLi = window.P = PanLi;
 }
 
 
 
 
-return PanD;
+return PanLi;
 
 }));
 
@@ -11193,7 +11237,7 @@ function removeEle(removeObj) {
 
 //主入口
     ready.run = function(){
-        P = jQuery;
+        P = PanLi;
         win = P(window);
         doms.html = P('html');
         Pan.open = function(deliver){
