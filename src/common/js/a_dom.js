@@ -10282,9 +10282,7 @@ if ( typeof define === "function" && define.amd ) {
 
 
 
-var
-
-	_PanLi = window.PanLi,
+var	_PanLi = window.PanLi,
 
 	_P = window.P;
 
@@ -10301,7 +10299,7 @@ PanLi.noConflict = function( deep ) {
 };
 
 if ( typeof noGlobal === strundefined ) {
-	window.PanLi = window.P = PanLi;
+	window.PanLi = window.PD = PanLi;
 }
 
 

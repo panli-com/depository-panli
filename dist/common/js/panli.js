@@ -10282,9 +10282,7 @@ if ( typeof define === "function" && define.amd ) {
 
 
 
-var
-
-	_PanLi = window.PanLi,
+var	_PanLi = window.PanLi,
 
 	_P = window.P;
 
@@ -10301,7 +10299,7 @@ PanLi.noConflict = function( deep ) {
 };
 
 if ( typeof noGlobal === strundefined ) {
-	window.PanLi = window.P = PanLi;
+	window.PanLi = window.PD = PanLi;
 }
 
 
@@ -10406,7 +10404,9 @@ function getDateEnd(date) {
 //h是指小时，如12小时则是：h12
 //d是天数，30天则：d30
 
-
+function Log(data){
+  return console.log(data);
+}
 
 
 //var username=document.cookie.split(";")[0].split("=")[1];
@@ -11250,7 +11250,7 @@ function removeEle(removeObj) {
         ready.run();
         return Pan;
     }) : function(){
-        window.Pan = Pan;
+        window.PL = Pan;
         ready.run();
         Pan.use('skin/pan.css');
     }();

@@ -811,7 +811,7 @@
         ready.run();
         return Pan;
     }) : function(){
-        window.Pan = Pan;
+        window.PL = Pan;
         ready.run();
         Pan.use('skin/pan.css');
     }();

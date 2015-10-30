@@ -93,7 +93,9 @@ function getDateEnd(date) {
 //h是指小时，如12小时则是：h12
 //d是天数，30天则：d30
 
-
+function Log(data){
+  return console.log(data);
+}
 
 
 //var username=document.cookie.split(";")[0].split("=")[1];
