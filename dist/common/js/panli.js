@@ -10384,12 +10384,12 @@ function del_Cookie(name)
         document.cookie= name + "="+cval+";expires="+exp.toGMTString();
 };
 
-function set_Cookie(name,value,time)
+function set_Cookie(name,value,time,path)
 {
 
     var exp = new Date();
     exp.setTime(time);
-    document.cookie = name + "="+ escape (value) + ";expires=" + exp.toGMTString();
+    document.cookie = name + "="+ escape (value) + ";expires=" + exp.toGMTString()+"; path=" + path;
 };
 function getsec(str)
 {
@@ -10427,7 +10427,35 @@ function Log(data){
   return console.log(data);
 }
 
+//倒计时
+function PLCountdown(end,sta,i){
+  if(!i){
+    i = 1
+  }
+  if(!sta){
+    sta = new Date().getTime();
+  }
+  var t = parseInt(end) - parseInt(sta),
+   d=Math.floor(t/1000/60/60/24),
+   h=Math.floor(t/1000/60/60%24),
+   m=Math.floor(t/1000/60%60),
+   s=Math.floor(t/1000%60),
+   index = i+1;
+  if(t < 0){
+    d = h = m = s = '00';
+  }
 
+  var time = {
+    d:d,
+    h:h,
+    m:m,
+    s:s,
+    i:index,
+    end:end,
+    sta:sta
+  };
+  return time;
+}
 //var username=document.cookie.split(";")[0].split("=")[1];
 ////JS操作cookies方法!
 ////写cookies
