@@ -36,6 +36,25 @@ function getServerTime(callback){
        }
     });
 }
+// 获取服务器时间
+function getServerTimeStamp(callback){
+  $.ajax({
+       type: "POST",
+       cache: false,
+       async: false,
+       url: "/App_Services/wsDefault.asmx/GetDateTimeStamp",
+       dataType: "json",
+       contentType: "application/json;utf-8",
+       timeout: 10000,
+       error: function () {
+       },
+       success: function (data) {
+           if(data){
+             callback(parseInt(data.d * 1000));
+           }
+       }
+    });
+}
 
 function get_Cookie(name)
 {

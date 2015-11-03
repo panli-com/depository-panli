@@ -1,16 +1,32 @@
-// dom 操作集
+/*!
+ * jQuery JavaScript Library v1.11.2
+ * http://jquery.com/
+ *
+ * Includes Sizzle.js
+ * http://sizzlejs.com/
+ *
+ * Copyright 2005, 2014 jQuery Foundation, Inc. and other contributors
+ * Released under the MIT license
+ * http://jquery.org/license
+ *
+ * Date: 2014-12-17T15:27Z
+ */
 
 (function( global, factory ) {
 
 	if ( typeof module === "object" && typeof module.exports === "object" ) {
-		// 对于CommonJS的和CommonJS的类似环境中，适当的窗口存在，
-		//  继承这个工厂 可以用 PanD
-		// e.g. var PanD = require("PanLi")(window);
+		// For CommonJS and CommonJS-like environments where a proper window is present,
+		// execute the factory and get jQuery
+		// For environments that do not inherently posses a window with a document
+		// (such as Node.js), expose a jQuery-making factory as module.exports
+		// This accentuates the need for the creation of a real window
+		// e.g. var jQuery = require("jquery")(window);
+		// See ticket #14549 for more info
 		module.exports = global.document ?
 			factory( global, true ) :
 			function( w ) {
 				if ( !w.document ) {
-					throw new Error( "PanLi requires a window with a document" );
+					throw new Error( "jQuery requires a window with a document" );
 				}
 				return factory( w );
 			};
@@ -18,13 +34,15 @@
 		factory( global );
 	}
 
-// 通过这个窗口，如果是没有定义
+// Pass this if window is not defined yet
 }(typeof window !== "undefined" ? window : this, function( window, noGlobal ) {
 
-
-
-// 您尝试跟踪过“使用严格的”调用链
+// Can't do this because several apps including ASP.NET trace
+// the stack via arguments.caller.callee and Firefox dies if
+// you try to trace through "use strict" call chains. (#13335)
+// Support: Firefox 18+
 //
+
 var deletedIds = [];
 
 var slice = deletedIds.slice;
@@ -46,38 +64,38 @@ var support = {};
 
 
 var
-	version = "0.0.5",
+	version = "1.11.2",
 
-
-	PanLi = function( selector, context ) {
-		// 该 PanD 对象实际上只是在init构造'增强'
-		//需要初始化，如果PanD被称为（只允许被抛出的错误，如果不包括在内）
-		return new PanLi.fn.init( selector, context );
+	// Define a local copy of jQuery
+	jQuery = function( selector, context ) {
+		// The jQuery object is actually just the init constructor 'enhanced'
+		// Need init if jQuery is called (just allow error to be thrown if not included)
+		return new jQuery.fn.init( selector, context );
 	},
 
-	// 支撑: Android<4.1, IE<9
-	// 确保我们 trim BOM and NBSP
+	// Support: Android<4.1, IE<9
+	// Make sure we trim BOM and NBSP
 	rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g,
 
-	// 匹配虚线字符串骆驼
+	// Matches dashed string for camelizing
 	rmsPrefix = /^-ms-/,
 	rdashAlpha = /-([\da-z])/gi,
 
-	// Used by PanLi.camelCase as callback to replace()
+	// Used by jQuery.camelCase as callback to replace()
 	fcamelCase = function( all, letter ) {
 		return letter.toUpperCase();
 	};
 
-PanLi.fn = PanLi.prototype = {
-// 当前版本
-	PanLi: version,
+jQuery.fn = jQuery.prototype = {
+	// The current version of jQuery being used
+	jquery: version,
 
-	constructor: PanLi,
+	constructor: jQuery,
 
-	// 从一个空的选择开始
+	// Start with an empty selector
 	selector: "",
 
-	// 对象的默认长度为 0
+	// The default length of a jQuery object is 0
 	length: 0,
 
 	toArray: function() {
@@ -100,8 +118,8 @@ PanLi.fn = PanLi.prototype = {
 	// (returning the new matched element set)
 	pushStack: function( elems ) {
 
-		// Build a new PanLi matched element set
-		var ret = PanLi.merge( this.constructor(), elems );
+		// Build a new jQuery matched element set
+		var ret = jQuery.merge( this.constructor(), elems );
 
 		// Add the old object onto the stack (as a reference)
 		ret.prevObject = this;
@@ -115,11 +133,11 @@ PanLi.fn = PanLi.prototype = {
 	// (You can seed the arguments with an array of args, but this is
 	// only used internally.)
 	each: function( callback, args ) {
-		return PanLi.each( this, callback, args );
+		return jQuery.each( this, callback, args );
 	},
 
 	map: function( callback ) {
-		return this.pushStack( PanLi.map(this, function( elem, i ) {
+		return this.pushStack( jQuery.map(this, function( elem, i ) {
 			return callback.call( elem, i, elem );
 		}));
 	},
@@ -147,13 +165,13 @@ PanLi.fn = PanLi.prototype = {
 	},
 
 	// For internal use only.
-	// Behaves like an Array's method, not like a PanLi method.
+	// Behaves like an Array's method, not like a jQuery method.
 	push: push,
 	sort: deletedIds.sort,
 	splice: deletedIds.splice
 };
 
-PanLi.extend = PanLi.fn.extend = function() {
+jQuery.extend = jQuery.fn.extend = function() {
 	var src, copyIsArray, copy, name, options, clone,
 		target = arguments[0] || {},
 		i = 1,
@@ -170,11 +188,11 @@ PanLi.extend = PanLi.fn.extend = function() {
 	}
 
 	// Handle case when target is a string or something (possible in deep copy)
-	if ( typeof target !== "object" && !PanLi.isFunction(target) ) {
+	if ( typeof target !== "object" && !jQuery.isFunction(target) ) {
 		target = {};
 	}
 
-	// extend PanLi itself if only one argument is passed
+	// extend jQuery itself if only one argument is passed
 	if ( i === length ) {
 		target = this;
 		i--;
@@ -194,17 +212,17 @@ PanLi.extend = PanLi.fn.extend = function() {
 				}
 
 				// Recurse if we're merging plain objects or arrays
-				if ( deep && copy && ( PanLi.isPlainObject(copy) || (copyIsArray = PanLi.isArray(copy)) ) ) {
+				if ( deep && copy && ( jQuery.isPlainObject(copy) || (copyIsArray = jQuery.isArray(copy)) ) ) {
 					if ( copyIsArray ) {
 						copyIsArray = false;
-						clone = src && PanLi.isArray(src) ? src : [];
+						clone = src && jQuery.isArray(src) ? src : [];
 
 					} else {
-						clone = src && PanLi.isPlainObject(src) ? src : {};
+						clone = src && jQuery.isPlainObject(src) ? src : {};
 					}
 
 					// Never move original objects, clone them
-					target[ name ] = PanLi.extend( deep, clone, copy );
+					target[ name ] = jQuery.extend( deep, clone, copy );
 
 				// Don't bring in undefined values
 				} else if ( copy !== undefined ) {
@@ -218,11 +236,11 @@ PanLi.extend = PanLi.fn.extend = function() {
 	return target;
 };
 
-PanLi.extend({
-	// Unique for each copy of PanLi on the page
-	expando: "PanLi" + ( version + Math.random() ).replace( /\D/g, "" ),
+jQuery.extend({
+	// Unique for each copy of jQuery on the page
+	expando: "jQuery" + ( version + Math.random() ).replace( /\D/g, "" ),
 
-	// Assume PanLi is ready without the ready module
+	// Assume jQuery is ready without the ready module
 	isReady: true,
 
 	error: function( msg ) {
@@ -235,11 +253,11 @@ PanLi.extend({
 	// Since version 1.3, DOM methods and functions like alert
 	// aren't supported. They return false on IE (#2968).
 	isFunction: function( obj ) {
-		return PanLi.type(obj) === "function";
+		return jQuery.type(obj) === "function";
 	},
 
 	isArray: Array.isArray || function( obj ) {
-		return PanLi.type(obj) === "array";
+		return jQuery.type(obj) === "array";
 	},
 
 	isWindow: function( obj ) {
@@ -252,7 +270,7 @@ PanLi.extend({
 		// ...but misinterprets leading-number strings, particularly hex literals ("0x...")
 		// subtraction forces infinities to NaN
 		// adding 1 corrects loss of precision from parseFloat (#15100)
-		return !PanLi.isArray( obj ) && (obj - parseFloat( obj ) + 1) >= 0;
+		return !jQuery.isArray( obj ) && (obj - parseFloat( obj ) + 1) >= 0;
 	},
 
 	isEmptyObject: function( obj ) {
@@ -269,7 +287,7 @@ PanLi.extend({
 		// Must be an Object.
 		// Because of IE, we also have to check the presence of the constructor property.
 		// Make sure that DOM nodes and window objects don't pass through, as well
-		if ( !obj || PanLi.type(obj) !== "object" || obj.nodeType || PanLi.isWindow( obj ) ) {
+		if ( !obj || jQuery.type(obj) !== "object" || obj.nodeType || jQuery.isWindow( obj ) ) {
 			return false;
 		}
 
@@ -313,10 +331,10 @@ PanLi.extend({
 	// Workarounds based on findings by Jim Driscoll
 	// http://weblogs.java.net/blog/driscoll/archive/2009/09/08/eval-javascript-global-context
 	globalEval: function( data ) {
-		if ( data && PanLi.trim( data ) ) {
+		if ( data && jQuery.trim( data ) ) {
 			// We use execScript on Internet Explorer
 			// We use an anonymous function so that context is window
-			// rather than PanLi in Firefox
+			// rather than jQuery in Firefox
 			( window.execScript || function( data ) {
 				window[ "eval" ].call( window, data );
 			} )( data );
@@ -396,7 +414,7 @@ PanLi.extend({
 
 		if ( arr != null ) {
 			if ( isArraylike( Object(arr) ) ) {
-				PanLi.merge( ret,
+				jQuery.merge( ret,
 					typeof arr === "string" ?
 					[ arr ] : arr
 				);
@@ -520,7 +538,7 @@ PanLi.extend({
 
 		// Quick check to determine if target is callable, in the spec
 		// this throws a TypeError, but we will just return undefined.
-		if ( !PanLi.isFunction( fn ) ) {
+		if ( !jQuery.isFunction( fn ) ) {
 			return undefined;
 		}
 
@@ -531,7 +549,7 @@ PanLi.extend({
 		};
 
 		// Set the guid of unique handler to the same of original handler, so it can be removed
-		proxy.guid = fn.guid = fn.guid || PanLi.guid++;
+		proxy.guid = fn.guid = fn.guid || jQuery.guid++;
 
 		return proxy;
 	},
@@ -540,21 +558,21 @@ PanLi.extend({
 		return +( new Date() );
 	},
 
-	// PanLi.support is not used in Core but other projects attach their
+	// jQuery.support is not used in Core but other projects attach their
 	// properties to it so it needs to exist.
 	support: support
 });
 
 // Populate the class2type map
-PanLi.each("Boolean Number String Function Array Date RegExp Object Error".split(" "), function(i, name) {
+jQuery.each("Boolean Number String Function Array Date RegExp Object Error".split(" "), function(i, name) {
 	class2type[ "[object " + name + "]" ] = name.toLowerCase();
 });
 
 function isArraylike( obj ) {
 	var length = obj.length,
-		type = PanLi.type( obj );
+		type = jQuery.type( obj );
 
-	if ( type === "function" || PanLi.isWindow( obj ) ) {
+	if ( type === "function" || jQuery.isWindow( obj ) ) {
 		return false;
 	}
 
@@ -570,9 +588,9 @@ var Sizzle =
  * Sizzle CSS Selector Engine v2.2.0-pre
  * http://sizzlejs.com/
  *
- * Copyright 2008, 2014 PanLi Foundation, Inc. and other contributors
+ * Copyright 2008, 2014 jQuery Foundation, Inc. and other contributors
  * Released under the MIT license
- * http://PanLi.org/license
+ * http://jquery.org/license
  *
  * Date: 2014-12-16
  */
@@ -790,7 +808,7 @@ function Sizzle( selector, context, results, seed ) {
 				if ( nodeType === 9 ) {
 					elem = context.getElementById( m );
 					// Check parentNode to catch when Blackberry 4.6 returns
-					// nodes that are no longer in the document (PanLi #6963)
+					// nodes that are no longer in the document (jQuery #6963)
 					if ( elem && elem.parentNode ) {
 						// Handle the case where IE, Opera, and Webkit return items
 						// by name instead of ID
@@ -1052,7 +1070,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 
 	// Support: IE>8
 	// If iframe document is assigned to "document" variable and if iframe has been reloaded,
-	// IE will throw "permission denied" error when accessing "document" variable, see PanLi #13936
+	// IE will throw "permission denied" error when accessing "document" variable, see jQuery #13936
 	// IE6-8 do not support the defaultView property so parent will be undefined
 	if ( parent && parent !== parent.top ) {
 		// IE11 does not have attachEvent, so all must suffer
@@ -1180,7 +1198,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 	// We allow this because of a bug in IE8/9 that throws an error
 	// whenever `document.activeElement` is accessed on an iframe
 	// So, we allow :focus to pass through QSA all the time to avoid the IE error
-	// See http://bugs.PanLi.com/ticket/13378
+	// See http://bugs.jquery.com/ticket/13378
 	rbuggyQSA = [];
 
 	if ( (support.qsa = rnative.test( doc.querySelectorAll )) ) {
@@ -1191,7 +1209,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 			// This is to test IE's treatment of not explicitly
 			// setting a boolean content attribute,
 			// since its presence should be enough
-			// http://bugs.PanLi.com/ticket/12359
+			// http://bugs.jquery.com/ticket/12359
 			docElem.appendChild( div ).innerHTML = "<a id='" + expando + "'></a>" +
 				"<select id='" + expando + "-\f]' msallowcapture=''>" +
 				"<option selected=''></option></select>";
@@ -1455,7 +1473,7 @@ Sizzle.attr = function( elem, name ) {
 	}
 
 	var fn = Expr.attrHandle[ name.toLowerCase() ],
-		// Don't get fooled by Object.prototype properties (PanLi #13807)
+		// Don't get fooled by Object.prototype properties (jQuery #13807)
 		val = fn && hasOwn.call( Expr.attrHandle, name.toLowerCase() ) ?
 			fn( elem, name, !documentIsHTML ) :
 			undefined;
@@ -1500,7 +1518,7 @@ Sizzle.uniqueSort = function( results ) {
 	}
 
 	// Clear input after sorting to release objects
-	// See https://github.com/PanLi/sizzle/pull/225
+	// See https://github.com/jquery/sizzle/pull/225
 	sortInput = null;
 
 	return results;
@@ -1524,7 +1542,7 @@ getText = Sizzle.getText = function( elem ) {
 		}
 	} else if ( nodeType === 1 || nodeType === 9 || nodeType === 11 ) {
 		// Use textContent for elements
-		// innerText usage removed for consistency of new lines (PanLi #11153)
+		// innerText usage removed for consistency of new lines (jQuery #11153)
 		if ( typeof elem.textContent === "string" ) {
 			return elem.textContent;
 		} else {
@@ -2627,17 +2645,17 @@ return Sizzle;
 
 
 
-PanLi.find = Sizzle;
-PanLi.expr = Sizzle.selectors;
-PanLi.expr[":"] = PanLi.expr.pseudos;
-PanLi.unique = Sizzle.uniqueSort;
-PanLi.text = Sizzle.getText;
-PanLi.isXMLDoc = Sizzle.isXML;
-PanLi.contains = Sizzle.contains;
+jQuery.find = Sizzle;
+jQuery.expr = Sizzle.selectors;
+jQuery.expr[":"] = jQuery.expr.pseudos;
+jQuery.unique = Sizzle.uniqueSort;
+jQuery.text = Sizzle.getText;
+jQuery.isXMLDoc = Sizzle.isXML;
+jQuery.contains = Sizzle.contains;
 
 
 
-var rneedsContext = PanLi.expr.match.needsContext;
+var rneedsContext = jQuery.expr.match.needsContext;
 
 var rsingleTag = (/^<(\w+)\s*\/?>(?:<\/\1>|)$/);
 
@@ -2647,8 +2665,8 @@ var risSimple = /^.[^:#\[\.,]*$/;
 
 // Implement the identical functionality for filter and not
 function winnow( elements, qualifier, not ) {
-	if ( PanLi.isFunction( qualifier ) ) {
-		return PanLi.grep( elements, function( elem, i ) {
+	if ( jQuery.isFunction( qualifier ) ) {
+		return jQuery.grep( elements, function( elem, i ) {
 			/* jshint -W018 */
 			return !!qualifier.call( elem, i, elem ) !== not;
 		});
@@ -2656,7 +2674,7 @@ function winnow( elements, qualifier, not ) {
 	}
 
 	if ( qualifier.nodeType ) {
-		return PanLi.grep( elements, function( elem ) {
+		return jQuery.grep( elements, function( elem ) {
 			return ( elem === qualifier ) !== not;
 		});
 
@@ -2664,18 +2682,18 @@ function winnow( elements, qualifier, not ) {
 
 	if ( typeof qualifier === "string" ) {
 		if ( risSimple.test( qualifier ) ) {
-			return PanLi.filter( qualifier, elements, not );
+			return jQuery.filter( qualifier, elements, not );
 		}
 
-		qualifier = PanLi.filter( qualifier, elements );
+		qualifier = jQuery.filter( qualifier, elements );
 	}
 
-	return PanLi.grep( elements, function( elem ) {
-		return ( PanLi.inArray( elem, qualifier ) >= 0 ) !== not;
+	return jQuery.grep( elements, function( elem ) {
+		return ( jQuery.inArray( elem, qualifier ) >= 0 ) !== not;
 	});
 }
 
-PanLi.filter = function( expr, elems, not ) {
+jQuery.filter = function( expr, elems, not ) {
 	var elem = elems[ 0 ];
 
 	if ( not ) {
@@ -2683,13 +2701,13 @@ PanLi.filter = function( expr, elems, not ) {
 	}
 
 	return elems.length === 1 && elem.nodeType === 1 ?
-		PanLi.find.matchesSelector( elem, expr ) ? [ elem ] : [] :
-		PanLi.find.matches( expr, PanLi.grep( elems, function( elem ) {
+		jQuery.find.matchesSelector( elem, expr ) ? [ elem ] : [] :
+		jQuery.find.matches( expr, jQuery.grep( elems, function( elem ) {
 			return elem.nodeType === 1;
 		}));
 };
 
-PanLi.fn.extend({
+jQuery.fn.extend({
 	find: function( selector ) {
 		var i,
 			ret = [],
@@ -2697,9 +2715,9 @@ PanLi.fn.extend({
 			len = self.length;
 
 		if ( typeof selector !== "string" ) {
-			return this.pushStack( PanLi( selector ).filter(function() {
+			return this.pushStack( jQuery( selector ).filter(function() {
 				for ( i = 0; i < len; i++ ) {
-					if ( PanLi.contains( self[ i ], this ) ) {
+					if ( jQuery.contains( self[ i ], this ) ) {
 						return true;
 					}
 				}
@@ -2707,11 +2725,11 @@ PanLi.fn.extend({
 		}
 
 		for ( i = 0; i < len; i++ ) {
-			PanLi.find( selector, self[ i ], ret );
+			jQuery.find( selector, self[ i ], ret );
 		}
 
 		// Needed because $( selector, context ) becomes $( context ).find( selector )
-		ret = this.pushStack( len > 1 ? PanLi.unique( ret ) : ret );
+		ret = this.pushStack( len > 1 ? jQuery.unique( ret ) : ret );
 		ret.selector = this.selector ? this.selector + " " + selector : selector;
 		return ret;
 	},
@@ -2728,7 +2746,7 @@ PanLi.fn.extend({
 			// If this is a positional/relative selector, check membership in the returned set
 			// so $("p:first").is("p:last") won't return true for a doc with two "p".
 			typeof selector === "string" && rneedsContext.test( selector ) ?
-				PanLi( selector ) :
+				jQuery( selector ) :
 				selector || [],
 			false
 		).length;
@@ -2736,11 +2754,11 @@ PanLi.fn.extend({
 });
 
 
-// Initialize a PanLi object
+// Initialize a jQuery object
 
 
-// A central reference to the root PanLi(document)
-var rootPanLi,
+// A central reference to the root jQuery(document)
+var rootjQuery,
 
 	// Use the correct document accordingly with window argument (sandbox)
 	document = window.document,
@@ -2750,7 +2768,7 @@ var rootPanLi,
 	// Strict HTML recognition (#11290: must start with <)
 	rquickExpr = /^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]*))$/,
 
-	init = PanLi.fn.init = function( selector, context ) {
+	init = jQuery.fn.init = function( selector, context ) {
 		var match, elem;
 
 		// HANDLE: $(""), $(null), $(undefined), $(false)
@@ -2773,21 +2791,21 @@ var rootPanLi,
 
 				// HANDLE: $(html) -> $(array)
 				if ( match[1] ) {
-					context = context instanceof PanLi ? context[0] : context;
+					context = context instanceof jQuery ? context[0] : context;
 
 					// scripts is true for back-compat
 					// Intentionally let the error be thrown if parseHTML is not present
-					PanLi.merge( this, PanLi.parseHTML(
+					jQuery.merge( this, jQuery.parseHTML(
 						match[1],
 						context && context.nodeType ? context.ownerDocument || context : document,
 						true
 					) );
 
 					// HANDLE: $(html, props)
-					if ( rsingleTag.test( match[1] ) && PanLi.isPlainObject( context ) ) {
+					if ( rsingleTag.test( match[1] ) && jQuery.isPlainObject( context ) ) {
 						for ( match in context ) {
 							// Properties of context are called as methods if possible
-							if ( PanLi.isFunction( this[ match ] ) ) {
+							if ( jQuery.isFunction( this[ match ] ) ) {
 								this[ match ]( context[ match ] );
 
 							// ...and otherwise set as attributes
@@ -2809,10 +2827,10 @@ var rootPanLi,
 						// Handle the case where IE and Opera return items
 						// by name instead of ID
 						if ( elem.id !== match[2] ) {
-							return rootPanLi.find( selector );
+							return rootjQuery.find( selector );
 						}
 
-						// Otherwise, we inject the element directly into the PanLi object
+						// Otherwise, we inject the element directly into the jQuery object
 						this.length = 1;
 						this[0] = elem;
 					}
@@ -2823,8 +2841,8 @@ var rootPanLi,
 				}
 
 			// HANDLE: $(expr, $(...))
-			} else if ( !context || context.PanLi ) {
-				return ( context || rootPanLi ).find( selector );
+			} else if ( !context || context.jquery ) {
+				return ( context || rootjQuery ).find( selector );
 
 			// HANDLE: $(expr, context)
 			// (which is just equivalent to: $(context).find(expr)
@@ -2840,11 +2858,11 @@ var rootPanLi,
 
 		// HANDLE: $(function)
 		// Shortcut for document ready
-		} else if ( PanLi.isFunction( selector ) ) {
-			return typeof rootPanLi.ready !== "undefined" ?
-				rootPanLi.ready( selector ) :
+		} else if ( jQuery.isFunction( selector ) ) {
+			return typeof rootjQuery.ready !== "undefined" ?
+				rootjQuery.ready( selector ) :
 				// Execute immediately if ready is not present
-				selector( PanLi );
+				selector( jQuery );
 		}
 
 		if ( selector.selector !== undefined ) {
@@ -2852,14 +2870,14 @@ var rootPanLi,
 			this.context = selector.context;
 		}
 
-		return PanLi.makeArray( selector, this );
+		return jQuery.makeArray( selector, this );
 	};
 
-// Give the init function the PanLi prototype for later instantiation
-init.prototype = PanLi.fn;
+// Give the init function the jQuery prototype for later instantiation
+init.prototype = jQuery.fn;
 
 // Initialize central reference
-rootPanLi = PanLi( document );
+rootjQuery = jQuery( document );
 
 
 var rparentsprev = /^(?:parents|prev(?:Until|All))/,
@@ -2871,12 +2889,12 @@ var rparentsprev = /^(?:parents|prev(?:Until|All))/,
 		prev: true
 	};
 
-PanLi.extend({
+jQuery.extend({
 	dir: function( elem, dir, until ) {
 		var matched = [],
 			cur = elem[ dir ];
 
-		while ( cur && cur.nodeType !== 9 && (until === undefined || cur.nodeType !== 1 || !PanLi( cur ).is( until )) ) {
+		while ( cur && cur.nodeType !== 9 && (until === undefined || cur.nodeType !== 1 || !jQuery( cur ).is( until )) ) {
 			if ( cur.nodeType === 1 ) {
 				matched.push( cur );
 			}
@@ -2898,15 +2916,15 @@ PanLi.extend({
 	}
 });
 
-PanLi.fn.extend({
+jQuery.fn.extend({
 	has: function( target ) {
 		var i,
-			targets = PanLi( target, this ),
+			targets = jQuery( target, this ),
 			len = targets.length;
 
 		return this.filter(function() {
 			for ( i = 0; i < len; i++ ) {
-				if ( PanLi.contains( this, targets[i] ) ) {
+				if ( jQuery.contains( this, targets[i] ) ) {
 					return true;
 				}
 			}
@@ -2919,7 +2937,7 @@ PanLi.fn.extend({
 			l = this.length,
 			matched = [],
 			pos = rneedsContext.test( selectors ) || typeof selectors !== "string" ?
-				PanLi( selectors, context || this.context ) :
+				jQuery( selectors, context || this.context ) :
 				0;
 
 		for ( ; i < l; i++ ) {
@@ -2930,7 +2948,7 @@ PanLi.fn.extend({
 
 					// Don't pass non-elements to Sizzle
 					cur.nodeType === 1 &&
-						PanLi.find.matchesSelector(cur, selectors)) ) {
+						jQuery.find.matchesSelector(cur, selectors)) ) {
 
 					matched.push( cur );
 					break;
@@ -2938,7 +2956,7 @@ PanLi.fn.extend({
 			}
 		}
 
-		return this.pushStack( matched.length > 1 ? PanLi.unique( matched ) : matched );
+		return this.pushStack( matched.length > 1 ? jQuery.unique( matched ) : matched );
 	},
 
 	// Determine the position of an element within
@@ -2952,19 +2970,19 @@ PanLi.fn.extend({
 
 		// index in selector
 		if ( typeof elem === "string" ) {
-			return PanLi.inArray( this[0], PanLi( elem ) );
+			return jQuery.inArray( this[0], jQuery( elem ) );
 		}
 
 		// Locate the position of the desired element
-		return PanLi.inArray(
-			// If it receives a PanLi object, the first element is used
-			elem.PanLi ? elem[0] : elem, this );
+		return jQuery.inArray(
+			// If it receives a jQuery object, the first element is used
+			elem.jquery ? elem[0] : elem, this );
 	},
 
 	add: function( selector, context ) {
 		return this.pushStack(
-			PanLi.unique(
-				PanLi.merge( this.get(), PanLi( selector, context ) )
+			jQuery.unique(
+				jQuery.merge( this.get(), jQuery( selector, context ) )
 			)
 		);
 	},
@@ -2984,16 +3002,16 @@ function sibling( cur, dir ) {
 	return cur;
 }
 
-PanLi.each({
+jQuery.each({
 	parent: function( elem ) {
 		var parent = elem.parentNode;
 		return parent && parent.nodeType !== 11 ? parent : null;
 	},
 	parents: function( elem ) {
-		return PanLi.dir( elem, "parentNode" );
+		return jQuery.dir( elem, "parentNode" );
 	},
 	parentsUntil: function( elem, i, until ) {
-		return PanLi.dir( elem, "parentNode", until );
+		return jQuery.dir( elem, "parentNode", until );
 	},
 	next: function( elem ) {
 		return sibling( elem, "nextSibling" );
@@ -3002,44 +3020,44 @@ PanLi.each({
 		return sibling( elem, "previousSibling" );
 	},
 	nextAll: function( elem ) {
-		return PanLi.dir( elem, "nextSibling" );
+		return jQuery.dir( elem, "nextSibling" );
 	},
 	prevAll: function( elem ) {
-		return PanLi.dir( elem, "previousSibling" );
+		return jQuery.dir( elem, "previousSibling" );
 	},
 	nextUntil: function( elem, i, until ) {
-		return PanLi.dir( elem, "nextSibling", until );
+		return jQuery.dir( elem, "nextSibling", until );
 	},
 	prevUntil: function( elem, i, until ) {
-		return PanLi.dir( elem, "previousSibling", until );
+		return jQuery.dir( elem, "previousSibling", until );
 	},
 	siblings: function( elem ) {
-		return PanLi.sibling( ( elem.parentNode || {} ).firstChild, elem );
+		return jQuery.sibling( ( elem.parentNode || {} ).firstChild, elem );
 	},
 	children: function( elem ) {
-		return PanLi.sibling( elem.firstChild );
+		return jQuery.sibling( elem.firstChild );
 	},
 	contents: function( elem ) {
-		return PanLi.nodeName( elem, "iframe" ) ?
+		return jQuery.nodeName( elem, "iframe" ) ?
 			elem.contentDocument || elem.contentWindow.document :
-			PanLi.merge( [], elem.childNodes );
+			jQuery.merge( [], elem.childNodes );
 	}
 }, function( name, fn ) {
-	PanLi.fn[ name ] = function( until, selector ) {
-		var ret = PanLi.map( this, fn, until );
+	jQuery.fn[ name ] = function( until, selector ) {
+		var ret = jQuery.map( this, fn, until );
 
 		if ( name.slice( -5 ) !== "Until" ) {
 			selector = until;
 		}
 
 		if ( selector && typeof selector === "string" ) {
-			ret = PanLi.filter( selector, ret );
+			ret = jQuery.filter( selector, ret );
 		}
 
 		if ( this.length > 1 ) {
 			// Remove duplicates
 			if ( !guaranteedUnique[ name ] ) {
-				ret = PanLi.unique( ret );
+				ret = jQuery.unique( ret );
 			}
 
 			// Reverse order for parents* and prev-derivatives
@@ -3061,7 +3079,7 @@ var optionsCache = {};
 // Convert String-formatted options into Object-formatted ones and store in cache
 function createOptions( options ) {
 	var object = optionsCache[ options ] = {};
-	PanLi.each( options.match( rnotwhite ) || [], function( _, flag ) {
+	jQuery.each( options.match( rnotwhite ) || [], function( _, flag ) {
 		object[ flag ] = true;
 	});
 	return object;
@@ -3089,13 +3107,13 @@ function createOptions( options ) {
  *	stopOnFalse:	interrupt callings when a callback returns false
  *
  */
-PanLi.Callbacks = function( options ) {
+jQuery.Callbacks = function( options ) {
 
 	// Convert options from String-formatted to Object-formatted if needed
 	// (we check in cache first)
 	options = typeof options === "string" ?
 		( optionsCache[ options ] || createOptions( options ) ) :
-		PanLi.extend( {}, options );
+		jQuery.extend( {}, options );
 
 	var // Flag to know if list is currently firing
 		firing,
@@ -3148,8 +3166,8 @@ PanLi.Callbacks = function( options ) {
 					// First, we save the current length
 					var start = list.length;
 					(function add( args ) {
-						PanLi.each( args, function( _, arg ) {
-							var type = PanLi.type( arg );
+						jQuery.each( args, function( _, arg ) {
+							var type = jQuery.type( arg );
 							if ( type === "function" ) {
 								if ( !options.unique || !self.has( arg ) ) {
 									list.push( arg );
@@ -3176,9 +3194,9 @@ PanLi.Callbacks = function( options ) {
 			// Remove a callback from the list
 			remove: function() {
 				if ( list ) {
-					PanLi.each( arguments, function( _, arg ) {
+					jQuery.each( arguments, function( _, arg ) {
 						var index;
-						while ( ( index = PanLi.inArray( arg, list, index ) ) > -1 ) {
+						while ( ( index = jQuery.inArray( arg, list, index ) ) > -1 ) {
 							list.splice( index, 1 );
 							// Handle firing indexes
 							if ( firing ) {
@@ -3197,7 +3215,7 @@ PanLi.Callbacks = function( options ) {
 			// Check if a given callback is in the list.
 			// If no argument is given, return whether or not list has callbacks attached.
 			has: function( fn ) {
-				return fn ? PanLi.inArray( fn, list ) > -1 : !!( list && list.length );
+				return fn ? jQuery.inArray( fn, list ) > -1 : !!( list && list.length );
 			},
 			// Remove all callbacks from the list
 			empty: function() {
@@ -3254,14 +3272,14 @@ PanLi.Callbacks = function( options ) {
 };
 
 
-PanLi.extend({
+jQuery.extend({
 
 	Deferred: function( func ) {
 		var tuples = [
 				// action, add listener, listener list, final state
-				[ "resolve", "done", PanLi.Callbacks("once memory"), "resolved" ],
-				[ "reject", "fail", PanLi.Callbacks("once memory"), "rejected" ],
-				[ "notify", "progress", PanLi.Callbacks("memory") ]
+				[ "resolve", "done", jQuery.Callbacks("once memory"), "resolved" ],
+				[ "reject", "fail", jQuery.Callbacks("once memory"), "rejected" ],
+				[ "notify", "progress", jQuery.Callbacks("memory") ]
 			],
 			state = "pending",
 			promise = {
@@ -3274,13 +3292,13 @@ PanLi.extend({
 				},
 				then: function( /* fnDone, fnFail, fnProgress */ ) {
 					var fns = arguments;
-					return PanLi.Deferred(function( newDefer ) {
-						PanLi.each( tuples, function( i, tuple ) {
-							var fn = PanLi.isFunction( fns[ i ] ) && fns[ i ];
+					return jQuery.Deferred(function( newDefer ) {
+						jQuery.each( tuples, function( i, tuple ) {
+							var fn = jQuery.isFunction( fns[ i ] ) && fns[ i ];
 							// deferred[ done | fail | progress ] for forwarding actions to newDefer
 							deferred[ tuple[1] ](function() {
 								var returned = fn && fn.apply( this, arguments );
-								if ( returned && PanLi.isFunction( returned.promise ) ) {
+								if ( returned && jQuery.isFunction( returned.promise ) ) {
 									returned.promise()
 										.done( newDefer.resolve )
 										.fail( newDefer.reject )
@@ -3296,7 +3314,7 @@ PanLi.extend({
 				// Get a promise for this deferred
 				// If obj is provided, the promise aspect is added to the object
 				promise: function( obj ) {
-					return obj != null ? PanLi.extend( obj, promise ) : promise;
+					return obj != null ? jQuery.extend( obj, promise ) : promise;
 				}
 			},
 			deferred = {};
@@ -3305,7 +3323,7 @@ PanLi.extend({
 		promise.pipe = promise.then;
 
 		// Add list-specific methods
-		PanLi.each( tuples, function( i, tuple ) {
+		jQuery.each( tuples, function( i, tuple ) {
 			var list = tuple[ 2 ],
 				stateString = tuple[ 3 ];
 
@@ -3349,10 +3367,10 @@ PanLi.extend({
 			length = resolveValues.length,
 
 			// the count of uncompleted subordinates
-			remaining = length !== 1 || ( subordinate && PanLi.isFunction( subordinate.promise ) ) ? length : 0,
+			remaining = length !== 1 || ( subordinate && jQuery.isFunction( subordinate.promise ) ) ? length : 0,
 
 			// the master Deferred. If resolveValues consist of only a single Deferred, just use that.
-			deferred = remaining === 1 ? subordinate : PanLi.Deferred(),
+			deferred = remaining === 1 ? subordinate : jQuery.Deferred(),
 
 			// Update function for both resolve and progress values
 			updateFunc = function( i, contexts, values ) {
@@ -3376,7 +3394,7 @@ PanLi.extend({
 			progressContexts = new Array( length );
 			resolveContexts = new Array( length );
 			for ( ; i < length; i++ ) {
-				if ( resolveValues[ i ] && PanLi.isFunction( resolveValues[ i ].promise ) ) {
+				if ( resolveValues[ i ] && jQuery.isFunction( resolveValues[ i ].promise ) ) {
 					resolveValues[ i ].promise()
 						.done( updateFunc( i, resolveContexts, resolveValues ) )
 						.fail( deferred.reject )
@@ -3400,14 +3418,14 @@ PanLi.extend({
 // The deferred used on DOM ready
 var readyList;
 
-PanLi.fn.ready = function( fn ) {
+jQuery.fn.ready = function( fn ) {
 	// Add the callback
-	PanLi.ready.promise().done( fn );
+	jQuery.ready.promise().done( fn );
 
 	return this;
 };
 
-PanLi.extend({
+jQuery.extend({
 	// Is the DOM ready to be used? Set to true once it occurs.
 	isReady: false,
 
@@ -3418,9 +3436,9 @@ PanLi.extend({
 	// Hold (or release) the ready event
 	holdReady: function( hold ) {
 		if ( hold ) {
-			PanLi.readyWait++;
+			jQuery.readyWait++;
 		} else {
-			PanLi.ready( true );
+			jQuery.ready( true );
 		}
 	},
 
@@ -3428,30 +3446,30 @@ PanLi.extend({
 	ready: function( wait ) {
 
 		// Abort if there are pending holds or we're already ready
-		if ( wait === true ? --PanLi.readyWait : PanLi.isReady ) {
+		if ( wait === true ? --jQuery.readyWait : jQuery.isReady ) {
 			return;
 		}
 
 		// Make sure body exists, at least, in case IE gets a little overzealous (ticket #5443).
 		if ( !document.body ) {
-			return setTimeout( PanLi.ready );
+			return setTimeout( jQuery.ready );
 		}
 
 		// Remember that the DOM is ready
-		PanLi.isReady = true;
+		jQuery.isReady = true;
 
 		// If a normal DOM Ready event fired, decrement, and wait if need be
-		if ( wait !== true && --PanLi.readyWait > 0 ) {
+		if ( wait !== true && --jQuery.readyWait > 0 ) {
 			return;
 		}
 
 		// If there are functions bound, to execute
-		readyList.resolveWith( document, [ PanLi ] );
+		readyList.resolveWith( document, [ jQuery ] );
 
 		// Trigger any bound ready events
-		if ( PanLi.fn.triggerHandler ) {
-			PanLi( document ).triggerHandler( "ready" );
-			PanLi( document ).off( "ready" );
+		if ( jQuery.fn.triggerHandler ) {
+			jQuery( document ).triggerHandler( "ready" );
+			jQuery( document ).off( "ready" );
 		}
 	}
 });
@@ -3477,21 +3495,21 @@ function completed() {
 	// readyState === "complete" is good enough for us to call the dom ready in oldIE
 	if ( document.addEventListener || event.type === "load" || document.readyState === "complete" ) {
 		detach();
-		PanLi.ready();
+		jQuery.ready();
 	}
 }
 
-PanLi.ready.promise = function( obj ) {
+jQuery.ready.promise = function( obj ) {
 	if ( !readyList ) {
 
-		readyList = PanLi.Deferred();
+		readyList = jQuery.Deferred();
 
 		// Catch cases where $(document).ready() is called after the browser event has already occurred.
 		// we once tried to use readyState "interactive" here, but it caused issues like the one
-		// discovered by ChrisS here: http://bugs.PanLi.com/ticket/12282#comment:15
+		// discovered by ChrisS here: http://bugs.jquery.com/ticket/12282#comment:15
 		if ( document.readyState === "complete" ) {
 			// Handle it asynchronously to allow scripts the opportunity to delay ready
-			setTimeout( PanLi.ready );
+			setTimeout( jQuery.ready );
 
 		// Standards-based browsers support DOMContentLoaded
 		} else if ( document.addEventListener ) {
@@ -3519,7 +3537,7 @@ PanLi.ready.promise = function( obj ) {
 
 			if ( top && top.doScroll ) {
 				(function doScrollCheck() {
-					if ( !PanLi.isReady ) {
+					if ( !jQuery.isReady ) {
 
 						try {
 							// Use the trick by Diego Perini
@@ -3533,7 +3551,7 @@ PanLi.ready.promise = function( obj ) {
 						detach();
 
 						// and execute any waiting functions
-						PanLi.ready();
+						jQuery.ready();
 					}
 				})();
 			}
@@ -3550,7 +3568,7 @@ var strundefined = typeof undefined;
 // Support: IE<9
 // Iteration over object's inherited properties before its own
 var i;
-for ( i in PanLi( support ) ) {
+for ( i in jQuery( support ) ) {
 	break;
 }
 support.ownLast = i !== "0";
@@ -3560,7 +3578,7 @@ support.ownLast = i !== "0";
 support.inlineBlockNeedsLayout = false;
 
 // Execute ASAP in case we need to set body.style.zoom
-PanLi(function() {
+jQuery(function() {
 	// Minified: var a,b,c,d
 	var val, div, body, container;
 
@@ -3620,8 +3638,8 @@ PanLi(function() {
 /**
  * Determines whether an object can have data
  */
-PanLi.acceptData = function( elem ) {
-	var noData = PanLi.noData[ (elem.nodeName + " ").toLowerCase() ],
+jQuery.acceptData = function( elem ) {
+	var noData = jQuery.noData[ (elem.nodeName + " ").toLowerCase() ],
 		nodeType = +elem.nodeType || 1;
 
 	// Do not set data on non-element DOM nodes because it will not be cleared (#8335).
@@ -3652,12 +3670,12 @@ function dataAttr( elem, key, data ) {
 					data === "null" ? null :
 					// Only convert to a number if it doesn't change the string
 					+data + "" === data ? +data :
-					rbrace.test( data ) ? PanLi.parseJSON( data ) :
+					rbrace.test( data ) ? jQuery.parseJSON( data ) :
 					data;
 			} catch( e ) {}
 
 			// Make sure we set the data so it isn't changed later
-			PanLi.data( elem, key, data );
+			jQuery.data( elem, key, data );
 
 		} else {
 			data = undefined;
@@ -3673,7 +3691,7 @@ function isEmptyDataObject( obj ) {
 	for ( name in obj ) {
 
 		// if the public data object is empty, the private is still empty
-		if ( name === "data" && PanLi.isEmptyObject( obj[name] ) ) {
+		if ( name === "data" && jQuery.isEmptyObject( obj[name] ) ) {
 			continue;
 		}
 		if ( name !== "toJSON" ) {
@@ -3685,20 +3703,20 @@ function isEmptyDataObject( obj ) {
 }
 
 function internalData( elem, name, data, pvt /* Internal Use Only */ ) {
-	if ( !PanLi.acceptData( elem ) ) {
+	if ( !jQuery.acceptData( elem ) ) {
 		return;
 	}
 
 	var ret, thisCache,
-		internalKey = PanLi.expando,
+		internalKey = jQuery.expando,
 
 		// We have to handle DOM nodes and JS objects differently because IE6-7
 		// can't GC object references properly across the DOM-JS boundary
 		isNode = elem.nodeType,
 
-		// Only DOM nodes need the global PanLi cache; JS object data is
+		// Only DOM nodes need the global jQuery cache; JS object data is
 		// attached directly to the object so GC can occur automatically
-		cache = isNode ? PanLi.cache : elem,
+		cache = isNode ? jQuery.cache : elem,
 
 		// Only defining an ID for JS objects if its cache already exists allows
 		// the code to shortcut on the same path as a DOM node with no cache
@@ -3714,31 +3732,31 @@ function internalData( elem, name, data, pvt /* Internal Use Only */ ) {
 		// Only DOM nodes need a new unique ID for each element since their data
 		// ends up in the global cache
 		if ( isNode ) {
-			id = elem[ internalKey ] = deletedIds.pop() || PanLi.guid++;
+			id = elem[ internalKey ] = deletedIds.pop() || jQuery.guid++;
 		} else {
 			id = internalKey;
 		}
 	}
 
 	if ( !cache[ id ] ) {
-		// Avoid exposing PanLi metadata on plain JS objects when the object
+		// Avoid exposing jQuery metadata on plain JS objects when the object
 		// is serialized using JSON.stringify
-		cache[ id ] = isNode ? {} : { toJSON: PanLi.noop };
+		cache[ id ] = isNode ? {} : { toJSON: jQuery.noop };
 	}
 
-	// An object can be passed to PanLi.data instead of a key/value pair; this gets
+	// An object can be passed to jQuery.data instead of a key/value pair; this gets
 	// shallow copied over onto the existing cache
 	if ( typeof name === "object" || typeof name === "function" ) {
 		if ( pvt ) {
-			cache[ id ] = PanLi.extend( cache[ id ], name );
+			cache[ id ] = jQuery.extend( cache[ id ], name );
 		} else {
-			cache[ id ].data = PanLi.extend( cache[ id ].data, name );
+			cache[ id ].data = jQuery.extend( cache[ id ].data, name );
 		}
 	}
 
 	thisCache = cache[ id ];
 
-	// PanLi data() is stored in a separate object inside the object's internal data
+	// jQuery data() is stored in a separate object inside the object's internal data
 	// cache in order to avoid key collisions between internal data and user-defined
 	// data.
 	if ( !pvt ) {
@@ -3750,7 +3768,7 @@ function internalData( elem, name, data, pvt /* Internal Use Only */ ) {
 	}
 
 	if ( data !== undefined ) {
-		thisCache[ PanLi.camelCase( name ) ] = data;
+		thisCache[ jQuery.camelCase( name ) ] = data;
 	}
 
 	// Check for both converted-to-camel and non-converted data property names
@@ -3764,7 +3782,7 @@ function internalData( elem, name, data, pvt /* Internal Use Only */ ) {
 		if ( ret == null ) {
 
 			// Try to find the camelCased property
-			ret = thisCache[ PanLi.camelCase( name ) ];
+			ret = thisCache[ jQuery.camelCase( name ) ];
 		}
 	} else {
 		ret = thisCache;
@@ -3774,16 +3792,16 @@ function internalData( elem, name, data, pvt /* Internal Use Only */ ) {
 }
 
 function internalRemoveData( elem, name, pvt ) {
-	if ( !PanLi.acceptData( elem ) ) {
+	if ( !jQuery.acceptData( elem ) ) {
 		return;
 	}
 
 	var thisCache, i,
 		isNode = elem.nodeType,
 
-		// See PanLi.data for more information
-		cache = isNode ? PanLi.cache : elem,
-		id = isNode ? elem[ PanLi.expando ] : PanLi.expando;
+		// See jQuery.data for more information
+		cache = isNode ? jQuery.cache : elem,
+		id = isNode ? elem[ jQuery.expando ] : jQuery.expando;
 
 	// If there is already no cache entry for this object, there is no
 	// purpose in continuing
@@ -3798,7 +3816,7 @@ function internalRemoveData( elem, name, pvt ) {
 		if ( thisCache ) {
 
 			// Support array or space separated string names for data keys
-			if ( !PanLi.isArray( name ) ) {
+			if ( !jQuery.isArray( name ) ) {
 
 				// try the string as a key before any manipulation
 				if ( name in thisCache ) {
@@ -3806,7 +3824,7 @@ function internalRemoveData( elem, name, pvt ) {
 				} else {
 
 					// split the camel cased version by spaces unless a key with the spaces exists
-					name = PanLi.camelCase( name );
+					name = jQuery.camelCase( name );
 					if ( name in thisCache ) {
 						name = [ name ];
 					} else {
@@ -3820,7 +3838,7 @@ function internalRemoveData( elem, name, pvt ) {
 				// Since there is no way to tell _how_ a key was added, remove
 				// both plain key and camelCase key. #12786
 				// This will only penalize the array argument path.
-				name = name.concat( PanLi.map( name, PanLi.camelCase ) );
+				name = name.concat( jQuery.map( name, jQuery.camelCase ) );
 			}
 
 			i = name.length;
@@ -3830,13 +3848,13 @@ function internalRemoveData( elem, name, pvt ) {
 
 			// If there is no data left in the cache, we want to continue
 			// and let the cache object itself get destroyed
-			if ( pvt ? !isEmptyDataObject(thisCache) : !PanLi.isEmptyObject(thisCache) ) {
+			if ( pvt ? !isEmptyDataObject(thisCache) : !jQuery.isEmptyObject(thisCache) ) {
 				return;
 			}
 		}
 	}
 
-	// See PanLi.data for more information
+	// See jQuery.data for more information
 	if ( !pvt ) {
 		delete cache[ id ].data;
 
@@ -3849,7 +3867,7 @@ function internalRemoveData( elem, name, pvt ) {
 
 	// Destroy the cache
 	if ( isNode ) {
-		PanLi.cleanData( [ elem ], true );
+		jQuery.cleanData( [ elem ], true );
 
 	// Use delete when supported for expandos or `cache` is not a window per isWindow (#10080)
 	/* jshint eqeqeq: false */
@@ -3863,7 +3881,7 @@ function internalRemoveData( elem, name, pvt ) {
 	}
 }
 
-PanLi.extend({
+jQuery.extend({
 	cache: {},
 
 	// The following elements (space-suffixed to avoid Object.prototype collisions)
@@ -3876,7 +3894,7 @@ PanLi.extend({
 	},
 
 	hasData: function( elem ) {
-		elem = elem.nodeType ? PanLi.cache[ elem[PanLi.expando] ] : elem[ PanLi.expando ];
+		elem = elem.nodeType ? jQuery.cache[ elem[jQuery.expando] ] : elem[ jQuery.expando ];
 		return !!elem && !isEmptyDataObject( elem );
 	},
 
@@ -3898,21 +3916,21 @@ PanLi.extend({
 	}
 });
 
-PanLi.fn.extend({
+jQuery.fn.extend({
 	data: function( key, value ) {
 		var i, name, data,
 			elem = this[0],
 			attrs = elem && elem.attributes;
 
-		// Special expections of .data basically thwart PanLi.access,
+		// Special expections of .data basically thwart jQuery.access,
 		// so implement the relevant behavior ourselves
 
 		// Gets all values
 		if ( key === undefined ) {
 			if ( this.length ) {
-				data = PanLi.data( elem );
+				data = jQuery.data( elem );
 
-				if ( elem.nodeType === 1 && !PanLi._data( elem, "parsedAttrs" ) ) {
+				if ( elem.nodeType === 1 && !jQuery._data( elem, "parsedAttrs" ) ) {
 					i = attrs.length;
 					while ( i-- ) {
 
@@ -3921,12 +3939,12 @@ PanLi.fn.extend({
 						if ( attrs[ i ] ) {
 							name = attrs[ i ].name;
 							if ( name.indexOf( "data-" ) === 0 ) {
-								name = PanLi.camelCase( name.slice(5) );
+								name = jQuery.camelCase( name.slice(5) );
 								dataAttr( elem, name, data[ name ] );
 							}
 						}
 					}
-					PanLi._data( elem, "parsedAttrs", true );
+					jQuery._data( elem, "parsedAttrs", true );
 				}
 			}
 
@@ -3936,7 +3954,7 @@ PanLi.fn.extend({
 		// Sets multiple values
 		if ( typeof key === "object" ) {
 			return this.each(function() {
-				PanLi.data( this, key );
+				jQuery.data( this, key );
 			});
 		}
 
@@ -3944,34 +3962,34 @@ PanLi.fn.extend({
 
 			// Sets one value
 			this.each(function() {
-				PanLi.data( this, key, value );
+				jQuery.data( this, key, value );
 			}) :
 
 			// Gets one value
 			// Try to fetch any internally stored data first
-			elem ? dataAttr( elem, key, PanLi.data( elem, key ) ) : undefined;
+			elem ? dataAttr( elem, key, jQuery.data( elem, key ) ) : undefined;
 	},
 
 	removeData: function( key ) {
 		return this.each(function() {
-			PanLi.removeData( this, key );
+			jQuery.removeData( this, key );
 		});
 	}
 });
 
 
-PanLi.extend({
+jQuery.extend({
 	queue: function( elem, type, data ) {
 		var queue;
 
 		if ( elem ) {
 			type = ( type || "fx" ) + "queue";
-			queue = PanLi._data( elem, type );
+			queue = jQuery._data( elem, type );
 
 			// Speed up dequeue by getting out quickly if this is just a lookup
 			if ( data ) {
-				if ( !queue || PanLi.isArray(data) ) {
-					queue = PanLi._data( elem, type, PanLi.makeArray(data) );
+				if ( !queue || jQuery.isArray(data) ) {
+					queue = jQuery._data( elem, type, jQuery.makeArray(data) );
 				} else {
 					queue.push( data );
 				}
@@ -3983,12 +4001,12 @@ PanLi.extend({
 	dequeue: function( elem, type ) {
 		type = type || "fx";
 
-		var queue = PanLi.queue( elem, type ),
+		var queue = jQuery.queue( elem, type ),
 			startLength = queue.length,
 			fn = queue.shift(),
-			hooks = PanLi._queueHooks( elem, type ),
+			hooks = jQuery._queueHooks( elem, type ),
 			next = function() {
-				PanLi.dequeue( elem, type );
+				jQuery.dequeue( elem, type );
 			};
 
 		// If the fx queue is dequeued, always remove the progress sentinel
@@ -4018,16 +4036,16 @@ PanLi.extend({
 	// not intended for public consumption - generates a queueHooks object, or returns the current one
 	_queueHooks: function( elem, type ) {
 		var key = type + "queueHooks";
-		return PanLi._data( elem, key ) || PanLi._data( elem, key, {
-			empty: PanLi.Callbacks("once memory").add(function() {
-				PanLi._removeData( elem, type + "queue" );
-				PanLi._removeData( elem, key );
+		return jQuery._data( elem, key ) || jQuery._data( elem, key, {
+			empty: jQuery.Callbacks("once memory").add(function() {
+				jQuery._removeData( elem, type + "queue" );
+				jQuery._removeData( elem, key );
 			})
 		});
 	}
 });
 
-PanLi.fn.extend({
+jQuery.fn.extend({
 	queue: function( type, data ) {
 		var setter = 2;
 
@@ -4038,25 +4056,25 @@ PanLi.fn.extend({
 		}
 
 		if ( arguments.length < setter ) {
-			return PanLi.queue( this[0], type );
+			return jQuery.queue( this[0], type );
 		}
 
 		return data === undefined ?
 			this :
 			this.each(function() {
-				var queue = PanLi.queue( this, type, data );
+				var queue = jQuery.queue( this, type, data );
 
 				// ensure a hooks for this queue
-				PanLi._queueHooks( this, type );
+				jQuery._queueHooks( this, type );
 
 				if ( type === "fx" && queue[0] !== "inprogress" ) {
-					PanLi.dequeue( this, type );
+					jQuery.dequeue( this, type );
 				}
 			});
 	},
 	dequeue: function( type ) {
 		return this.each(function() {
-			PanLi.dequeue( this, type );
+			jQuery.dequeue( this, type );
 		});
 	},
 	clearQueue: function( type ) {
@@ -4067,7 +4085,7 @@ PanLi.fn.extend({
 	promise: function( type, obj ) {
 		var tmp,
 			count = 1,
-			defer = PanLi.Deferred(),
+			defer = jQuery.Deferred(),
 			elements = this,
 			i = this.length,
 			resolve = function() {
@@ -4083,7 +4101,7 @@ PanLi.fn.extend({
 		type = type || "fx";
 
 		while ( i-- ) {
-			tmp = PanLi._data( elements[ i ], type + "queueHooks" );
+			tmp = jQuery._data( elements[ i ], type + "queueHooks" );
 			if ( tmp && tmp.empty ) {
 				count++;
 				tmp.empty.add( resolve );
@@ -4098,33 +4116,33 @@ var pnum = (/[+-]?(?:\d*\.|)\d+(?:[eE][+-]?\d+|)/).source;
 var cssExpand = [ "Top", "Right", "Bottom", "Left" ];
 
 var isHidden = function( elem, el ) {
-		// isHidden might be called from PanLi#filter function;
+		// isHidden might be called from jQuery#filter function;
 		// in that case, element will be second argument
 		elem = el || elem;
-		return PanLi.css( elem, "display" ) === "none" || !PanLi.contains( elem.ownerDocument, elem );
+		return jQuery.css( elem, "display" ) === "none" || !jQuery.contains( elem.ownerDocument, elem );
 	};
 
 
 
 // Multifunctional method to get and set values of a collection
 // The value/s can optionally be executed if it's a function
-var access = PanLi.access = function( elems, fn, key, value, chainable, emptyGet, raw ) {
+var access = jQuery.access = function( elems, fn, key, value, chainable, emptyGet, raw ) {
 	var i = 0,
 		length = elems.length,
 		bulk = key == null;
 
 	// Sets many values
-	if ( PanLi.type( key ) === "object" ) {
+	if ( jQuery.type( key ) === "object" ) {
 		chainable = true;
 		for ( i in key ) {
-			PanLi.access( elems, fn, i, key[i], true, emptyGet, raw );
+			jQuery.access( elems, fn, i, key[i], true, emptyGet, raw );
 		}
 
 	// Sets one value
 	} else if ( value !== undefined ) {
 		chainable = true;
 
-		if ( !PanLi.isFunction( value ) ) {
+		if ( !jQuery.isFunction( value ) ) {
 			raw = true;
 		}
 
@@ -4138,7 +4156,7 @@ var access = PanLi.access = function( elems, fn, key, value, chainable, emptyGet
 			} else {
 				bulk = fn;
 				fn = function( elem, key, value ) {
-					return bulk.call( PanLi( elem ), value );
+					return bulk.call( jQuery( elem ), value );
 				};
 			}
 		}
@@ -4276,7 +4294,7 @@ function safeActiveElement() {
  * Helper functions for managing events -- not part of the public interface.
  * Props to Dean Edwards' addEvent library for many of the ideas.
  */
-PanLi.event = {
+jQuery.event = {
 
 	global: {},
 
@@ -4284,7 +4302,7 @@ PanLi.event = {
 		var tmp, events, t, handleObjIn,
 			special, eventHandle, handleObj,
 			handlers, type, namespaces, origType,
-			elemData = PanLi._data( elem );
+			elemData = jQuery._data( elem );
 
 		// Don't attach events to noData or text/comment nodes (but allow plain objects)
 		if ( !elemData ) {
@@ -4300,7 +4318,7 @@ PanLi.event = {
 
 		// Make sure that the handler has a unique ID, used to find/remove it later
 		if ( !handler.guid ) {
-			handler.guid = PanLi.guid++;
+			handler.guid = jQuery.guid++;
 		}
 
 		// Init the element's event structure and main handler, if this is the first
@@ -4309,10 +4327,10 @@ PanLi.event = {
 		}
 		if ( !(eventHandle = elemData.handle) ) {
 			eventHandle = elemData.handle = function( e ) {
-				// Discard the second event of a PanLi.event.trigger() and
+				// Discard the second event of a jQuery.event.trigger() and
 				// when an event is called after a page has unloaded
-				return typeof PanLi !== strundefined && (!e || PanLi.event.triggered !== e.type) ?
-					PanLi.event.dispatch.apply( eventHandle.elem, arguments ) :
+				return typeof jQuery !== strundefined && (!e || jQuery.event.triggered !== e.type) ?
+					jQuery.event.dispatch.apply( eventHandle.elem, arguments ) :
 					undefined;
 			};
 			// Add elem as a property of the handle fn to prevent a memory leak with IE non-native events
@@ -4333,23 +4351,23 @@ PanLi.event = {
 			}
 
 			// If event changes its type, use the special event handlers for the changed type
-			special = PanLi.event.special[ type ] || {};
+			special = jQuery.event.special[ type ] || {};
 
 			// If selector defined, determine special event api type, otherwise given type
 			type = ( selector ? special.delegateType : special.bindType ) || type;
 
 			// Update special based on newly reset type
-			special = PanLi.event.special[ type ] || {};
+			special = jQuery.event.special[ type ] || {};
 
 			// handleObj is passed to all event handlers
-			handleObj = PanLi.extend({
+			handleObj = jQuery.extend({
 				type: type,
 				origType: origType,
 				data: data,
 				handler: handler,
 				guid: handler.guid,
 				selector: selector,
-				needsContext: selector && PanLi.expr.match.needsContext.test( selector ),
+				needsContext: selector && jQuery.expr.match.needsContext.test( selector ),
 				namespace: namespaces.join(".")
 			}, handleObjIn );
 
@@ -4386,7 +4404,7 @@ PanLi.event = {
 			}
 
 			// Keep track of which events have ever been used, for event optimization
-			PanLi.event.global[ type ] = true;
+			jQuery.event.global[ type ] = true;
 		}
 
 		// Nullify elem to prevent memory leaks in IE
@@ -4399,7 +4417,7 @@ PanLi.event = {
 			origCount, t, events,
 			special, handlers, type,
 			namespaces, origType,
-			elemData = PanLi.hasData( elem ) && PanLi._data( elem );
+			elemData = jQuery.hasData( elem ) && jQuery._data( elem );
 
 		if ( !elemData || !(events = elemData.events) ) {
 			return;
@@ -4416,12 +4434,12 @@ PanLi.event = {
 			// Unbind all events (on this namespace, if provided) for the element
 			if ( !type ) {
 				for ( type in events ) {
-					PanLi.event.remove( elem, type + types[ t ], handler, selector, true );
+					jQuery.event.remove( elem, type + types[ t ], handler, selector, true );
 				}
 				continue;
 			}
 
-			special = PanLi.event.special[ type ] || {};
+			special = jQuery.event.special[ type ] || {};
 			type = ( selector ? special.delegateType : special.bindType ) || type;
 			handlers = events[ type ] || [];
 			tmp = tmp[2] && new RegExp( "(^|\\.)" + namespaces.join("\\.(?:.*\\.|)") + "(\\.|$)" );
@@ -4450,7 +4468,7 @@ PanLi.event = {
 			// (avoids potential for endless recursion during removal of special event handlers)
 			if ( origCount && !handlers.length ) {
 				if ( !special.teardown || special.teardown.call( elem, namespaces, elemData.handle ) === false ) {
-					PanLi.removeEvent( elem, type, elemData.handle );
+					jQuery.removeEvent( elem, type, elemData.handle );
 				}
 
 				delete events[ type ];
@@ -4458,12 +4476,12 @@ PanLi.event = {
 		}
 
 		// Remove the expando if it's no longer used
-		if ( PanLi.isEmptyObject( events ) ) {
+		if ( jQuery.isEmptyObject( events ) ) {
 			delete elemData.handle;
 
 			// removeData also checks for emptiness and clears the expando if empty
 			// so use it instead of delete
-			PanLi._removeData( elem, "events" );
+			jQuery._removeData( elem, "events" );
 		}
 	},
 
@@ -4482,7 +4500,7 @@ PanLi.event = {
 		}
 
 		// focus/blur morphs to focusin/out; ensure we're not firing them right now
-		if ( rfocusMorph.test( type + PanLi.event.triggered ) ) {
+		if ( rfocusMorph.test( type + jQuery.event.triggered ) ) {
 			return;
 		}
 
@@ -4494,12 +4512,12 @@ PanLi.event = {
 		}
 		ontype = type.indexOf(":") < 0 && "on" + type;
 
-		// Caller can pass in a PanLi.Event object, Object, or just an event type string
-		event = event[ PanLi.expando ] ?
+		// Caller can pass in a jQuery.Event object, Object, or just an event type string
+		event = event[ jQuery.expando ] ?
 			event :
-			new PanLi.Event( type, typeof event === "object" && event );
+			new jQuery.Event( type, typeof event === "object" && event );
 
-		// Trigger bitmask: & 1 for native handlers; & 2 for PanLi (always true)
+		// Trigger bitmask: & 1 for native handlers; & 2 for jQuery (always true)
 		event.isTrigger = onlyHandlers ? 2 : 3;
 		event.namespace = namespaces.join(".");
 		event.namespace_re = event.namespace ?
@@ -4515,17 +4533,17 @@ PanLi.event = {
 		// Clone any incoming data and prepend the event, creating the handler arg list
 		data = data == null ?
 			[ event ] :
-			PanLi.makeArray( data, [ event ] );
+			jQuery.makeArray( data, [ event ] );
 
 		// Allow special events to draw outside the lines
-		special = PanLi.event.special[ type ] || {};
+		special = jQuery.event.special[ type ] || {};
 		if ( !onlyHandlers && special.trigger && special.trigger.apply( elem, data ) === false ) {
 			return;
 		}
 
 		// Determine event propagation path in advance, per W3C events spec (#9951)
 		// Bubble up to document, then to window; watch for a global ownerDocument var (#9724)
-		if ( !onlyHandlers && !special.noBubble && !PanLi.isWindow( elem ) ) {
+		if ( !onlyHandlers && !special.noBubble && !jQuery.isWindow( elem ) ) {
 
 			bubbleType = special.delegateType || type;
 			if ( !rfocusMorph.test( bubbleType + type ) ) {
@@ -4550,15 +4568,15 @@ PanLi.event = {
 				bubbleType :
 				special.bindType || type;
 
-			// PanLi handler
-			handle = ( PanLi._data( cur, "events" ) || {} )[ event.type ] && PanLi._data( cur, "handle" );
+			// jQuery handler
+			handle = ( jQuery._data( cur, "events" ) || {} )[ event.type ] && jQuery._data( cur, "handle" );
 			if ( handle ) {
 				handle.apply( cur, data );
 			}
 
 			// Native handler
 			handle = ontype && cur[ ontype ];
-			if ( handle && handle.apply && PanLi.acceptData( cur ) ) {
+			if ( handle && handle.apply && jQuery.acceptData( cur ) ) {
 				event.result = handle.apply( cur, data );
 				if ( event.result === false ) {
 					event.preventDefault();
@@ -4571,12 +4589,12 @@ PanLi.event = {
 		if ( !onlyHandlers && !event.isDefaultPrevented() ) {
 
 			if ( (!special._default || special._default.apply( eventPath.pop(), data ) === false) &&
-				PanLi.acceptData( elem ) ) {
+				jQuery.acceptData( elem ) ) {
 
 				// Call a native DOM method on the target with the same name name as the event.
 				// Can't use an .isFunction() check here because IE6/7 fails that test.
 				// Don't do default actions on window, that's where global variables be (#6170)
-				if ( ontype && elem[ type ] && !PanLi.isWindow( elem ) ) {
+				if ( ontype && elem[ type ] && !jQuery.isWindow( elem ) ) {
 
 					// Don't re-trigger an onFOO event when we call its FOO() method
 					tmp = elem[ ontype ];
@@ -4586,14 +4604,14 @@ PanLi.event = {
 					}
 
 					// Prevent re-triggering of the same event, since we already bubbled it above
-					PanLi.event.triggered = type;
+					jQuery.event.triggered = type;
 					try {
 						elem[ type ]();
 					} catch ( e ) {
 						// IE<9 dies on focus/blur to hidden element (#1486,#12518)
 						// only reproducible on winXP IE8 native, not IE9 in IE8 mode
 					}
-					PanLi.event.triggered = undefined;
+					jQuery.event.triggered = undefined;
 
 					if ( tmp ) {
 						elem[ ontype ] = tmp;
@@ -4607,16 +4625,16 @@ PanLi.event = {
 
 	dispatch: function( event ) {
 
-		// Make a writable PanLi.Event from the native event object
-		event = PanLi.event.fix( event );
+		// Make a writable jQuery.Event from the native event object
+		event = jQuery.event.fix( event );
 
 		var i, ret, handleObj, matched, j,
 			handlerQueue = [],
 			args = slice.call( arguments ),
-			handlers = ( PanLi._data( this, "events" ) || {} )[ event.type ] || [],
-			special = PanLi.event.special[ event.type ] || {};
+			handlers = ( jQuery._data( this, "events" ) || {} )[ event.type ] || [],
+			special = jQuery.event.special[ event.type ] || {};
 
-		// Use the fix-ed PanLi.Event rather than the (read-only) native event
+		// Use the fix-ed jQuery.Event rather than the (read-only) native event
 		args[0] = event;
 		event.delegateTarget = this;
 
@@ -4626,7 +4644,7 @@ PanLi.event = {
 		}
 
 		// Determine handlers
-		handlerQueue = PanLi.event.handlers.call( this, event, handlers );
+		handlerQueue = jQuery.event.handlers.call( this, event, handlers );
 
 		// Run delegates first; they may want to stop propagation beneath us
 		i = 0;
@@ -4643,7 +4661,7 @@ PanLi.event = {
 					event.handleObj = handleObj;
 					event.data = handleObj.data;
 
-					ret = ( (PanLi.event.special[ handleObj.origType ] || {}).handle || handleObj.handler )
+					ret = ( (jQuery.event.special[ handleObj.origType ] || {}).handle || handleObj.handler )
 							.apply( matched.elem, args );
 
 					if ( ret !== undefined ) {
@@ -4691,8 +4709,8 @@ PanLi.event = {
 
 						if ( matches[ sel ] === undefined ) {
 							matches[ sel ] = handleObj.needsContext ?
-								PanLi( sel, this ).index( cur ) >= 0 :
-								PanLi.find( sel, this, null, [ cur ] ).length;
+								jQuery( sel, this ).index( cur ) >= 0 :
+								jQuery.find( sel, this, null, [ cur ] ).length;
 						}
 						if ( matches[ sel ] ) {
 							matches.push( handleObj );
@@ -4714,7 +4732,7 @@ PanLi.event = {
 	},
 
 	fix: function( event ) {
-		if ( event[ PanLi.expando ] ) {
+		if ( event[ jQuery.expando ] ) {
 			return event;
 		}
 
@@ -4732,7 +4750,7 @@ PanLi.event = {
 		}
 		copy = fixHook.props ? this.props.concat( fixHook.props ) : this.props;
 
-		event = new PanLi.Event( originalEvent );
+		event = new jQuery.Event( originalEvent );
 
 		i = copy.length;
 		while ( i-- ) {
@@ -4842,7 +4860,7 @@ PanLi.event = {
 		click: {
 			// For checkbox, fire native event so checked state will be right
 			trigger: function() {
-				if ( PanLi.nodeName( this, "input" ) && this.type === "checkbox" && this.click ) {
+				if ( jQuery.nodeName( this, "input" ) && this.type === "checkbox" && this.click ) {
 					this.click();
 					return false;
 				}
@@ -4850,7 +4868,7 @@ PanLi.event = {
 
 			// For cross-browser consistency, don't fire native .click() on links
 			_default: function( event ) {
-				return PanLi.nodeName( event.target, "a" );
+				return jQuery.nodeName( event.target, "a" );
 			}
 		},
 
@@ -4870,8 +4888,8 @@ PanLi.event = {
 		// Piggyback on a donor event to simulate a different one.
 		// Fake originalEvent to avoid donor's stopPropagation, but if the
 		// simulated event prevents default then we do the same on the donor.
-		var e = PanLi.extend(
-			new PanLi.Event(),
+		var e = jQuery.extend(
+			new jQuery.Event(),
 			event,
 			{
 				type: type,
@@ -4880,9 +4898,9 @@ PanLi.event = {
 			}
 		);
 		if ( bubble ) {
-			PanLi.event.trigger( e, null, elem );
+			jQuery.event.trigger( e, null, elem );
 		} else {
-			PanLi.event.dispatch.call( elem, e );
+			jQuery.event.dispatch.call( elem, e );
 		}
 		if ( e.isDefaultPrevented() ) {
 			event.preventDefault();
@@ -4890,7 +4908,7 @@ PanLi.event = {
 	}
 };
 
-PanLi.removeEvent = document.removeEventListener ?
+jQuery.removeEvent = document.removeEventListener ?
 	function( elem, type, handle ) {
 		if ( elem.removeEventListener ) {
 			elem.removeEventListener( type, handle, false );
@@ -4911,10 +4929,10 @@ PanLi.removeEvent = document.removeEventListener ?
 		}
 	};
 
-PanLi.Event = function( src, props ) {
+jQuery.Event = function( src, props ) {
 	// Allow instantiation without the 'new' keyword
-	if ( !(this instanceof PanLi.Event) ) {
-		return new PanLi.Event( src, props );
+	if ( !(this instanceof jQuery.Event) ) {
+		return new jQuery.Event( src, props );
 	}
 
 	// Event object
@@ -4938,19 +4956,19 @@ PanLi.Event = function( src, props ) {
 
 	// Put explicitly provided properties onto the event object
 	if ( props ) {
-		PanLi.extend( this, props );
+		jQuery.extend( this, props );
 	}
 
 	// Create a timestamp if incoming event doesn't have one
-	this.timeStamp = src && src.timeStamp || PanLi.now();
+	this.timeStamp = src && src.timeStamp || jQuery.now();
 
 	// Mark it as fixed
-	this[ PanLi.expando ] = true;
+	this[ jQuery.expando ] = true;
 };
 
-// PanLi.Event is based on DOM3 Events as specified by the ECMAScript Language Binding
+// jQuery.Event is based on DOM3 Events as specified by the ECMAScript Language Binding
 // http://www.w3.org/TR/2003/WD-DOM-Level-3-Events-20030331/ecma-script-binding.html
-PanLi.Event.prototype = {
+jQuery.Event.prototype = {
 	isDefaultPrevented: returnFalse,
 	isPropagationStopped: returnFalse,
 	isImmediatePropagationStopped: returnFalse,
@@ -5003,13 +5021,13 @@ PanLi.Event.prototype = {
 };
 
 // Create mouseenter/leave events using mouseover/out and event-time checks
-PanLi.each({
+jQuery.each({
 	mouseenter: "mouseover",
 	mouseleave: "mouseout",
 	pointerenter: "pointerover",
 	pointerleave: "pointerout"
 }, function( orig, fix ) {
-	PanLi.event.special[ orig ] = {
+	jQuery.event.special[ orig ] = {
 		delegateType: fix,
 		bindType: fix,
 
@@ -5021,7 +5039,7 @@ PanLi.each({
 
 			// For mousenter/leave call the handler if related is outside the target.
 			// NB: No relatedTarget if the mouse left/entered the browser window
-			if ( !related || (related !== target && !PanLi.contains( target, related )) ) {
+			if ( !related || (related !== target && !jQuery.contains( target, related )) ) {
 				event.type = handleObj.origType;
 				ret = handleObj.handler.apply( this, arguments );
 				event.type = fix;
@@ -5034,23 +5052,23 @@ PanLi.each({
 // IE submit delegation
 if ( !support.submitBubbles ) {
 
-	PanLi.event.special.submit = {
+	jQuery.event.special.submit = {
 		setup: function() {
 			// Only need this for delegated form submit events
-			if ( PanLi.nodeName( this, "form" ) ) {
+			if ( jQuery.nodeName( this, "form" ) ) {
 				return false;
 			}
 
 			// Lazy-add a submit handler when a descendant form may potentially be submitted
-			PanLi.event.add( this, "click._submit keypress._submit", function( e ) {
+			jQuery.event.add( this, "click._submit keypress._submit", function( e ) {
 				// Node name check avoids a VML-related crash in IE (#9807)
 				var elem = e.target,
-					form = PanLi.nodeName( elem, "input" ) || PanLi.nodeName( elem, "button" ) ? elem.form : undefined;
-				if ( form && !PanLi._data( form, "submitBubbles" ) ) {
-					PanLi.event.add( form, "submit._submit", function( event ) {
+					form = jQuery.nodeName( elem, "input" ) || jQuery.nodeName( elem, "button" ) ? elem.form : undefined;
+				if ( form && !jQuery._data( form, "submitBubbles" ) ) {
+					jQuery.event.add( form, "submit._submit", function( event ) {
 						event._submit_bubble = true;
 					});
-					PanLi._data( form, "submitBubbles", true );
+					jQuery._data( form, "submitBubbles", true );
 				}
 			});
 			// return undefined since we don't need an event listener
@@ -5061,19 +5079,19 @@ if ( !support.submitBubbles ) {
 			if ( event._submit_bubble ) {
 				delete event._submit_bubble;
 				if ( this.parentNode && !event.isTrigger ) {
-					PanLi.event.simulate( "submit", this.parentNode, event, true );
+					jQuery.event.simulate( "submit", this.parentNode, event, true );
 				}
 			}
 		},
 
 		teardown: function() {
 			// Only need this for delegated form submit events
-			if ( PanLi.nodeName( this, "form" ) ) {
+			if ( jQuery.nodeName( this, "form" ) ) {
 				return false;
 			}
 
 			// Remove delegated handlers; cleanData eventually reaps submit handlers attached above
-			PanLi.event.remove( this, "._submit" );
+			jQuery.event.remove( this, "._submit" );
 		}
 	};
 }
@@ -5081,7 +5099,7 @@ if ( !support.submitBubbles ) {
 // IE change delegation and checkbox/radio fix
 if ( !support.changeBubbles ) {
 
-	PanLi.event.special.change = {
+	jQuery.event.special.change = {
 
 		setup: function() {
 
@@ -5090,32 +5108,32 @@ if ( !support.changeBubbles ) {
 				// after a propertychange. Eat the blur-change in special.change.handle.
 				// This still fires onchange a second time for check/radio after blur.
 				if ( this.type === "checkbox" || this.type === "radio" ) {
-					PanLi.event.add( this, "propertychange._change", function( event ) {
+					jQuery.event.add( this, "propertychange._change", function( event ) {
 						if ( event.originalEvent.propertyName === "checked" ) {
 							this._just_changed = true;
 						}
 					});
-					PanLi.event.add( this, "click._change", function( event ) {
+					jQuery.event.add( this, "click._change", function( event ) {
 						if ( this._just_changed && !event.isTrigger ) {
 							this._just_changed = false;
 						}
 						// Allow triggered, simulated change events (#11500)
-						PanLi.event.simulate( "change", this, event, true );
+						jQuery.event.simulate( "change", this, event, true );
 					});
 				}
 				return false;
 			}
 			// Delegated event; lazy-add a change handler on descendant inputs
-			PanLi.event.add( this, "beforeactivate._change", function( e ) {
+			jQuery.event.add( this, "beforeactivate._change", function( e ) {
 				var elem = e.target;
 
-				if ( rformElems.test( elem.nodeName ) && !PanLi._data( elem, "changeBubbles" ) ) {
-					PanLi.event.add( elem, "change._change", function( event ) {
+				if ( rformElems.test( elem.nodeName ) && !jQuery._data( elem, "changeBubbles" ) ) {
+					jQuery.event.add( elem, "change._change", function( event ) {
 						if ( this.parentNode && !event.isSimulated && !event.isTrigger ) {
-							PanLi.event.simulate( "change", this.parentNode, event, true );
+							jQuery.event.simulate( "change", this.parentNode, event, true );
 						}
 					});
-					PanLi._data( elem, "changeBubbles", true );
+					jQuery._data( elem, "changeBubbles", true );
 				}
 			});
 		},
@@ -5130,7 +5148,7 @@ if ( !support.changeBubbles ) {
 		},
 
 		teardown: function() {
-			PanLi.event.remove( this, "._change" );
+			jQuery.event.remove( this, "._change" );
 
 			return !rformElems.test( this.nodeName );
 		}
@@ -5139,39 +5157,39 @@ if ( !support.changeBubbles ) {
 
 // Create "bubbling" focus and blur events
 if ( !support.focusinBubbles ) {
-	PanLi.each({ focus: "focusin", blur: "focusout" }, function( orig, fix ) {
+	jQuery.each({ focus: "focusin", blur: "focusout" }, function( orig, fix ) {
 
 		// Attach a single capturing handler on the document while someone wants focusin/focusout
 		var handler = function( event ) {
-				PanLi.event.simulate( fix, event.target, PanLi.event.fix( event ), true );
+				jQuery.event.simulate( fix, event.target, jQuery.event.fix( event ), true );
 			};
 
-		PanLi.event.special[ fix ] = {
+		jQuery.event.special[ fix ] = {
 			setup: function() {
 				var doc = this.ownerDocument || this,
-					attaches = PanLi._data( doc, fix );
+					attaches = jQuery._data( doc, fix );
 
 				if ( !attaches ) {
 					doc.addEventListener( orig, handler, true );
 				}
-				PanLi._data( doc, fix, ( attaches || 0 ) + 1 );
+				jQuery._data( doc, fix, ( attaches || 0 ) + 1 );
 			},
 			teardown: function() {
 				var doc = this.ownerDocument || this,
-					attaches = PanLi._data( doc, fix ) - 1;
+					attaches = jQuery._data( doc, fix ) - 1;
 
 				if ( !attaches ) {
 					doc.removeEventListener( orig, handler, true );
-					PanLi._removeData( doc, fix );
+					jQuery._removeData( doc, fix );
 				} else {
-					PanLi._data( doc, fix, attaches );
+					jQuery._data( doc, fix, attaches );
 				}
 			}
 		};
 	});
 }
 
-PanLi.fn.extend({
+jQuery.fn.extend({
 
 	on: function( types, selector, data, fn, /*INTERNAL*/ one ) {
 		var type, origFn;
@@ -5216,14 +5234,14 @@ PanLi.fn.extend({
 			origFn = fn;
 			fn = function( event ) {
 				// Can use an empty set, since event contains the info
-				PanLi().off( event );
+				jQuery().off( event );
 				return origFn.apply( this, arguments );
 			};
 			// Use same guid so caller can remove using origFn
-			fn.guid = origFn.guid || ( origFn.guid = PanLi.guid++ );
+			fn.guid = origFn.guid || ( origFn.guid = jQuery.guid++ );
 		}
 		return this.each( function() {
-			PanLi.event.add( this, types, fn, data, selector );
+			jQuery.event.add( this, types, fn, data, selector );
 		});
 	},
 	one: function( types, selector, data, fn ) {
@@ -5232,9 +5250,9 @@ PanLi.fn.extend({
 	off: function( types, selector, fn ) {
 		var handleObj, type;
 		if ( types && types.preventDefault && types.handleObj ) {
-			// ( event )  dispatched PanLi.Event
+			// ( event )  dispatched jQuery.Event
 			handleObj = types.handleObj;
-			PanLi( types.delegateTarget ).off(
+			jQuery( types.delegateTarget ).off(
 				handleObj.namespace ? handleObj.origType + "." + handleObj.namespace : handleObj.origType,
 				handleObj.selector,
 				handleObj.handler
@@ -5257,19 +5275,19 @@ PanLi.fn.extend({
 			fn = returnFalse;
 		}
 		return this.each(function() {
-			PanLi.event.remove( this, types, fn, selector );
+			jQuery.event.remove( this, types, fn, selector );
 		});
 	},
 
 	trigger: function( type, data ) {
 		return this.each(function() {
-			PanLi.event.trigger( type, data, this );
+			jQuery.event.trigger( type, data, this );
 		});
 	},
 	triggerHandler: function( type, data ) {
 		var elem = this[0];
 		if ( elem ) {
-			return PanLi.event.trigger( type, data, elem, true );
+			return jQuery.event.trigger( type, data, elem, true );
 		}
 	}
 });
@@ -5291,7 +5309,7 @@ function createSafeFragment( document ) {
 
 var nodeNames = "abbr|article|aside|audio|bdi|canvas|data|datalist|details|figcaption|figure|footer|" +
 		"header|hgroup|mark|meter|nav|output|progress|section|summary|time|video",
-	rinlinePanLi = / PanLi\d+="(?:null|\d+)"/g,
+	rinlinejQuery = / jQuery\d+="(?:null|\d+)"/g,
 	rnoshimcache = new RegExp("<(?:" + nodeNames + ")[\\s/>]", "i"),
 	rleadingWhitespace = /^\s+/,
 	rxhtmlTag = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:]+)[^>]*)\/>/gi,
@@ -5336,16 +5354,16 @@ function getAll( context, tag ) {
 
 	if ( !found ) {
 		for ( found = [], elems = context.childNodes || context; (elem = elems[i]) != null; i++ ) {
-			if ( !tag || PanLi.nodeName( elem, tag ) ) {
+			if ( !tag || jQuery.nodeName( elem, tag ) ) {
 				found.push( elem );
 			} else {
-				PanLi.merge( found, getAll( elem, tag ) );
+				jQuery.merge( found, getAll( elem, tag ) );
 			}
 		}
 	}
 
-	return tag === undefined || tag && PanLi.nodeName( context, tag ) ?
-		PanLi.merge( [ context ], found ) :
+	return tag === undefined || tag && jQuery.nodeName( context, tag ) ?
+		jQuery.merge( [ context ], found ) :
 		found;
 }
 
@@ -5359,8 +5377,8 @@ function fixDefaultChecked( elem ) {
 // Support: IE<8
 // Manipulating tables requires a tbody
 function manipulationTarget( elem, content ) {
-	return PanLi.nodeName( elem, "table" ) &&
-		PanLi.nodeName( content.nodeType !== 11 ? content : content.firstChild, "tr" ) ?
+	return jQuery.nodeName( elem, "table" ) &&
+		jQuery.nodeName( content.nodeType !== 11 ? content : content.firstChild, "tr" ) ?
 
 		elem.getElementsByTagName("tbody")[0] ||
 			elem.appendChild( elem.ownerDocument.createElement("tbody") ) :
@@ -5369,7 +5387,7 @@ function manipulationTarget( elem, content ) {
 
 // Replace/restore the type attribute of script elements for safe DOM manipulation
 function disableScript( elem ) {
-	elem.type = (PanLi.find.attr( elem, "type" ) !== null) + "/" + elem.type;
+	elem.type = (jQuery.find.attr( elem, "type" ) !== null) + "/" + elem.type;
 	return elem;
 }
 function restoreScript( elem ) {
@@ -5387,19 +5405,19 @@ function setGlobalEval( elems, refElements ) {
 	var elem,
 		i = 0;
 	for ( ; (elem = elems[i]) != null; i++ ) {
-		PanLi._data( elem, "globalEval", !refElements || PanLi._data( refElements[i], "globalEval" ) );
+		jQuery._data( elem, "globalEval", !refElements || jQuery._data( refElements[i], "globalEval" ) );
 	}
 }
 
 function cloneCopyEvent( src, dest ) {
 
-	if ( dest.nodeType !== 1 || !PanLi.hasData( src ) ) {
+	if ( dest.nodeType !== 1 || !jQuery.hasData( src ) ) {
 		return;
 	}
 
 	var type, i, l,
-		oldData = PanLi._data( src ),
-		curData = PanLi._data( dest, oldData ),
+		oldData = jQuery._data( src ),
+		curData = jQuery._data( dest, oldData ),
 		events = oldData.events;
 
 	if ( events ) {
@@ -5408,14 +5426,14 @@ function cloneCopyEvent( src, dest ) {
 
 		for ( type in events ) {
 			for ( i = 0, l = events[ type ].length; i < l; i++ ) {
-				PanLi.event.add( dest, type, events[ type ][ i ] );
+				jQuery.event.add( dest, type, events[ type ][ i ] );
 			}
 		}
 	}
 
 	// make the cloned public data object a copy from the original
 	if ( curData.data ) {
-		curData.data = PanLi.extend( {}, curData.data );
+		curData.data = jQuery.extend( {}, curData.data );
 	}
 }
 
@@ -5430,15 +5448,15 @@ function fixCloneNodeIssues( src, dest ) {
 	nodeName = dest.nodeName.toLowerCase();
 
 	// IE6-8 copies events bound via attachEvent when using cloneNode.
-	if ( !support.noCloneEvent && dest[ PanLi.expando ] ) {
-		data = PanLi._data( dest );
+	if ( !support.noCloneEvent && dest[ jQuery.expando ] ) {
+		data = jQuery._data( dest );
 
 		for ( e in data.events ) {
-			PanLi.removeEvent( dest, e, data.handle );
+			jQuery.removeEvent( dest, e, data.handle );
 		}
 
 		// Event data gets referenced instead of copied if the expando gets copied too
-		dest.removeAttribute( PanLi.expando );
+		dest.removeAttribute( jQuery.expando );
 	}
 
 	// IE blanks contents when cloning scripts, and tries to evaluate newly-set text
@@ -5457,7 +5475,7 @@ function fixCloneNodeIssues( src, dest ) {
 		// element in IE9, the outerHTML strategy above is not sufficient.
 		// If the src has innerHTML and the destination does not,
 		// copy the src.innerHTML into the dest.innerHTML. #10324
-		if ( support.html5Clone && ( src.innerHTML && !PanLi.trim(dest.innerHTML) ) ) {
+		if ( support.html5Clone && ( src.innerHTML && !jQuery.trim(dest.innerHTML) ) ) {
 			dest.innerHTML = src.innerHTML;
 		}
 
@@ -5486,12 +5504,12 @@ function fixCloneNodeIssues( src, dest ) {
 	}
 }
 
-PanLi.extend({
+jQuery.extend({
 	clone: function( elem, dataAndEvents, deepDataAndEvents ) {
 		var destElements, node, clone, i, srcElements,
-			inPage = PanLi.contains( elem.ownerDocument, elem );
+			inPage = jQuery.contains( elem.ownerDocument, elem );
 
-		if ( support.html5Clone || PanLi.isXMLDoc(elem) || !rnoshimcache.test( "<" + elem.nodeName + ">" ) ) {
+		if ( support.html5Clone || jQuery.isXMLDoc(elem) || !rnoshimcache.test( "<" + elem.nodeName + ">" ) ) {
 			clone = elem.cloneNode( true );
 
 		// IE<=8 does not properly clone detached, unknown element nodes
@@ -5501,7 +5519,7 @@ PanLi.extend({
 		}
 
 		if ( (!support.noCloneEvent || !support.noCloneChecked) &&
-				(elem.nodeType === 1 || elem.nodeType === 11) && !PanLi.isXMLDoc(elem) ) {
+				(elem.nodeType === 1 || elem.nodeType === 11) && !jQuery.isXMLDoc(elem) ) {
 
 			// We eschew Sizzle here for performance reasons: http://jsperf.com/getall-vs-sizzle/2
 			destElements = getAll( clone );
@@ -5559,8 +5577,8 @@ PanLi.extend({
 			if ( elem || elem === 0 ) {
 
 				// Add nodes directly
-				if ( PanLi.type( elem ) === "object" ) {
-					PanLi.merge( nodes, elem.nodeType ? [ elem ] : elem );
+				if ( jQuery.type( elem ) === "object" ) {
+					jQuery.merge( nodes, elem.nodeType ? [ elem ] : elem );
 
 				// Convert non-html into a text node
 				} else if ( !rhtml.test( elem ) ) {
@@ -5601,13 +5619,13 @@ PanLi.extend({
 
 						j = elem && elem.childNodes.length;
 						while ( j-- ) {
-							if ( PanLi.nodeName( (tbody = elem.childNodes[j]), "tbody" ) && !tbody.childNodes.length ) {
+							if ( jQuery.nodeName( (tbody = elem.childNodes[j]), "tbody" ) && !tbody.childNodes.length ) {
 								elem.removeChild( tbody );
 							}
 						}
 					}
 
-					PanLi.merge( nodes, tmp.childNodes );
+					jQuery.merge( nodes, tmp.childNodes );
 
 					// Fix #12392 for WebKit and IE > 9
 					tmp.textContent = "";
@@ -5631,7 +5649,7 @@ PanLi.extend({
 		// Reset defaultChecked for any radios and checkboxes
 		// about to be appended to the DOM in IE 6/7 (#8060)
 		if ( !support.appendChecked ) {
-			PanLi.grep( getAll( nodes, "input" ), fixDefaultChecked );
+			jQuery.grep( getAll( nodes, "input" ), fixDefaultChecked );
 		}
 
 		i = 0;
@@ -5639,11 +5657,11 @@ PanLi.extend({
 
 			// #4087 - If origin and destination elements are the same, and this is
 			// that element, do not do anything
-			if ( selection && PanLi.inArray( elem, selection ) !== -1 ) {
+			if ( selection && jQuery.inArray( elem, selection ) !== -1 ) {
 				continue;
 			}
 
-			contains = PanLi.contains( elem.ownerDocument, elem );
+			contains = jQuery.contains( elem.ownerDocument, elem );
 
 			// Append to fragment
 			tmp = getAll( safe.appendChild( elem ), "script" );
@@ -5672,13 +5690,13 @@ PanLi.extend({
 	cleanData: function( elems, /* internal */ acceptData ) {
 		var elem, type, id, data,
 			i = 0,
-			internalKey = PanLi.expando,
-			cache = PanLi.cache,
+			internalKey = jQuery.expando,
+			cache = jQuery.cache,
 			deleteExpando = support.deleteExpando,
-			special = PanLi.event.special;
+			special = jQuery.event.special;
 
 		for ( ; (elem = elems[i]) != null; i++ ) {
-			if ( acceptData || PanLi.acceptData( elem ) ) {
+			if ( acceptData || jQuery.acceptData( elem ) ) {
 
 				id = elem[ internalKey ];
 				data = id && cache[ id ];
@@ -5687,16 +5705,16 @@ PanLi.extend({
 					if ( data.events ) {
 						for ( type in data.events ) {
 							if ( special[ type ] ) {
-								PanLi.event.remove( elem, type );
+								jQuery.event.remove( elem, type );
 
-							// This is a shortcut to avoid PanLi.event.remove's overhead
+							// This is a shortcut to avoid jQuery.event.remove's overhead
 							} else {
-								PanLi.removeEvent( elem, type, data.handle );
+								jQuery.removeEvent( elem, type, data.handle );
 							}
 						}
 					}
 
-					// Remove cache only if it was not already removed by PanLi.event.remove
+					// Remove cache only if it was not already removed by jQuery.event.remove
 					if ( cache[ id ] ) {
 
 						delete cache[ id ];
@@ -5722,11 +5740,11 @@ PanLi.extend({
 	}
 });
 
-PanLi.fn.extend({
+jQuery.fn.extend({
 	text: function( value ) {
 		return access( this, function( value ) {
 			return value === undefined ?
-				PanLi.text( this ) :
+				jQuery.text( this ) :
 				this.empty().append( ( this[0] && this[0].ownerDocument || document ).createTextNode( value ) );
 		}, null, value, arguments.length );
 	},
@@ -5767,17 +5785,17 @@ PanLi.fn.extend({
 
 	remove: function( selector, keepData /* Internal Use Only */ ) {
 		var elem,
-			elems = selector ? PanLi.filter( selector, this ) : this,
+			elems = selector ? jQuery.filter( selector, this ) : this,
 			i = 0;
 
 		for ( ; (elem = elems[i]) != null; i++ ) {
 
 			if ( !keepData && elem.nodeType === 1 ) {
-				PanLi.cleanData( getAll( elem ) );
+				jQuery.cleanData( getAll( elem ) );
 			}
 
 			if ( elem.parentNode ) {
-				if ( keepData && PanLi.contains( elem.ownerDocument, elem ) ) {
+				if ( keepData && jQuery.contains( elem.ownerDocument, elem ) ) {
 					setGlobalEval( getAll( elem, "script" ) );
 				}
 				elem.parentNode.removeChild( elem );
@@ -5794,7 +5812,7 @@ PanLi.fn.extend({
 		for ( ; (elem = this[i]) != null; i++ ) {
 			// Remove element nodes and prevent memory leaks
 			if ( elem.nodeType === 1 ) {
-				PanLi.cleanData( getAll( elem, false ) );
+				jQuery.cleanData( getAll( elem, false ) );
 			}
 
 			// Remove any remaining nodes
@@ -5804,7 +5822,7 @@ PanLi.fn.extend({
 
 			// If this is a select, ensure that it displays empty (#12336)
 			// Support: IE<9
-			if ( elem.options && PanLi.nodeName( elem, "select" ) ) {
+			if ( elem.options && jQuery.nodeName( elem, "select" ) ) {
 				elem.options.length = 0;
 			}
 		}
@@ -5817,7 +5835,7 @@ PanLi.fn.extend({
 		deepDataAndEvents = deepDataAndEvents == null ? dataAndEvents : deepDataAndEvents;
 
 		return this.map(function() {
-			return PanLi.clone( this, dataAndEvents, deepDataAndEvents );
+			return jQuery.clone( this, dataAndEvents, deepDataAndEvents );
 		});
 	},
 
@@ -5829,7 +5847,7 @@ PanLi.fn.extend({
 
 			if ( value === undefined ) {
 				return elem.nodeType === 1 ?
-					elem.innerHTML.replace( rinlinePanLi, "" ) :
+					elem.innerHTML.replace( rinlinejQuery, "" ) :
 					undefined;
 			}
 
@@ -5846,7 +5864,7 @@ PanLi.fn.extend({
 						// Remove element nodes and prevent memory leaks
 						elem = this[i] || {};
 						if ( elem.nodeType === 1 ) {
-							PanLi.cleanData( getAll( elem, false ) );
+							jQuery.cleanData( getAll( elem, false ) );
 							elem.innerHTML = value;
 						}
 					}
@@ -5870,7 +5888,7 @@ PanLi.fn.extend({
 		this.domManip( arguments, function( elem ) {
 			arg = this.parentNode;
 
-			PanLi.cleanData( getAll( this ) );
+			jQuery.cleanData( getAll( this ) );
 
 			if ( arg ) {
 				arg.replaceChild( elem, this );
@@ -5897,7 +5915,7 @@ PanLi.fn.extend({
 			set = this,
 			iNoClone = l - 1,
 			value = args[0],
-			isFunction = PanLi.isFunction( value );
+			isFunction = jQuery.isFunction( value );
 
 		// We can't cloneNode fragments that contain checked, in WebKit
 		if ( isFunction ||
@@ -5913,7 +5931,7 @@ PanLi.fn.extend({
 		}
 
 		if ( l ) {
-			fragment = PanLi.buildFragment( args, this[ 0 ].ownerDocument, false, this );
+			fragment = jQuery.buildFragment( args, this[ 0 ].ownerDocument, false, this );
 			first = fragment.firstChild;
 
 			if ( fragment.childNodes.length === 1 ) {
@@ -5921,7 +5939,7 @@ PanLi.fn.extend({
 			}
 
 			if ( first ) {
-				scripts = PanLi.map( getAll( fragment, "script" ), disableScript );
+				scripts = jQuery.map( getAll( fragment, "script" ), disableScript );
 				hasScripts = scripts.length;
 
 				// Use the original fragment for the last item instead of the first because it can end up
@@ -5930,11 +5948,11 @@ PanLi.fn.extend({
 					node = fragment;
 
 					if ( i !== iNoClone ) {
-						node = PanLi.clone( node, true, true );
+						node = jQuery.clone( node, true, true );
 
 						// Keep references to cloned scripts for later restoration
 						if ( hasScripts ) {
-							PanLi.merge( scripts, getAll( node, "script" ) );
+							jQuery.merge( scripts, getAll( node, "script" ) );
 						}
 					}
 
@@ -5945,21 +5963,21 @@ PanLi.fn.extend({
 					doc = scripts[ scripts.length - 1 ].ownerDocument;
 
 					// Reenable scripts
-					PanLi.map( scripts, restoreScript );
+					jQuery.map( scripts, restoreScript );
 
 					// Evaluate executable scripts on first document insertion
 					for ( i = 0; i < hasScripts; i++ ) {
 						node = scripts[ i ];
 						if ( rscriptType.test( node.type || "" ) &&
-							!PanLi._data( node, "globalEval" ) && PanLi.contains( doc, node ) ) {
+							!jQuery._data( node, "globalEval" ) && jQuery.contains( doc, node ) ) {
 
 							if ( node.src ) {
 								// Optional AJAX dependency, but won't run scripts if not present
-								if ( PanLi._evalUrl ) {
-									PanLi._evalUrl( node.src );
+								if ( jQuery._evalUrl ) {
+									jQuery._evalUrl( node.src );
 								}
 							} else {
-								PanLi.globalEval( ( node.text || node.textContent || node.innerHTML || "" ).replace( rcleanScript, "" ) );
+								jQuery.globalEval( ( node.text || node.textContent || node.innerHTML || "" ).replace( rcleanScript, "" ) );
 							}
 						}
 					}
@@ -5974,25 +5992,25 @@ PanLi.fn.extend({
 	}
 });
 
-PanLi.each({
+jQuery.each({
 	appendTo: "append",
 	prependTo: "prepend",
 	insertBefore: "before",
 	insertAfter: "after",
 	replaceAll: "replaceWith"
 }, function( name, original ) {
-	PanLi.fn[ name ] = function( selector ) {
+	jQuery.fn[ name ] = function( selector ) {
 		var elems,
 			i = 0,
 			ret = [],
-			insert = PanLi( selector ),
+			insert = jQuery( selector ),
 			last = insert.length - 1;
 
 		for ( ; i <= last; i++ ) {
 			elems = i === last ? this : this.clone(true);
-			PanLi( insert[i] )[ original ]( elems );
+			jQuery( insert[i] )[ original ]( elems );
 
-			// Modern browsers can apply PanLi collections as arrays, but oldIE needs a .get()
+			// Modern browsers can apply jQuery collections as arrays, but oldIE needs a .get()
 			push.apply( ret, elems.get() );
 		}
 
@@ -6012,14 +6030,14 @@ var iframe,
 // Called only from within defaultDisplay
 function actualDisplay( name, doc ) {
 	var style,
-		elem = PanLi( doc.createElement( name ) ).appendTo( doc.body ),
+		elem = jQuery( doc.createElement( name ) ).appendTo( doc.body ),
 
 		// getDefaultComputedStyle might be reliably used only on attached element
 		display = window.getDefaultComputedStyle && ( style = window.getDefaultComputedStyle( elem[ 0 ] ) ) ?
 
 			// Use of this method is a temporary fix (more like optmization) until something better comes along,
 			// since it was removed from specification and supported only in FF
-			style.display : PanLi.css( elem[ 0 ], "display" );
+			style.display : jQuery.css( elem[ 0 ], "display" );
 
 	// We don't have any data stored on the element,
 	// so use "detach" method as fast way to get rid of the element
@@ -6043,7 +6061,7 @@ function defaultDisplay( nodeName ) {
 		if ( display === "none" || !display ) {
 
 			// Use the already-created iframe if possible
-			iframe = (iframe || PanLi( "<iframe frameborder='0' width='0' height='0'/>" )).appendTo( doc.documentElement );
+			iframe = (iframe || jQuery( "<iframe frameborder='0' width='0' height='0'/>" )).appendTo( doc.documentElement );
 
 			// Always write a new HTML skeleton so Webkit and Firefox don't choke on reuse
 			doc = ( iframe[ 0 ].contentWindow || iframe[ 0 ].contentDocument ).document;
@@ -6142,8 +6160,8 @@ if ( window.getComputedStyle ) {
 
 		if ( computed ) {
 
-			if ( ret === "" && !PanLi.contains( elem.ownerDocument, elem ) ) {
-				ret = PanLi.style( elem, name );
+			if ( ret === "" && !jQuery.contains( elem.ownerDocument, elem ) ) {
+				ret = jQuery.style( elem, name );
 			}
 
 			// A tribute to the "awesome hack by Dean Edwards"
@@ -6294,7 +6312,7 @@ function addGetHookIf( conditionFn, hookFn ) {
 	support.boxSizing = style.boxSizing === "" || style.MozBoxSizing === "" ||
 		style.WebkitBoxSizing === "";
 
-	PanLi.extend(support, {
+	jQuery.extend(support, {
 		reliableHiddenOffsets: function() {
 			if ( reliableHiddenOffsetsVal == null ) {
 				computeStyleTests();
@@ -6404,7 +6422,7 @@ function addGetHookIf( conditionFn, hookFn ) {
 
 
 // A method for quickly swapping in/out CSS properties to get correct calculations.
-PanLi.swap = function( elem, options, callback, args ) {
+jQuery.swap = function( elem, options, callback, args ) {
 	var ret, name,
 		old = {};
 
@@ -6479,7 +6497,7 @@ function showHide( elements, show ) {
 			continue;
 		}
 
-		values[ index ] = PanLi._data( elem, "olddisplay" );
+		values[ index ] = jQuery._data( elem, "olddisplay" );
 		display = elem.style.display;
 		if ( show ) {
 			// Reset the inline display of this element to learn if it is
@@ -6492,13 +6510,13 @@ function showHide( elements, show ) {
 			// in a stylesheet to whatever the default browser style is
 			// for such an element
 			if ( elem.style.display === "" && isHidden( elem ) ) {
-				values[ index ] = PanLi._data( elem, "olddisplay", defaultDisplay(elem.nodeName) );
+				values[ index ] = jQuery._data( elem, "olddisplay", defaultDisplay(elem.nodeName) );
 			}
 		} else {
 			hidden = isHidden( elem );
 
 			if ( display && display !== "none" || !hidden ) {
-				PanLi._data( elem, "olddisplay", hidden ? display : PanLi.css( elem, "display" ) );
+				jQuery._data( elem, "olddisplay", hidden ? display : jQuery.css( elem, "display" ) );
 			}
 		}
 	}
@@ -6538,26 +6556,26 @@ function augmentWidthOrHeight( elem, name, extra, isBorderBox, styles ) {
 	for ( ; i < 4; i += 2 ) {
 		// both box models exclude margin, so add it if we want it
 		if ( extra === "margin" ) {
-			val += PanLi.css( elem, extra + cssExpand[ i ], true, styles );
+			val += jQuery.css( elem, extra + cssExpand[ i ], true, styles );
 		}
 
 		if ( isBorderBox ) {
 			// border-box includes padding, so remove it if we want content
 			if ( extra === "content" ) {
-				val -= PanLi.css( elem, "padding" + cssExpand[ i ], true, styles );
+				val -= jQuery.css( elem, "padding" + cssExpand[ i ], true, styles );
 			}
 
 			// at this point, extra isn't border nor margin, so remove border
 			if ( extra !== "margin" ) {
-				val -= PanLi.css( elem, "border" + cssExpand[ i ] + "Width", true, styles );
+				val -= jQuery.css( elem, "border" + cssExpand[ i ] + "Width", true, styles );
 			}
 		} else {
 			// at this point, extra isn't content, so add padding
-			val += PanLi.css( elem, "padding" + cssExpand[ i ], true, styles );
+			val += jQuery.css( elem, "padding" + cssExpand[ i ], true, styles );
 
 			// at this point, extra isn't content nor padding, so add border
 			if ( extra !== "padding" ) {
-				val += PanLi.css( elem, "border" + cssExpand[ i ] + "Width", true, styles );
+				val += jQuery.css( elem, "border" + cssExpand[ i ] + "Width", true, styles );
 			}
 		}
 	}
@@ -6571,7 +6589,7 @@ function getWidthOrHeight( elem, name, extra ) {
 	var valueIsBorderBox = true,
 		val = name === "width" ? elem.offsetWidth : elem.offsetHeight,
 		styles = getStyles( elem ),
-		isBorderBox = support.boxSizing && PanLi.css( elem, "boxSizing", false, styles ) === "border-box";
+		isBorderBox = support.boxSizing && jQuery.css( elem, "boxSizing", false, styles ) === "border-box";
 
 	// some non-html elements return undefined for offsetWidth, so check for null/undefined
 	// svg - https://bugzilla.mozilla.org/show_bug.cgi?id=649285
@@ -6608,7 +6626,7 @@ function getWidthOrHeight( elem, name, extra ) {
 	) + "px";
 }
 
-PanLi.extend({
+jQuery.extend({
 	// Add in style property hooks for overriding the default
 	// behavior of getting and setting a style property
 	cssHooks: {
@@ -6655,14 +6673,14 @@ PanLi.extend({
 
 		// Make sure that we're working with the right name
 		var ret, type, hooks,
-			origName = PanLi.camelCase( name ),
+			origName = jQuery.camelCase( name ),
 			style = elem.style;
 
-		name = PanLi.cssProps[ origName ] || ( PanLi.cssProps[ origName ] = vendorPropName( style, origName ) );
+		name = jQuery.cssProps[ origName ] || ( jQuery.cssProps[ origName ] = vendorPropName( style, origName ) );
 
 		// gets hook for the prefixed version
 		// followed by the unprefixed version
-		hooks = PanLi.cssHooks[ name ] || PanLi.cssHooks[ origName ];
+		hooks = jQuery.cssHooks[ name ] || jQuery.cssHooks[ origName ];
 
 		// Check if we're setting a value
 		if ( value !== undefined ) {
@@ -6670,7 +6688,7 @@ PanLi.extend({
 
 			// convert relative number strings (+= or -=) to relative numbers. #7345
 			if ( type === "string" && (ret = rrelNum.exec( value )) ) {
-				value = ( ret[1] + 1 ) * ret[2] + parseFloat( PanLi.css( elem, name ) );
+				value = ( ret[1] + 1 ) * ret[2] + parseFloat( jQuery.css( elem, name ) );
 				// Fixes bug #9237
 				type = "number";
 			}
@@ -6681,7 +6699,7 @@ PanLi.extend({
 			}
 
 			// If a number was passed in, add 'px' to the (except for certain CSS properties)
-			if ( type === "number" && !PanLi.cssNumber[ origName ] ) {
+			if ( type === "number" && !jQuery.cssNumber[ origName ] ) {
 				value += "px";
 			}
 
@@ -6714,14 +6732,14 @@ PanLi.extend({
 
 	css: function( elem, name, extra, styles ) {
 		var num, val, hooks,
-			origName = PanLi.camelCase( name );
+			origName = jQuery.camelCase( name );
 
 		// Make sure that we're working with the right name
-		name = PanLi.cssProps[ origName ] || ( PanLi.cssProps[ origName ] = vendorPropName( elem.style, origName ) );
+		name = jQuery.cssProps[ origName ] || ( jQuery.cssProps[ origName ] = vendorPropName( elem.style, origName ) );
 
 		// gets hook for the prefixed version
 		// followed by the unprefixed version
-		hooks = PanLi.cssHooks[ name ] || PanLi.cssHooks[ origName ];
+		hooks = jQuery.cssHooks[ name ] || jQuery.cssHooks[ origName ];
 
 		// If a hook was provided get the computed value from there
 		if ( hooks && "get" in hooks ) {
@@ -6741,20 +6759,20 @@ PanLi.extend({
 		// Return, converting to number if forced or a qualifier was provided and val looks numeric
 		if ( extra === "" || extra ) {
 			num = parseFloat( val );
-			return extra === true || PanLi.isNumeric( num ) ? num || 0 : val;
+			return extra === true || jQuery.isNumeric( num ) ? num || 0 : val;
 		}
 		return val;
 	}
 });
 
-PanLi.each([ "height", "width" ], function( i, name ) {
-	PanLi.cssHooks[ name ] = {
+jQuery.each([ "height", "width" ], function( i, name ) {
+	jQuery.cssHooks[ name ] = {
 		get: function( elem, computed, extra ) {
 			if ( computed ) {
 				// certain elements can have dimension info if we invisibly show them
 				// however, it must have a current display style that would benefit from this
-				return rdisplayswap.test( PanLi.css( elem, "display" ) ) && elem.offsetWidth === 0 ?
-					PanLi.swap( elem, cssShow, function() {
+				return rdisplayswap.test( jQuery.css( elem, "display" ) ) && elem.offsetWidth === 0 ?
+					jQuery.swap( elem, cssShow, function() {
 						return getWidthOrHeight( elem, name, extra );
 					}) :
 					getWidthOrHeight( elem, name, extra );
@@ -6768,7 +6786,7 @@ PanLi.each([ "height", "width" ], function( i, name ) {
 					elem,
 					name,
 					extra,
-					support.boxSizing && PanLi.css( elem, "boxSizing", false, styles ) === "border-box",
+					support.boxSizing && jQuery.css( elem, "boxSizing", false, styles ) === "border-box",
 					styles
 				) : 0
 			);
@@ -6777,7 +6795,7 @@ PanLi.each([ "height", "width" ], function( i, name ) {
 });
 
 if ( !support.opacity ) {
-	PanLi.cssHooks.opacity = {
+	jQuery.cssHooks.opacity = {
 		get: function( elem, computed ) {
 			// IE uses filters for opacity
 			return ropacity.test( (computed && elem.currentStyle ? elem.currentStyle.filter : elem.style.filter) || "" ) ?
@@ -6788,7 +6806,7 @@ if ( !support.opacity ) {
 		set: function( elem, value ) {
 			var style = elem.style,
 				currentStyle = elem.currentStyle,
-				opacity = PanLi.isNumeric( value ) ? "alpha(opacity=" + value * 100 + ")" : "",
+				opacity = jQuery.isNumeric( value ) ? "alpha(opacity=" + value * 100 + ")" : "",
 				filter = currentStyle && currentStyle.filter || style.filter || "";
 
 			// IE has trouble with opacity if it does not have layout
@@ -6798,7 +6816,7 @@ if ( !support.opacity ) {
 			// if setting opacity to 1, and no other filters exist - attempt to remove filter attribute #6652
 			// if value === "", then remove inline opacity #12685
 			if ( ( value >= 1 || value === "" ) &&
-					PanLi.trim( filter.replace( ralpha, "" ) ) === "" &&
+					jQuery.trim( filter.replace( ralpha, "" ) ) === "" &&
 					style.removeAttribute ) {
 
 				// Setting style.filter to null, "" & " " still leave "filter:" in the cssText
@@ -6820,24 +6838,24 @@ if ( !support.opacity ) {
 	};
 }
 
-PanLi.cssHooks.marginRight = addGetHookIf( support.reliableMarginRight,
+jQuery.cssHooks.marginRight = addGetHookIf( support.reliableMarginRight,
 	function( elem, computed ) {
 		if ( computed ) {
 			// WebKit Bug 13343 - getComputedStyle returns wrong value for margin-right
 			// Work around by temporarily setting element display to inline-block
-			return PanLi.swap( elem, { "display": "inline-block" },
+			return jQuery.swap( elem, { "display": "inline-block" },
 				curCSS, [ elem, "marginRight" ] );
 		}
 	}
 );
 
 // These hooks are used by animate to expand properties
-PanLi.each({
+jQuery.each({
 	margin: "",
 	padding: "",
 	border: "Width"
 }, function( prefix, suffix ) {
-	PanLi.cssHooks[ prefix + suffix ] = {
+	jQuery.cssHooks[ prefix + suffix ] = {
 		expand: function( value ) {
 			var i = 0,
 				expanded = {},
@@ -6855,31 +6873,31 @@ PanLi.each({
 	};
 
 	if ( !rmargin.test( prefix ) ) {
-		PanLi.cssHooks[ prefix + suffix ].set = setPositiveNumber;
+		jQuery.cssHooks[ prefix + suffix ].set = setPositiveNumber;
 	}
 });
 
-PanLi.fn.extend({
+jQuery.fn.extend({
 	css: function( name, value ) {
 		return access( this, function( elem, name, value ) {
 			var styles, len,
 				map = {},
 				i = 0;
 
-			if ( PanLi.isArray( name ) ) {
+			if ( jQuery.isArray( name ) ) {
 				styles = getStyles( elem );
 				len = name.length;
 
 				for ( ; i < len; i++ ) {
-					map[ name[ i ] ] = PanLi.css( elem, name[ i ], false, styles );
+					map[ name[ i ] ] = jQuery.css( elem, name[ i ], false, styles );
 				}
 
 				return map;
 			}
 
 			return value !== undefined ?
-				PanLi.style( elem, name, value ) :
-				PanLi.css( elem, name );
+				jQuery.style( elem, name, value ) :
+				jQuery.css( elem, name );
 		}, name, value, arguments.length > 1 );
 	},
 	show: function() {
@@ -6895,9 +6913,9 @@ PanLi.fn.extend({
 
 		return this.each(function() {
 			if ( isHidden( this ) ) {
-				PanLi( this ).show();
+				jQuery( this ).show();
 			} else {
-				PanLi( this ).hide();
+				jQuery( this ).hide();
 			}
 		});
 	}
@@ -6907,7 +6925,7 @@ PanLi.fn.extend({
 function Tween( elem, options, prop, end, easing ) {
 	return new Tween.prototype.init( elem, options, prop, end, easing );
 }
-PanLi.Tween = Tween;
+jQuery.Tween = Tween;
 
 Tween.prototype = {
 	constructor: Tween,
@@ -6918,7 +6936,7 @@ Tween.prototype = {
 		this.options = options;
 		this.start = this.now = this.cur();
 		this.end = end;
-		this.unit = unit || ( PanLi.cssNumber[ prop ] ? "" : "px" );
+		this.unit = unit || ( jQuery.cssNumber[ prop ] ? "" : "px" );
 	},
 	cur: function() {
 		var hooks = Tween.propHooks[ this.prop ];
@@ -6932,7 +6950,7 @@ Tween.prototype = {
 			hooks = Tween.propHooks[ this.prop ];
 
 		if ( this.options.duration ) {
-			this.pos = eased = PanLi.easing[ this.easing ](
+			this.pos = eased = jQuery.easing[ this.easing ](
 				percent, this.options.duration * percent, 0, 1, this.options.duration
 			);
 		} else {
@@ -6969,17 +6987,17 @@ Tween.propHooks = {
 			// attempt a parseFloat and fallback to a string if the parse fails
 			// so, simple values such as "10px" are parsed to Float.
 			// complex values such as "rotate(1rad)" are returned as is.
-			result = PanLi.css( tween.elem, tween.prop, "" );
+			result = jQuery.css( tween.elem, tween.prop, "" );
 			// Empty strings, null, undefined and "auto" are converted to 0.
 			return !result || result === "auto" ? 0 : result;
 		},
 		set: function( tween ) {
 			// use step hook for back compat - use cssHook if its there - use .style if its
 			// available and use plain properties where available
-			if ( PanLi.fx.step[ tween.prop ] ) {
-				PanLi.fx.step[ tween.prop ]( tween );
-			} else if ( tween.elem.style && ( tween.elem.style[ PanLi.cssProps[ tween.prop ] ] != null || PanLi.cssHooks[ tween.prop ] ) ) {
-				PanLi.style( tween.elem, tween.prop, tween.now + tween.unit );
+			if ( jQuery.fx.step[ tween.prop ] ) {
+				jQuery.fx.step[ tween.prop ]( tween );
+			} else if ( tween.elem.style && ( tween.elem.style[ jQuery.cssProps[ tween.prop ] ] != null || jQuery.cssHooks[ tween.prop ] ) ) {
+				jQuery.style( tween.elem, tween.prop, tween.now + tween.unit );
 			} else {
 				tween.elem[ tween.prop ] = tween.now;
 			}
@@ -6998,7 +7016,7 @@ Tween.propHooks.scrollTop = Tween.propHooks.scrollLeft = {
 	}
 };
 
-PanLi.easing = {
+jQuery.easing = {
 	linear: function( p ) {
 		return p;
 	},
@@ -7007,10 +7025,10 @@ PanLi.easing = {
 	}
 };
 
-PanLi.fx = Tween.prototype.init;
+jQuery.fx = Tween.prototype.init;
 
 // Back Compat <1.8 extension point
-PanLi.fx.step = {};
+jQuery.fx.step = {};
 
 
 
@@ -7026,16 +7044,16 @@ var
 			var tween = this.createTween( prop, value ),
 				target = tween.cur(),
 				parts = rfxnum.exec( value ),
-				unit = parts && parts[ 3 ] || ( PanLi.cssNumber[ prop ] ? "" : "px" ),
+				unit = parts && parts[ 3 ] || ( jQuery.cssNumber[ prop ] ? "" : "px" ),
 
 				// Starting value computation is required for potential unit mismatches
-				start = ( PanLi.cssNumber[ prop ] || unit !== "px" && +target ) &&
-					rfxnum.exec( PanLi.css( tween.elem, prop ) ),
+				start = ( jQuery.cssNumber[ prop ] || unit !== "px" && +target ) &&
+					rfxnum.exec( jQuery.css( tween.elem, prop ) ),
 				scale = 1,
 				maxIterations = 20;
 
 			if ( start && start[ 3 ] !== unit ) {
-				// Trust units reported by PanLi.css
+				// Trust units reported by jQuery.css
 				unit = unit || start[ 3 ];
 
 				// Make sure we update the tween properties later on
@@ -7051,7 +7069,7 @@ var
 
 					// Adjust and apply
 					start = start / scale;
-					PanLi.style( tween.elem, prop, start + unit );
+					jQuery.style( tween.elem, prop, start + unit );
 
 				// Update scale, tolerating zero or NaN from tween.cur()
 				// And breaking the loop if scale is unchanged or perfect, or if we've just had enough
@@ -7077,7 +7095,7 @@ function createFxNow() {
 	setTimeout(function() {
 		fxNow = undefined;
 	});
-	return ( fxNow = PanLi.now() );
+	return ( fxNow = jQuery.now() );
 }
 
 // Generate parameters to create a standard animation
@@ -7122,11 +7140,11 @@ function defaultPrefilter( elem, props, opts ) {
 		orig = {},
 		style = elem.style,
 		hidden = elem.nodeType && isHidden( elem ),
-		dataShow = PanLi._data( elem, "fxshow" );
+		dataShow = jQuery._data( elem, "fxshow" );
 
 	// handle queue: false promises
 	if ( !opts.queue ) {
-		hooks = PanLi._queueHooks( elem, "fx" );
+		hooks = jQuery._queueHooks( elem, "fx" );
 		if ( hooks.unqueued == null ) {
 			hooks.unqueued = 0;
 			oldfire = hooks.empty.fire;
@@ -7143,7 +7161,7 @@ function defaultPrefilter( elem, props, opts ) {
 			// before this completes
 			anim.always(function() {
 				hooks.unqueued--;
-				if ( !PanLi.queue( elem, "fx" ).length ) {
+				if ( !jQuery.queue( elem, "fx" ).length ) {
 					hooks.empty.fire();
 				}
 			});
@@ -7160,13 +7178,13 @@ function defaultPrefilter( elem, props, opts ) {
 
 		// Set display property to inline-block for height/width
 		// animations on inline elements that are having width/height animated
-		display = PanLi.css( elem, "display" );
+		display = jQuery.css( elem, "display" );
 
 		// Test default display if display is currently "none"
 		checkDisplay = display === "none" ?
-			PanLi._data( elem, "olddisplay" ) || defaultDisplay( elem.nodeName ) : display;
+			jQuery._data( elem, "olddisplay" ) || defaultDisplay( elem.nodeName ) : display;
 
-		if ( checkDisplay === "inline" && PanLi.css( elem, "float" ) === "none" ) {
+		if ( checkDisplay === "inline" && jQuery.css( elem, "float" ) === "none" ) {
 
 			// inline-level elements accept inline-block;
 			// block-level elements need to be inline with layout
@@ -7204,7 +7222,7 @@ function defaultPrefilter( elem, props, opts ) {
 					continue;
 				}
 			}
-			orig[ prop ] = dataShow && dataShow[ prop ] || PanLi.style( elem, prop );
+			orig[ prop ] = dataShow && dataShow[ prop ] || jQuery.style( elem, prop );
 
 		// Any non-fx value stops us from restoring the original display value
 		} else {
@@ -7212,13 +7230,13 @@ function defaultPrefilter( elem, props, opts ) {
 		}
 	}
 
-	if ( !PanLi.isEmptyObject( orig ) ) {
+	if ( !jQuery.isEmptyObject( orig ) ) {
 		if ( dataShow ) {
 			if ( "hidden" in dataShow ) {
 				hidden = dataShow.hidden;
 			}
 		} else {
-			dataShow = PanLi._data( elem, "fxshow", {} );
+			dataShow = jQuery._data( elem, "fxshow", {} );
 		}
 
 		// store state if its toggle - enables .stop().toggle() to "reverse"
@@ -7226,17 +7244,17 @@ function defaultPrefilter( elem, props, opts ) {
 			dataShow.hidden = !hidden;
 		}
 		if ( hidden ) {
-			PanLi( elem ).show();
+			jQuery( elem ).show();
 		} else {
 			anim.done(function() {
-				PanLi( elem ).hide();
+				jQuery( elem ).hide();
 			});
 		}
 		anim.done(function() {
 			var prop;
-			PanLi._removeData( elem, "fxshow" );
+			jQuery._removeData( elem, "fxshow" );
 			for ( prop in orig ) {
-				PanLi.style( elem, prop, orig[ prop ] );
+				jQuery.style( elem, prop, orig[ prop ] );
 			}
 		});
 		for ( prop in orig ) {
@@ -7262,10 +7280,10 @@ function propFilter( props, specialEasing ) {
 
 	// camelCase, specialEasing and expand cssHook pass
 	for ( index in props ) {
-		name = PanLi.camelCase( index );
+		name = jQuery.camelCase( index );
 		easing = specialEasing[ name ];
 		value = props[ index ];
-		if ( PanLi.isArray( value ) ) {
+		if ( jQuery.isArray( value ) ) {
 			easing = value[ 1 ];
 			value = props[ index ] = value[ 0 ];
 		}
@@ -7275,7 +7293,7 @@ function propFilter( props, specialEasing ) {
 			delete props[ index ];
 		}
 
-		hooks = PanLi.cssHooks[ name ];
+		hooks = jQuery.cssHooks[ name ];
 		if ( hooks && "expand" in hooks ) {
 			value = hooks.expand( value );
 			delete props[ name ];
@@ -7299,7 +7317,7 @@ function Animation( elem, properties, options ) {
 		stopped,
 		index = 0,
 		length = animationPrefilters.length,
-		deferred = PanLi.Deferred().always( function() {
+		deferred = jQuery.Deferred().always( function() {
 			// don't match elem in the :animated selector
 			delete tick.elem;
 		}),
@@ -7330,15 +7348,15 @@ function Animation( elem, properties, options ) {
 		},
 		animation = deferred.promise({
 			elem: elem,
-			props: PanLi.extend( {}, properties ),
-			opts: PanLi.extend( true, { specialEasing: {} }, options ),
+			props: jQuery.extend( {}, properties ),
+			opts: jQuery.extend( true, { specialEasing: {} }, options ),
 			originalProperties: properties,
 			originalOptions: options,
 			startTime: fxNow || createFxNow(),
 			duration: options.duration,
 			tweens: [],
 			createTween: function( prop, end ) {
-				var tween = PanLi.Tween( elem, animation.opts, prop, end,
+				var tween = jQuery.Tween( elem, animation.opts, prop, end,
 						animation.opts.specialEasing[ prop ] || animation.opts.easing );
 				animation.tweens.push( tween );
 				return tween;
@@ -7377,14 +7395,14 @@ function Animation( elem, properties, options ) {
 		}
 	}
 
-	PanLi.map( props, createTween, animation );
+	jQuery.map( props, createTween, animation );
 
-	if ( PanLi.isFunction( animation.opts.start ) ) {
+	if ( jQuery.isFunction( animation.opts.start ) ) {
 		animation.opts.start.call( elem, animation );
 	}
 
-	PanLi.fx.timer(
-		PanLi.extend( tick, {
+	jQuery.fx.timer(
+		jQuery.extend( tick, {
 			elem: elem,
 			anim: animation,
 			queue: animation.opts.queue
@@ -7398,9 +7416,9 @@ function Animation( elem, properties, options ) {
 		.always( animation.opts.always );
 }
 
-PanLi.Animation = PanLi.extend( Animation, {
+jQuery.Animation = jQuery.extend( Animation, {
 	tweener: function( props, callback ) {
-		if ( PanLi.isFunction( props ) ) {
+		if ( jQuery.isFunction( props ) ) {
 			callback = props;
 			props = [ "*" ];
 		} else {
@@ -7427,16 +7445,16 @@ PanLi.Animation = PanLi.extend( Animation, {
 	}
 });
 
-PanLi.speed = function( speed, easing, fn ) {
-	var opt = speed && typeof speed === "object" ? PanLi.extend( {}, speed ) : {
+jQuery.speed = function( speed, easing, fn ) {
+	var opt = speed && typeof speed === "object" ? jQuery.extend( {}, speed ) : {
 		complete: fn || !fn && easing ||
-			PanLi.isFunction( speed ) && speed,
+			jQuery.isFunction( speed ) && speed,
 		duration: speed,
-		easing: fn && easing || easing && !PanLi.isFunction( easing ) && easing
+		easing: fn && easing || easing && !jQuery.isFunction( easing ) && easing
 	};
 
-	opt.duration = PanLi.fx.off ? 0 : typeof opt.duration === "number" ? opt.duration :
-		opt.duration in PanLi.fx.speeds ? PanLi.fx.speeds[ opt.duration ] : PanLi.fx.speeds._default;
+	opt.duration = jQuery.fx.off ? 0 : typeof opt.duration === "number" ? opt.duration :
+		opt.duration in jQuery.fx.speeds ? jQuery.fx.speeds[ opt.duration ] : jQuery.fx.speeds._default;
 
 	// normalize opt.queue - true/undefined/null -> "fx"
 	if ( opt.queue == null || opt.queue === true ) {
@@ -7447,19 +7465,19 @@ PanLi.speed = function( speed, easing, fn ) {
 	opt.old = opt.complete;
 
 	opt.complete = function() {
-		if ( PanLi.isFunction( opt.old ) ) {
+		if ( jQuery.isFunction( opt.old ) ) {
 			opt.old.call( this );
 		}
 
 		if ( opt.queue ) {
-			PanLi.dequeue( this, opt.queue );
+			jQuery.dequeue( this, opt.queue );
 		}
 	};
 
 	return opt;
 };
 
-PanLi.fn.extend({
+jQuery.fn.extend({
 	fadeTo: function( speed, to, easing, callback ) {
 
 		// show any hidden elements after setting opacity to 0
@@ -7469,14 +7487,14 @@ PanLi.fn.extend({
 			.end().animate({ opacity: to }, speed, easing, callback );
 	},
 	animate: function( prop, speed, easing, callback ) {
-		var empty = PanLi.isEmptyObject( prop ),
-			optall = PanLi.speed( speed, easing, callback ),
+		var empty = jQuery.isEmptyObject( prop ),
+			optall = jQuery.speed( speed, easing, callback ),
 			doAnimation = function() {
 				// Operate on a copy of prop so per-property easing won't be lost
-				var anim = Animation( this, PanLi.extend( {}, prop ), optall );
+				var anim = Animation( this, jQuery.extend( {}, prop ), optall );
 
 				// Empty animations, or finishing resolves immediately
-				if ( empty || PanLi._data( this, "finish" ) ) {
+				if ( empty || jQuery._data( this, "finish" ) ) {
 					anim.stop( true );
 				}
 			};
@@ -7505,8 +7523,8 @@ PanLi.fn.extend({
 		return this.each(function() {
 			var dequeue = true,
 				index = type != null && type + "queueHooks",
-				timers = PanLi.timers,
-				data = PanLi._data( this );
+				timers = jQuery.timers,
+				data = jQuery._data( this );
 
 			if ( index ) {
 				if ( data[ index ] && data[ index ].stop ) {
@@ -7532,7 +7550,7 @@ PanLi.fn.extend({
 			// timers currently will call their complete callbacks, which will dequeue
 			// but only if they were gotoEnd
 			if ( dequeue || !gotoEnd ) {
-				PanLi.dequeue( this, type );
+				jQuery.dequeue( this, type );
 			}
 		});
 	},
@@ -7542,17 +7560,17 @@ PanLi.fn.extend({
 		}
 		return this.each(function() {
 			var index,
-				data = PanLi._data( this ),
+				data = jQuery._data( this ),
 				queue = data[ type + "queue" ],
 				hooks = data[ type + "queueHooks" ],
-				timers = PanLi.timers,
+				timers = jQuery.timers,
 				length = queue ? queue.length : 0;
 
 			// enable finishing flag on private data
 			data.finish = true;
 
 			// empty the queue first
-			PanLi.queue( this, type, [] );
+			jQuery.queue( this, type, [] );
 
 			if ( hooks && hooks.stop ) {
 				hooks.stop.call( this, true );
@@ -7579,9 +7597,9 @@ PanLi.fn.extend({
 	}
 });
 
-PanLi.each([ "toggle", "show", "hide" ], function( i, name ) {
-	var cssFn = PanLi.fn[ name ];
-	PanLi.fn[ name ] = function( speed, easing, callback ) {
+jQuery.each([ "toggle", "show", "hide" ], function( i, name ) {
+	var cssFn = jQuery.fn[ name ];
+	jQuery.fn[ name ] = function( speed, easing, callback ) {
 		return speed == null || typeof speed === "boolean" ?
 			cssFn.apply( this, arguments ) :
 			this.animate( genFx( name, true ), speed, easing, callback );
@@ -7589,7 +7607,7 @@ PanLi.each([ "toggle", "show", "hide" ], function( i, name ) {
 });
 
 // Generate shortcuts for custom animations
-PanLi.each({
+jQuery.each({
 	slideDown: genFx("show"),
 	slideUp: genFx("hide"),
 	slideToggle: genFx("toggle"),
@@ -7597,18 +7615,18 @@ PanLi.each({
 	fadeOut: { opacity: "hide" },
 	fadeToggle: { opacity: "toggle" }
 }, function( name, props ) {
-	PanLi.fn[ name ] = function( speed, easing, callback ) {
+	jQuery.fn[ name ] = function( speed, easing, callback ) {
 		return this.animate( props, speed, easing, callback );
 	};
 });
 
-PanLi.timers = [];
-PanLi.fx.tick = function() {
+jQuery.timers = [];
+jQuery.fx.tick = function() {
 	var timer,
-		timers = PanLi.timers,
+		timers = jQuery.timers,
 		i = 0;
 
-	fxNow = PanLi.now();
+	fxNow = jQuery.now();
 
 	for ( ; i < timers.length; i++ ) {
 		timer = timers[ i ];
@@ -7619,34 +7637,34 @@ PanLi.fx.tick = function() {
 	}
 
 	if ( !timers.length ) {
-		PanLi.fx.stop();
+		jQuery.fx.stop();
 	}
 	fxNow = undefined;
 };
 
-PanLi.fx.timer = function( timer ) {
-	PanLi.timers.push( timer );
+jQuery.fx.timer = function( timer ) {
+	jQuery.timers.push( timer );
 	if ( timer() ) {
-		PanLi.fx.start();
+		jQuery.fx.start();
 	} else {
-		PanLi.timers.pop();
+		jQuery.timers.pop();
 	}
 };
 
-PanLi.fx.interval = 13;
+jQuery.fx.interval = 13;
 
-PanLi.fx.start = function() {
+jQuery.fx.start = function() {
 	if ( !timerId ) {
-		timerId = setInterval( PanLi.fx.tick, PanLi.fx.interval );
+		timerId = setInterval( jQuery.fx.tick, jQuery.fx.interval );
 	}
 };
 
-PanLi.fx.stop = function() {
+jQuery.fx.stop = function() {
 	clearInterval( timerId );
 	timerId = null;
 };
 
-PanLi.fx.speeds = {
+jQuery.fx.speeds = {
 	slow: 600,
 	fast: 200,
 	// Default speed
@@ -7655,9 +7673,9 @@ PanLi.fx.speeds = {
 
 
 // Based off of the plugin by Clint Helfers, with permission.
-// http://blindsignals.com/index.php/2009/07/PanLi-delay/
-PanLi.fn.delay = function( time, type ) {
-	time = PanLi.fx ? PanLi.fx.speeds[ time ] || time : time;
+// http://blindsignals.com/index.php/2009/07/jquery-delay/
+jQuery.fn.delay = function( time, type ) {
+	time = jQuery.fx ? jQuery.fx.speeds[ time ] || time : time;
 	type = type || "fx";
 
 	return this.queue( type, function( next, hooks ) {
@@ -7727,14 +7745,14 @@ PanLi.fn.delay = function( time, type ) {
 
 var rreturn = /\r/g;
 
-PanLi.fn.extend({
+jQuery.fn.extend({
 	val: function( value ) {
 		var hooks, ret, isFunction,
 			elem = this[0];
 
 		if ( !arguments.length ) {
 			if ( elem ) {
-				hooks = PanLi.valHooks[ elem.type ] || PanLi.valHooks[ elem.nodeName.toLowerCase() ];
+				hooks = jQuery.valHooks[ elem.type ] || jQuery.valHooks[ elem.nodeName.toLowerCase() ];
 
 				if ( hooks && "get" in hooks && (ret = hooks.get( elem, "value" )) !== undefined ) {
 					return ret;
@@ -7752,7 +7770,7 @@ PanLi.fn.extend({
 			return;
 		}
 
-		isFunction = PanLi.isFunction( value );
+		isFunction = jQuery.isFunction( value );
 
 		return this.each(function( i ) {
 			var val;
@@ -7762,7 +7780,7 @@ PanLi.fn.extend({
 			}
 
 			if ( isFunction ) {
-				val = value.call( this, i, PanLi( this ).val() );
+				val = value.call( this, i, jQuery( this ).val() );
 			} else {
 				val = value;
 			}
@@ -7772,13 +7790,13 @@ PanLi.fn.extend({
 				val = "";
 			} else if ( typeof val === "number" ) {
 				val += "";
-			} else if ( PanLi.isArray( val ) ) {
-				val = PanLi.map( val, function( value ) {
+			} else if ( jQuery.isArray( val ) ) {
+				val = jQuery.map( val, function( value ) {
 					return value == null ? "" : value + "";
 				});
 			}
 
-			hooks = PanLi.valHooks[ this.type ] || PanLi.valHooks[ this.nodeName.toLowerCase() ];
+			hooks = jQuery.valHooks[ this.type ] || jQuery.valHooks[ this.nodeName.toLowerCase() ];
 
 			// If set returns undefined, fall back to normal setting
 			if ( !hooks || !("set" in hooks) || hooks.set( this, val, "value" ) === undefined ) {
@@ -7788,16 +7806,16 @@ PanLi.fn.extend({
 	}
 });
 
-PanLi.extend({
+jQuery.extend({
 	valHooks: {
 		option: {
 			get: function( elem ) {
-				var val = PanLi.find.attr( elem, "value" );
+				var val = jQuery.find.attr( elem, "value" );
 				return val != null ?
 					val :
 					// Support: IE10-11+
 					// option.text throws exceptions (#14686, #14858)
-					PanLi.trim( PanLi.text( elem ) );
+					jQuery.trim( jQuery.text( elem ) );
 			}
 		},
 		select: {
@@ -7820,10 +7838,10 @@ PanLi.extend({
 					if ( ( option.selected || i === index ) &&
 							// Don't return options that are disabled or in a disabled optgroup
 							( support.optDisabled ? !option.disabled : option.getAttribute("disabled") === null ) &&
-							( !option.parentNode.disabled || !PanLi.nodeName( option.parentNode, "optgroup" ) ) ) {
+							( !option.parentNode.disabled || !jQuery.nodeName( option.parentNode, "optgroup" ) ) ) {
 
 						// Get the specific value for the option
-						value = PanLi( option ).val();
+						value = jQuery( option ).val();
 
 						// We don't need an array for one selects
 						if ( one ) {
@@ -7841,13 +7859,13 @@ PanLi.extend({
 			set: function( elem, value ) {
 				var optionSet, option,
 					options = elem.options,
-					values = PanLi.makeArray( value ),
+					values = jQuery.makeArray( value ),
 					i = options.length;
 
 				while ( i-- ) {
 					option = options[ i ];
 
-					if ( PanLi.inArray( PanLi.valHooks.option.get( option ), values ) >= 0 ) {
+					if ( jQuery.inArray( jQuery.valHooks.option.get( option ), values ) >= 0 ) {
 
 						// Support: IE6
 						// When new option element is added to select box we need to
@@ -7879,16 +7897,16 @@ PanLi.extend({
 });
 
 // Radios and checkboxes getter/setter
-PanLi.each([ "radio", "checkbox" ], function() {
-	PanLi.valHooks[ this ] = {
+jQuery.each([ "radio", "checkbox" ], function() {
+	jQuery.valHooks[ this ] = {
 		set: function( elem, value ) {
-			if ( PanLi.isArray( value ) ) {
-				return ( elem.checked = PanLi.inArray( PanLi(elem).val(), value ) >= 0 );
+			if ( jQuery.isArray( value ) ) {
+				return ( elem.checked = jQuery.inArray( jQuery(elem).val(), value ) >= 0 );
 			}
 		}
 	};
 	if ( !support.checkOn ) {
-		PanLi.valHooks[ this ].get = function( elem ) {
+		jQuery.valHooks[ this ].get = function( elem ) {
 			// Support: Webkit
 			// "" is returned instead of "on" if a value isn't specified
 			return elem.getAttribute("value") === null ? "on" : elem.value;
@@ -7900,24 +7918,24 @@ PanLi.each([ "radio", "checkbox" ], function() {
 
 
 var nodeHook, boolHook,
-	attrHandle = PanLi.expr.attrHandle,
+	attrHandle = jQuery.expr.attrHandle,
 	ruseDefault = /^(?:checked|selected)$/i,
 	getSetAttribute = support.getSetAttribute,
 	getSetInput = support.input;
 
-PanLi.fn.extend({
+jQuery.fn.extend({
 	attr: function( name, value ) {
-		return access( this, PanLi.attr, name, value, arguments.length > 1 );
+		return access( this, jQuery.attr, name, value, arguments.length > 1 );
 	},
 
 	removeAttr: function( name ) {
 		return this.each(function() {
-			PanLi.removeAttr( this, name );
+			jQuery.removeAttr( this, name );
 		});
 	}
 });
 
-PanLi.extend({
+jQuery.extend({
 	attr: function( elem, name, value ) {
 		var hooks, ret,
 			nType = elem.nodeType;
@@ -7929,21 +7947,21 @@ PanLi.extend({
 
 		// Fallback to prop when attributes are not supported
 		if ( typeof elem.getAttribute === strundefined ) {
-			return PanLi.prop( elem, name, value );
+			return jQuery.prop( elem, name, value );
 		}
 
 		// All attributes are lowercase
 		// Grab necessary hook if one is defined
-		if ( nType !== 1 || !PanLi.isXMLDoc( elem ) ) {
+		if ( nType !== 1 || !jQuery.isXMLDoc( elem ) ) {
 			name = name.toLowerCase();
-			hooks = PanLi.attrHooks[ name ] ||
-				( PanLi.expr.match.bool.test( name ) ? boolHook : nodeHook );
+			hooks = jQuery.attrHooks[ name ] ||
+				( jQuery.expr.match.bool.test( name ) ? boolHook : nodeHook );
 		}
 
 		if ( value !== undefined ) {
 
 			if ( value === null ) {
-				PanLi.removeAttr( elem, name );
+				jQuery.removeAttr( elem, name );
 
 			} else if ( hooks && "set" in hooks && (ret = hooks.set( elem, value, name )) !== undefined ) {
 				return ret;
@@ -7957,7 +7975,7 @@ PanLi.extend({
 			return ret;
 
 		} else {
-			ret = PanLi.find.attr( elem, name );
+			ret = jQuery.find.attr( elem, name );
 
 			// Non-existent attributes return null, we normalize to undefined
 			return ret == null ?
@@ -7973,23 +7991,23 @@ PanLi.extend({
 
 		if ( attrNames && elem.nodeType === 1 ) {
 			while ( (name = attrNames[i++]) ) {
-				propName = PanLi.propFix[ name ] || name;
+				propName = jQuery.propFix[ name ] || name;
 
 				// Boolean attributes get special treatment (#10870)
-				if ( PanLi.expr.match.bool.test( name ) ) {
+				if ( jQuery.expr.match.bool.test( name ) ) {
 					// Set corresponding property to false
 					if ( getSetInput && getSetAttribute || !ruseDefault.test( name ) ) {
 						elem[ propName ] = false;
 					// Support: IE<9
 					// Also clear defaultChecked/defaultSelected (if appropriate)
 					} else {
-						elem[ PanLi.camelCase( "default-" + name ) ] =
+						elem[ jQuery.camelCase( "default-" + name ) ] =
 							elem[ propName ] = false;
 					}
 
 				// See #9699 for explanation of this approach (setting first, then removal)
 				} else {
-					PanLi.attr( elem, name, "" );
+					jQuery.attr( elem, name, "" );
 				}
 
 				elem.removeAttribute( getSetAttribute ? name : propName );
@@ -8000,7 +8018,7 @@ PanLi.extend({
 	attrHooks: {
 		type: {
 			set: function( elem, value ) {
-				if ( !support.radioValue && value === "radio" && PanLi.nodeName(elem, "input") ) {
+				if ( !support.radioValue && value === "radio" && jQuery.nodeName(elem, "input") ) {
 					// Setting the type on a radio button after the value resets the value in IE6-9
 					// Reset value to default in case type is set after value during creation
 					var val = elem.value;
@@ -8020,14 +8038,14 @@ boolHook = {
 	set: function( elem, value, name ) {
 		if ( value === false ) {
 			// Remove boolean attributes when set to false
-			PanLi.removeAttr( elem, name );
+			jQuery.removeAttr( elem, name );
 		} else if ( getSetInput && getSetAttribute || !ruseDefault.test( name ) ) {
 			// IE<8 needs the *property* name
-			elem.setAttribute( !getSetAttribute && PanLi.propFix[ name ] || name, name );
+			elem.setAttribute( !getSetAttribute && jQuery.propFix[ name ] || name, name );
 
 		// Use defaultChecked and defaultSelected for oldIE
 		} else {
-			elem[ PanLi.camelCase( "default-" + name ) ] = elem[ name ] = true;
+			elem[ jQuery.camelCase( "default-" + name ) ] = elem[ name ] = true;
 		}
 
 		return name;
@@ -8035,9 +8053,9 @@ boolHook = {
 };
 
 // Retrieve booleans specially
-PanLi.each( PanLi.expr.match.bool.source.match( /\w+/g ), function( i, name ) {
+jQuery.each( jQuery.expr.match.bool.source.match( /\w+/g ), function( i, name ) {
 
-	var getter = attrHandle[ name ] || PanLi.find.attr;
+	var getter = attrHandle[ name ] || jQuery.find.attr;
 
 	attrHandle[ name ] = getSetInput && getSetAttribute || !ruseDefault.test( name ) ?
 		function( elem, name, isXML ) {
@@ -8055,7 +8073,7 @@ PanLi.each( PanLi.expr.match.bool.source.match( /\w+/g ), function( i, name ) {
 		} :
 		function( elem, name, isXML ) {
 			if ( !isXML ) {
-				return elem[ PanLi.camelCase( "default-" + name ) ] ?
+				return elem[ jQuery.camelCase( "default-" + name ) ] ?
 					name.toLowerCase() :
 					null;
 			}
@@ -8064,9 +8082,9 @@ PanLi.each( PanLi.expr.match.bool.source.match( /\w+/g ), function( i, name ) {
 
 // fix oldIE attroperties
 if ( !getSetInput || !getSetAttribute ) {
-	PanLi.attrHooks.value = {
+	jQuery.attrHooks.value = {
 		set: function( elem, value, name ) {
-			if ( PanLi.nodeName( elem, "input" ) ) {
+			if ( jQuery.nodeName( elem, "input" ) ) {
 				// Does not return so that setAttribute is also used
 				elem.defaultValue = value;
 			} else {
@@ -8113,7 +8131,7 @@ if ( !getSetAttribute ) {
 		};
 
 	// Fixing value retrieval on a button requires this module
-	PanLi.valHooks.button = {
+	jQuery.valHooks.button = {
 		get: function( elem, name ) {
 			var ret = elem.getAttributeNode( name );
 			if ( ret && ret.specified ) {
@@ -8125,7 +8143,7 @@ if ( !getSetAttribute ) {
 
 	// Set contenteditable to false on removals(#10429)
 	// Setting to empty string throws an error as an invalid value
-	PanLi.attrHooks.contenteditable = {
+	jQuery.attrHooks.contenteditable = {
 		set: function( elem, value, name ) {
 			nodeHook.set( elem, value === "" ? false : value, name );
 		}
@@ -8133,8 +8151,8 @@ if ( !getSetAttribute ) {
 
 	// Set width and height to auto instead of 0 on empty string( Bug #8150 )
 	// This is for removals
-	PanLi.each([ "width", "height" ], function( i, name ) {
-		PanLi.attrHooks[ name ] = {
+	jQuery.each([ "width", "height" ], function( i, name ) {
+		jQuery.attrHooks[ name ] = {
 			set: function( elem, value ) {
 				if ( value === "" ) {
 					elem.setAttribute( name, "auto" );
@@ -8146,7 +8164,7 @@ if ( !getSetAttribute ) {
 }
 
 if ( !support.style ) {
-	PanLi.attrHooks.style = {
+	jQuery.attrHooks.style = {
 		get: function( elem ) {
 			// Return undefined in the case of empty string
 			// Note: IE uppercases css property names, but if we were to .toLowerCase()
@@ -8165,13 +8183,13 @@ if ( !support.style ) {
 var rfocusable = /^(?:input|select|textarea|button|object)$/i,
 	rclickable = /^(?:a|area)$/i;
 
-PanLi.fn.extend({
+jQuery.fn.extend({
 	prop: function( name, value ) {
-		return access( this, PanLi.prop, name, value, arguments.length > 1 );
+		return access( this, jQuery.prop, name, value, arguments.length > 1 );
 	},
 
 	removeProp: function( name ) {
-		name = PanLi.propFix[ name ] || name;
+		name = jQuery.propFix[ name ] || name;
 		return this.each(function() {
 			// try/catch handles cases where IE balks (such as removing a property on window)
 			try {
@@ -8182,7 +8200,7 @@ PanLi.fn.extend({
 	}
 });
 
-PanLi.extend({
+jQuery.extend({
 	propFix: {
 		"for": "htmlFor",
 		"class": "className"
@@ -8197,12 +8215,12 @@ PanLi.extend({
 			return;
 		}
 
-		notxml = nType !== 1 || !PanLi.isXMLDoc( elem );
+		notxml = nType !== 1 || !jQuery.isXMLDoc( elem );
 
 		if ( notxml ) {
 			// Fix name and attach hooks
-			name = PanLi.propFix[ name ] || name;
-			hooks = PanLi.propHooks[ name ];
+			name = jQuery.propFix[ name ] || name;
+			hooks = jQuery.propHooks[ name ];
 		}
 
 		if ( value !== undefined ) {
@@ -8223,7 +8241,7 @@ PanLi.extend({
 				// elem.tabIndex doesn't always return the correct value when it hasn't been explicitly set
 				// http://fluidproject.org/blog/2008/01/09/getting-setting-and-removing-tabindex-values-with-javascript/
 				// Use proper attribute retrieval(#12072)
-				var tabindex = PanLi.find.attr( elem, "tabindex" );
+				var tabindex = jQuery.find.attr( elem, "tabindex" );
 
 				return tabindex ?
 					parseInt( tabindex, 10 ) :
@@ -8239,8 +8257,8 @@ PanLi.extend({
 // http://msdn.microsoft.com/en-us/library/ms536429%28VS.85%29.aspx
 if ( !support.hrefNormalized ) {
 	// href/src property should get the full normalized URL (#10299/#12915)
-	PanLi.each([ "href", "src" ], function( i, name ) {
-		PanLi.propHooks[ name ] = {
+	jQuery.each([ "href", "src" ], function( i, name ) {
+		jQuery.propHooks[ name ] = {
 			get: function( elem ) {
 				return elem.getAttribute( name, 4 );
 			}
@@ -8252,7 +8270,7 @@ if ( !support.hrefNormalized ) {
 // mis-reports the default selected property of an option
 // Accessing the parent's selectedIndex property fixes it
 if ( !support.optSelected ) {
-	PanLi.propHooks.selected = {
+	jQuery.propHooks.selected = {
 		get: function( elem ) {
 			var parent = elem.parentNode;
 
@@ -8269,7 +8287,7 @@ if ( !support.optSelected ) {
 	};
 }
 
-PanLi.each([
+jQuery.each([
 	"tabIndex",
 	"readOnly",
 	"maxLength",
@@ -8281,12 +8299,12 @@ PanLi.each([
 	"frameBorder",
 	"contentEditable"
 ], function() {
-	PanLi.propFix[ this.toLowerCase() ] = this;
+	jQuery.propFix[ this.toLowerCase() ] = this;
 });
 
 // IE6/7 call enctype encoding
 if ( !support.enctype ) {
-	PanLi.propFix.enctype = "encoding";
+	jQuery.propFix.enctype = "encoding";
 }
 
 
@@ -8294,16 +8312,16 @@ if ( !support.enctype ) {
 
 var rclass = /[\t\r\n\f]/g;
 
-PanLi.fn.extend({
+jQuery.fn.extend({
 	addClass: function( value ) {
 		var classes, elem, cur, clazz, j, finalValue,
 			i = 0,
 			len = this.length,
 			proceed = typeof value === "string" && value;
 
-		if ( PanLi.isFunction( value ) ) {
+		if ( jQuery.isFunction( value ) ) {
 			return this.each(function( j ) {
-				PanLi( this ).addClass( value.call( this, j, this.className ) );
+				jQuery( this ).addClass( value.call( this, j, this.className ) );
 			});
 		}
 
@@ -8327,7 +8345,7 @@ PanLi.fn.extend({
 					}
 
 					// only assign if different to avoid unneeded rendering.
-					finalValue = PanLi.trim( cur );
+					finalValue = jQuery.trim( cur );
 					if ( elem.className !== finalValue ) {
 						elem.className = finalValue;
 					}
@@ -8344,9 +8362,9 @@ PanLi.fn.extend({
 			len = this.length,
 			proceed = arguments.length === 0 || typeof value === "string" && value;
 
-		if ( PanLi.isFunction( value ) ) {
+		if ( jQuery.isFunction( value ) ) {
 			return this.each(function( j ) {
-				PanLi( this ).removeClass( value.call( this, j, this.className ) );
+				jQuery( this ).removeClass( value.call( this, j, this.className ) );
 			});
 		}
 		if ( proceed ) {
@@ -8370,7 +8388,7 @@ PanLi.fn.extend({
 					}
 
 					// only assign if different to avoid unneeded rendering.
-					finalValue = value ? PanLi.trim( cur ) : "";
+					finalValue = value ? jQuery.trim( cur ) : "";
 					if ( elem.className !== finalValue ) {
 						elem.className = finalValue;
 					}
@@ -8388,9 +8406,9 @@ PanLi.fn.extend({
 			return stateVal ? this.addClass( value ) : this.removeClass( value );
 		}
 
-		if ( PanLi.isFunction( value ) ) {
+		if ( jQuery.isFunction( value ) ) {
 			return this.each(function( i ) {
-				PanLi( this ).toggleClass( value.call(this, i, this.className, stateVal), stateVal );
+				jQuery( this ).toggleClass( value.call(this, i, this.className, stateVal), stateVal );
 			});
 		}
 
@@ -8399,7 +8417,7 @@ PanLi.fn.extend({
 				// toggle individual class names
 				var className,
 					i = 0,
-					self = PanLi( this ),
+					self = jQuery( this ),
 					classNames = value.match( rnotwhite ) || [];
 
 				while ( (className = classNames[ i++ ]) ) {
@@ -8415,14 +8433,14 @@ PanLi.fn.extend({
 			} else if ( type === strundefined || type === "boolean" ) {
 				if ( this.className ) {
 					// store className if set
-					PanLi._data( this, "__className__", this.className );
+					jQuery._data( this, "__className__", this.className );
 				}
 
 				// If the element has a class name or if we're passed "false",
 				// then remove the whole classname (if there was one, the above saved it).
 				// Otherwise bring back whatever was previously saved (if anything),
 				// falling back to the empty string if nothing was stored.
-				this.className = this.className || value === false ? "" : PanLi._data( this, "__className__" ) || "";
+				this.className = this.className || value === false ? "" : jQuery._data( this, "__className__" ) || "";
 			}
 		});
 	},
@@ -8444,22 +8462,22 @@ PanLi.fn.extend({
 
 
 
-// Return PanLi for attributes-only inclusion
+// Return jQuery for attributes-only inclusion
 
 
-PanLi.each( ("blur focus focusin focusout load resize scroll unload click dblclick " +
+jQuery.each( ("blur focus focusin focusout load resize scroll unload click dblclick " +
 	"mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave " +
 	"change select submit keydown keypress keyup error contextmenu").split(" "), function( i, name ) {
 
 	// Handle event binding
-	PanLi.fn[ name ] = function( data, fn ) {
+	jQuery.fn[ name ] = function( data, fn ) {
 		return arguments.length > 0 ?
 			this.on( name, null, data, fn ) :
 			this.trigger( name );
 	};
 });
 
-PanLi.fn.extend({
+jQuery.fn.extend({
 	hover: function( fnOver, fnOut ) {
 		return this.mouseenter( fnOver ).mouseleave( fnOut || fnOver );
 	},
@@ -8481,7 +8499,7 @@ PanLi.fn.extend({
 });
 
 
-var nonce = PanLi.now();
+var nonce = jQuery.now();
 
 var rquery = (/\?/);
 
@@ -8489,7 +8507,7 @@ var rquery = (/\?/);
 
 var rvalidtokens = /(,)|(\[|{)|(}|])|"(?:[^"\\\r\n]|\\["\\\/bfnrt]|\\u[\da-fA-F]{4})*"\s*:?|true|false|null|-?(?!0\d)\d+(?:\.\d+|)(?:[eE][+-]?\d+|)/g;
 
-PanLi.parseJSON = function( data ) {
+jQuery.parseJSON = function( data ) {
 	// Attempt to parse using the native JSON parser first
 	if ( window.JSON && window.JSON.parse ) {
 		// Support: Android 2.3
@@ -8499,11 +8517,11 @@ PanLi.parseJSON = function( data ) {
 
 	var requireNonComma,
 		depth = null,
-		str = PanLi.trim( data + "" );
+		str = jQuery.trim( data + "" );
 
 	// Guard against invalid (and possibly dangerous) input by ensuring that nothing remains
 	// after removing valid tokens
-	return str && !PanLi.trim( str.replace( rvalidtokens, function( token, comma, open, close ) {
+	return str && !jQuery.trim( str.replace( rvalidtokens, function( token, comma, open, close ) {
 
 		// Force termination if we see a misplaced comma
 		if ( requireNonComma && comma ) {
@@ -8528,12 +8546,12 @@ PanLi.parseJSON = function( data ) {
 		return "";
 	}) ) ?
 		( Function( "return " + str ) )() :
-		PanLi.error( "Invalid JSON: " + data );
+		jQuery.error( "Invalid JSON: " + data );
 };
 
 
 // Cross-browser xml parsing
-PanLi.parseXML = function( data ) {
+jQuery.parseXML = function( data ) {
 	var xml, tmp;
 	if ( !data || typeof data !== "string" ) {
 		return null;
@@ -8551,7 +8569,7 @@ PanLi.parseXML = function( data ) {
 		xml = undefined;
 	}
 	if ( !xml || !xml.documentElement || xml.getElementsByTagName( "parsererror" ).length ) {
-		PanLi.error( "Invalid XML: " + data );
+		jQuery.error( "Invalid XML: " + data );
 	}
 	return xml;
 };
@@ -8607,7 +8625,7 @@ try {
 // Segment location into parts
 ajaxLocParts = rurl.exec( ajaxLocation.toLowerCase() ) || [];
 
-// Base "constructor" for PanLi.ajaxPrefilter and PanLi.ajaxTransport
+// Base "constructor" for jQuery.ajaxPrefilter and jQuery.ajaxTransport
 function addToPrefiltersOrTransports( structure ) {
 
 	// dataTypeExpression is optional and defaults to "*"
@@ -8622,7 +8640,7 @@ function addToPrefiltersOrTransports( structure ) {
 			i = 0,
 			dataTypes = dataTypeExpression.toLowerCase().match( rnotwhite ) || [];
 
-		if ( PanLi.isFunction( func ) ) {
+		if ( jQuery.isFunction( func ) ) {
 			// For each dataType in the dataTypeExpression
 			while ( (dataType = dataTypes[i++]) ) {
 				// Prepend if requested
@@ -8648,7 +8666,7 @@ function inspectPrefiltersOrTransports( structure, options, originalOptions, jqX
 	function inspect( dataType ) {
 		var selected;
 		inspected[ dataType ] = true;
-		PanLi.each( structure[ dataType ] || [], function( _, prefilterOrFactory ) {
+		jQuery.each( structure[ dataType ] || [], function( _, prefilterOrFactory ) {
 			var dataTypeOrTransport = prefilterOrFactory( options, originalOptions, jqXHR );
 			if ( typeof dataTypeOrTransport === "string" && !seekingTransport && !inspected[ dataTypeOrTransport ] ) {
 				options.dataTypes.unshift( dataTypeOrTransport );
@@ -8669,7 +8687,7 @@ function inspectPrefiltersOrTransports( structure, options, originalOptions, jqX
 // Fixes #9887
 function ajaxExtend( target, src ) {
 	var deep, key,
-		flatOptions = PanLi.ajaxSettings.flatOptions || {};
+		flatOptions = jQuery.ajaxSettings.flatOptions || {};
 
 	for ( key in src ) {
 		if ( src[ key ] !== undefined ) {
@@ -8677,7 +8695,7 @@ function ajaxExtend( target, src ) {
 		}
 	}
 	if ( deep ) {
-		PanLi.extend( true, target, deep );
+		jQuery.extend( true, target, deep );
 	}
 
 	return target;
@@ -8833,7 +8851,7 @@ function ajaxConvert( s, response, jqXHR, isSuccess ) {
 	return { state: "success", data: response };
 }
 
-PanLi.extend({
+jQuery.extend({
 
 	// Counter for holding the number of active queries
 	active: 0,
@@ -8893,10 +8911,10 @@ PanLi.extend({
 			"text html": true,
 
 			// Evaluate text as a json expression
-			"text json": PanLi.parseJSON,
+			"text json": jQuery.parseJSON,
 
 			// Parse text as xml
-			"text xml": PanLi.parseXML
+			"text xml": jQuery.parseXML
 		},
 
 		// For options that shouldn't be deep extended:
@@ -8916,10 +8934,10 @@ PanLi.extend({
 		return settings ?
 
 			// Building a settings object
-			ajaxExtend( ajaxExtend( target, PanLi.ajaxSettings ), settings ) :
+			ajaxExtend( ajaxExtend( target, jQuery.ajaxSettings ), settings ) :
 
 			// Extending ajaxSettings
-			ajaxExtend( PanLi.ajaxSettings, target );
+			ajaxExtend( jQuery.ajaxSettings, target );
 	},
 
 	ajaxPrefilter: addToPrefiltersOrTransports( prefilters ),
@@ -8955,16 +8973,16 @@ PanLi.extend({
 			// Response headers
 			responseHeaders,
 			// Create the final options object
-			s = PanLi.ajaxSetup( {}, options ),
+			s = jQuery.ajaxSetup( {}, options ),
 			// Callbacks context
 			callbackContext = s.context || s,
-			// Context for global events is callbackContext if it is a DOM node or PanLi collection
-			globalEventContext = s.context && ( callbackContext.nodeType || callbackContext.PanLi ) ?
-				PanLi( callbackContext ) :
-				PanLi.event,
+			// Context for global events is callbackContext if it is a DOM node or jQuery collection
+			globalEventContext = s.context && ( callbackContext.nodeType || callbackContext.jquery ) ?
+				jQuery( callbackContext ) :
+				jQuery.event,
 			// Deferreds
-			deferred = PanLi.Deferred(),
-			completeDeferred = PanLi.Callbacks("once memory"),
+			deferred = jQuery.Deferred(),
+			completeDeferred = jQuery.Callbacks("once memory"),
 			// Status-dependent callbacks
 			statusCode = s.statusCode || {},
 			// Headers (they are sent all at once)
@@ -9059,7 +9077,7 @@ PanLi.extend({
 		s.type = options.method || options.type || s.method || s.type;
 
 		// Extract dataTypes list
-		s.dataTypes = PanLi.trim( s.dataType || "*" ).toLowerCase().match( rnotwhite ) || [ "" ];
+		s.dataTypes = jQuery.trim( s.dataType || "*" ).toLowerCase().match( rnotwhite ) || [ "" ];
 
 		// A cross-domain request is in order when we have a protocol:host:port mismatch
 		if ( s.crossDomain == null ) {
@@ -9073,7 +9091,7 @@ PanLi.extend({
 
 		// Convert data if not already a string
 		if ( s.data && s.processData && typeof s.data !== "string" ) {
-			s.data = PanLi.param( s.data, s.traditional );
+			s.data = jQuery.param( s.data, s.traditional );
 		}
 
 		// Apply prefilters
@@ -9085,12 +9103,12 @@ PanLi.extend({
 		}
 
 		// We can fire global events as of now if asked to
-		// Don't fire events if PanLi.event is undefined in an AMD-usage scenario (#15118)
-		fireGlobals = PanLi.event && s.global;
+		// Don't fire events if jQuery.event is undefined in an AMD-usage scenario (#15118)
+		fireGlobals = jQuery.event && s.global;
 
 		// Watch for a new set of requests
-		if ( fireGlobals && PanLi.active++ === 0 ) {
-			PanLi.event.trigger("ajaxStart");
+		if ( fireGlobals && jQuery.active++ === 0 ) {
+			jQuery.event.trigger("ajaxStart");
 		}
 
 		// Uppercase the type
@@ -9127,11 +9145,11 @@ PanLi.extend({
 
 		// Set the If-Modified-Since and/or If-None-Match header, if in ifModified mode.
 		if ( s.ifModified ) {
-			if ( PanLi.lastModified[ cacheURL ] ) {
-				jqXHR.setRequestHeader( "If-Modified-Since", PanLi.lastModified[ cacheURL ] );
+			if ( jQuery.lastModified[ cacheURL ] ) {
+				jqXHR.setRequestHeader( "If-Modified-Since", jQuery.lastModified[ cacheURL ] );
 			}
-			if ( PanLi.etag[ cacheURL ] ) {
-				jqXHR.setRequestHeader( "If-None-Match", PanLi.etag[ cacheURL ] );
+			if ( jQuery.etag[ cacheURL ] ) {
+				jqXHR.setRequestHeader( "If-None-Match", jQuery.etag[ cacheURL ] );
 			}
 		}
 
@@ -9247,11 +9265,11 @@ PanLi.extend({
 				if ( s.ifModified ) {
 					modified = jqXHR.getResponseHeader("Last-Modified");
 					if ( modified ) {
-						PanLi.lastModified[ cacheURL ] = modified;
+						jQuery.lastModified[ cacheURL ] = modified;
 					}
 					modified = jqXHR.getResponseHeader("etag");
 					if ( modified ) {
-						PanLi.etag[ cacheURL ] = modified;
+						jQuery.etag[ cacheURL ] = modified;
 					}
 				}
 
@@ -9308,8 +9326,8 @@ PanLi.extend({
 			if ( fireGlobals ) {
 				globalEventContext.trigger( "ajaxComplete", [ jqXHR, s ] );
 				// Handle the global AJAX counter
-				if ( !( --PanLi.active ) ) {
-					PanLi.event.trigger("ajaxStop");
+				if ( !( --jQuery.active ) ) {
+					jQuery.event.trigger("ajaxStop");
 				}
 			}
 		}
@@ -9318,24 +9336,24 @@ PanLi.extend({
 	},
 
 	getJSON: function( url, data, callback ) {
-		return PanLi.get( url, data, callback, "json" );
+		return jQuery.get( url, data, callback, "json" );
 	},
 
 	getScript: function( url, callback ) {
-		return PanLi.get( url, undefined, callback, "script" );
+		return jQuery.get( url, undefined, callback, "script" );
 	}
 });
 
-PanLi.each( [ "get", "post" ], function( i, method ) {
-	PanLi[ method ] = function( url, data, callback, type ) {
+jQuery.each( [ "get", "post" ], function( i, method ) {
+	jQuery[ method ] = function( url, data, callback, type ) {
 		// shift arguments if data argument was omitted
-		if ( PanLi.isFunction( data ) ) {
+		if ( jQuery.isFunction( data ) ) {
 			type = type || callback;
 			callback = data;
 			data = undefined;
 		}
 
-		return PanLi.ajax({
+		return jQuery.ajax({
 			url: url,
 			type: method,
 			dataType: type,
@@ -9346,8 +9364,8 @@ PanLi.each( [ "get", "post" ], function( i, method ) {
 });
 
 
-PanLi._evalUrl = function( url ) {
-	return PanLi.ajax({
+jQuery._evalUrl = function( url ) {
+	return jQuery.ajax({
 		url: url,
 		type: "GET",
 		dataType: "script",
@@ -9358,17 +9376,17 @@ PanLi._evalUrl = function( url ) {
 };
 
 
-PanLi.fn.extend({
+jQuery.fn.extend({
 	wrapAll: function( html ) {
-		if ( PanLi.isFunction( html ) ) {
+		if ( jQuery.isFunction( html ) ) {
 			return this.each(function(i) {
-				PanLi(this).wrapAll( html.call(this, i) );
+				jQuery(this).wrapAll( html.call(this, i) );
 			});
 		}
 
 		if ( this[0] ) {
 			// The elements to wrap the target around
-			var wrap = PanLi( html, this[0].ownerDocument ).eq(0).clone(true);
+			var wrap = jQuery( html, this[0].ownerDocument ).eq(0).clone(true);
 
 			if ( this[0].parentNode ) {
 				wrap.insertBefore( this[0] );
@@ -9389,14 +9407,14 @@ PanLi.fn.extend({
 	},
 
 	wrapInner: function( html ) {
-		if ( PanLi.isFunction( html ) ) {
+		if ( jQuery.isFunction( html ) ) {
 			return this.each(function(i) {
-				PanLi(this).wrapInner( html.call(this, i) );
+				jQuery(this).wrapInner( html.call(this, i) );
 			});
 		}
 
 		return this.each(function() {
-			var self = PanLi( this ),
+			var self = jQuery( this ),
 				contents = self.contents();
 
 			if ( contents.length ) {
@@ -9409,33 +9427,33 @@ PanLi.fn.extend({
 	},
 
 	wrap: function( html ) {
-		var isFunction = PanLi.isFunction( html );
+		var isFunction = jQuery.isFunction( html );
 
 		return this.each(function(i) {
-			PanLi( this ).wrapAll( isFunction ? html.call(this, i) : html );
+			jQuery( this ).wrapAll( isFunction ? html.call(this, i) : html );
 		});
 	},
 
 	unwrap: function() {
 		return this.parent().each(function() {
-			if ( !PanLi.nodeName( this, "body" ) ) {
-				PanLi( this ).replaceWith( this.childNodes );
+			if ( !jQuery.nodeName( this, "body" ) ) {
+				jQuery( this ).replaceWith( this.childNodes );
 			}
 		}).end();
 	}
 });
 
 
-PanLi.expr.filters.hidden = function( elem ) {
+jQuery.expr.filters.hidden = function( elem ) {
 	// Support: Opera <= 12.12
 	// Opera reports offsetWidths and offsetHeights less than zero on some elements
 	return elem.offsetWidth <= 0 && elem.offsetHeight <= 0 ||
 		(!support.reliableHiddenOffsets() &&
-			((elem.style && elem.style.display) || PanLi.css( elem, "display" )) === "none");
+			((elem.style && elem.style.display) || jQuery.css( elem, "display" )) === "none");
 };
 
-PanLi.expr.filters.visible = function( elem ) {
-	return !PanLi.expr.filters.hidden( elem );
+jQuery.expr.filters.visible = function( elem ) {
+	return !jQuery.expr.filters.hidden( elem );
 };
 
 
@@ -9450,9 +9468,9 @@ var r20 = /%20/g,
 function buildParams( prefix, obj, traditional, add ) {
 	var name;
 
-	if ( PanLi.isArray( obj ) ) {
+	if ( jQuery.isArray( obj ) ) {
 		// Serialize array item.
-		PanLi.each( obj, function( i, v ) {
+		jQuery.each( obj, function( i, v ) {
 			if ( traditional || rbracket.test( prefix ) ) {
 				// Treat each array item as a scalar.
 				add( prefix, v );
@@ -9463,7 +9481,7 @@ function buildParams( prefix, obj, traditional, add ) {
 			}
 		});
 
-	} else if ( !traditional && PanLi.type( obj ) === "object" ) {
+	} else if ( !traditional && jQuery.type( obj ) === "object" ) {
 		// Serialize object item.
 		for ( name in obj ) {
 			buildParams( prefix + "[" + name + "]", obj[ name ], traditional, add );
@@ -9477,24 +9495,24 @@ function buildParams( prefix, obj, traditional, add ) {
 
 // Serialize an array of form elements or a set of
 // key/values into a query string
-PanLi.param = function( a, traditional ) {
+jQuery.param = function( a, traditional ) {
 	var prefix,
 		s = [],
 		add = function( key, value ) {
 			// If value is a function, invoke it and return its value
-			value = PanLi.isFunction( value ) ? value() : ( value == null ? "" : value );
+			value = jQuery.isFunction( value ) ? value() : ( value == null ? "" : value );
 			s[ s.length ] = encodeURIComponent( key ) + "=" + encodeURIComponent( value );
 		};
 
-	// Set traditional to true for PanLi <= 1.3.2 behavior.
+	// Set traditional to true for jQuery <= 1.3.2 behavior.
 	if ( traditional === undefined ) {
-		traditional = PanLi.ajaxSettings && PanLi.ajaxSettings.traditional;
+		traditional = jQuery.ajaxSettings && jQuery.ajaxSettings.traditional;
 	}
 
 	// If an array was passed in, assume that it is an array of form elements.
-	if ( PanLi.isArray( a ) || ( a.PanLi && !PanLi.isPlainObject( a ) ) ) {
+	if ( jQuery.isArray( a ) || ( a.jquery && !jQuery.isPlainObject( a ) ) ) {
 		// Serialize the form elements
-		PanLi.each( a, function() {
+		jQuery.each( a, function() {
 			add( this.name, this.value );
 		});
 
@@ -9510,30 +9528,30 @@ PanLi.param = function( a, traditional ) {
 	return s.join( "&" ).replace( r20, "+" );
 };
 
-PanLi.fn.extend({
+jQuery.fn.extend({
 	serialize: function() {
-		return PanLi.param( this.serializeArray() );
+		return jQuery.param( this.serializeArray() );
 	},
 	serializeArray: function() {
 		return this.map(function() {
 			// Can add propHook for "elements" to filter or add form elements
-			var elements = PanLi.prop( this, "elements" );
-			return elements ? PanLi.makeArray( elements ) : this;
+			var elements = jQuery.prop( this, "elements" );
+			return elements ? jQuery.makeArray( elements ) : this;
 		})
 		.filter(function() {
 			var type = this.type;
 			// Use .is(":disabled") so that fieldset[disabled] works
-			return this.name && !PanLi( this ).is( ":disabled" ) &&
+			return this.name && !jQuery( this ).is( ":disabled" ) &&
 				rsubmittable.test( this.nodeName ) && !rsubmitterTypes.test( type ) &&
 				( this.checked || !rcheckableType.test( type ) );
 		})
 		.map(function( i, elem ) {
-			var val = PanLi( this ).val();
+			var val = jQuery( this ).val();
 
 			return val == null ?
 				null :
-				PanLi.isArray( val ) ?
-					PanLi.map( val, function( val ) {
+				jQuery.isArray( val ) ?
+					jQuery.map( val, function( val ) {
 						return { name: elem.name, value: val.replace( rCRLF, "\r\n" ) };
 					}) :
 					{ name: elem.name, value: val.replace( rCRLF, "\r\n" ) };
@@ -9544,7 +9562,7 @@ PanLi.fn.extend({
 
 // Create the request object
 // (This is still attached to ajaxSettings for backward compatibility)
-PanLi.ajaxSettings.xhr = window.ActiveXObject !== undefined ?
+jQuery.ajaxSettings.xhr = window.ActiveXObject !== undefined ?
 	// Support: IE6+
 	function() {
 
@@ -9566,7 +9584,7 @@ PanLi.ajaxSettings.xhr = window.ActiveXObject !== undefined ?
 
 var xhrId = 0,
 	xhrCallbacks = {},
-	xhrSupported = PanLi.ajaxSettings.xhr();
+	xhrSupported = jQuery.ajaxSettings.xhr();
 
 // Support: IE<10
 // Open requests must be manually aborted on unload (#5280)
@@ -9586,7 +9604,7 @@ xhrSupported = support.ajax = !!xhrSupported;
 // Create transport if the browser can provide an xhr
 if ( xhrSupported ) {
 
-	PanLi.ajaxTransport(function( options ) {
+	jQuery.ajaxTransport(function( options ) {
 		// Cross domain only allowed if supported through XMLHttpRequest
 		if ( !options.crossDomain || support.cors ) {
 
@@ -9637,7 +9655,7 @@ if ( xhrSupported ) {
 
 					// Do send the request
 					// This may raise an exception which is actually
-					// handled in PanLi.ajax (so no try/catch here)
+					// handled in jQuery.ajax (so no try/catch here)
 					xhr.send( ( options.hasContent && options.data ) || null );
 
 					// Listener
@@ -9649,7 +9667,7 @@ if ( xhrSupported ) {
 							// Clean up
 							delete xhrCallbacks[ id ];
 							callback = undefined;
-							xhr.onreadystatechange = PanLi.noop;
+							xhr.onreadystatechange = jQuery.noop;
 
 							// Abort manually if needed
 							if ( isAbort ) {
@@ -9736,7 +9754,7 @@ function createActiveXHR() {
 
 
 // Install script dataType
-PanLi.ajaxSetup({
+jQuery.ajaxSetup({
 	accepts: {
 		script: "text/javascript, application/javascript, application/ecmascript, application/x-ecmascript"
 	},
@@ -9745,14 +9763,14 @@ PanLi.ajaxSetup({
 	},
 	converters: {
 		"text script": function( text ) {
-			PanLi.globalEval( text );
+			jQuery.globalEval( text );
 			return text;
 		}
 	}
 });
 
 // Handle cache's special case and global
-PanLi.ajaxPrefilter( "script", function( s ) {
+jQuery.ajaxPrefilter( "script", function( s ) {
 	if ( s.cache === undefined ) {
 		s.cache = false;
 	}
@@ -9763,13 +9781,13 @@ PanLi.ajaxPrefilter( "script", function( s ) {
 });
 
 // Bind script tag hack transport
-PanLi.ajaxTransport( "script", function(s) {
+jQuery.ajaxTransport( "script", function(s) {
 
 	// This transport only deals with cross domain requests
 	if ( s.crossDomain ) {
 
 		var script,
-			head = document.head || PanLi("head")[0] || document.documentElement;
+			head = document.head || jQuery("head")[0] || document.documentElement;
 
 		return {
 
@@ -9829,17 +9847,17 @@ var oldCallbacks = [],
 	rjsonp = /(=)\?(?=&|$)|\?\?/;
 
 // Default jsonp settings
-PanLi.ajaxSetup({
+jQuery.ajaxSetup({
 	jsonp: "callback",
 	jsonpCallback: function() {
-		var callback = oldCallbacks.pop() || ( PanLi.expando + "_" + ( nonce++ ) );
+		var callback = oldCallbacks.pop() || ( jQuery.expando + "_" + ( nonce++ ) );
 		this[ callback ] = true;
 		return callback;
 	}
 });
 
 // Detect, normalize options and install callbacks for jsonp requests
-PanLi.ajaxPrefilter( "json jsonp", function( s, originalSettings, jqXHR ) {
+jQuery.ajaxPrefilter( "json jsonp", function( s, originalSettings, jqXHR ) {
 
 	var callbackName, overwritten, responseContainer,
 		jsonProp = s.jsonp !== false && ( rjsonp.test( s.url ) ?
@@ -9851,7 +9869,7 @@ PanLi.ajaxPrefilter( "json jsonp", function( s, originalSettings, jqXHR ) {
 	if ( jsonProp || s.dataTypes[ 0 ] === "jsonp" ) {
 
 		// Get callback name, remembering preexisting value associated with it
-		callbackName = s.jsonpCallback = PanLi.isFunction( s.jsonpCallback ) ?
+		callbackName = s.jsonpCallback = jQuery.isFunction( s.jsonpCallback ) ?
 			s.jsonpCallback() :
 			s.jsonpCallback;
 
@@ -9865,7 +9883,7 @@ PanLi.ajaxPrefilter( "json jsonp", function( s, originalSettings, jqXHR ) {
 		// Use data converter to retrieve json after script execution
 		s.converters["script json"] = function() {
 			if ( !responseContainer ) {
-				PanLi.error( callbackName + " was not called" );
+				jQuery.error( callbackName + " was not called" );
 			}
 			return responseContainer[ 0 ];
 		};
@@ -9894,7 +9912,7 @@ PanLi.ajaxPrefilter( "json jsonp", function( s, originalSettings, jqXHR ) {
 			}
 
 			// Call if it was a function and we have a response
-			if ( responseContainer && PanLi.isFunction( overwritten ) ) {
+			if ( responseContainer && jQuery.isFunction( overwritten ) ) {
 				overwritten( responseContainer[ 0 ] );
 			}
 
@@ -9912,7 +9930,7 @@ PanLi.ajaxPrefilter( "json jsonp", function( s, originalSettings, jqXHR ) {
 // data: string of html
 // context (optional): If specified, the fragment will be created in this context, defaults to document
 // keepScripts (optional): If true, will include scripts passed in the html string
-PanLi.parseHTML = function( data, context, keepScripts ) {
+jQuery.parseHTML = function( data, context, keepScripts ) {
 	if ( !data || typeof data !== "string" ) {
 		return null;
 	}
@@ -9930,23 +9948,23 @@ PanLi.parseHTML = function( data, context, keepScripts ) {
 		return [ context.createElement( parsed[1] ) ];
 	}
 
-	parsed = PanLi.buildFragment( [ data ], context, scripts );
+	parsed = jQuery.buildFragment( [ data ], context, scripts );
 
 	if ( scripts && scripts.length ) {
-		PanLi( scripts ).remove();
+		jQuery( scripts ).remove();
 	}
 
-	return PanLi.merge( [], parsed.childNodes );
+	return jQuery.merge( [], parsed.childNodes );
 };
 
 
 // Keep a copy of the old load method
-var _load = PanLi.fn.load;
+var _load = jQuery.fn.load;
 
 /**
  * Load a url into a page
  */
-PanLi.fn.load = function( url, params, callback ) {
+jQuery.fn.load = function( url, params, callback ) {
 	if ( typeof url !== "string" && _load ) {
 		return _load.apply( this, arguments );
 	}
@@ -9956,12 +9974,12 @@ PanLi.fn.load = function( url, params, callback ) {
 		off = url.indexOf(" ");
 
 	if ( off >= 0 ) {
-		selector = PanLi.trim( url.slice( off, url.length ) );
+		selector = jQuery.trim( url.slice( off, url.length ) );
 		url = url.slice( 0, off );
 	}
 
 	// If it's a function
-	if ( PanLi.isFunction( params ) ) {
+	if ( jQuery.isFunction( params ) ) {
 
 		// We assume that it's the callback
 		callback = params;
@@ -9974,7 +9992,7 @@ PanLi.fn.load = function( url, params, callback ) {
 
 	// If we have elements to modify, make the request
 	if ( self.length > 0 ) {
-		PanLi.ajax({
+		jQuery.ajax({
 			url: url,
 
 			// if "type" variable is undefined, then "GET" method will be used
@@ -9990,7 +10008,7 @@ PanLi.fn.load = function( url, params, callback ) {
 
 				// If a selector was specified, locate the right elements in a dummy div
 				// Exclude scripts to avoid IE 'Permission Denied' errors
-				PanLi("<div>").append( PanLi.parseHTML( responseText ) ).find( selector ) :
+				jQuery("<div>").append( jQuery.parseHTML( responseText ) ).find( selector ) :
 
 				// Otherwise use the full result
 				responseText );
@@ -10007,8 +10025,8 @@ PanLi.fn.load = function( url, params, callback ) {
 
 
 // Attach a bunch of functions for handling common AJAX events
-PanLi.each( [ "ajaxStart", "ajaxStop", "ajaxComplete", "ajaxError", "ajaxSuccess", "ajaxSend" ], function( i, type ) {
-	PanLi.fn[ type ] = function( fn ) {
+jQuery.each( [ "ajaxStart", "ajaxStop", "ajaxComplete", "ajaxError", "ajaxSuccess", "ajaxSend" ], function( i, type ) {
+	jQuery.fn[ type ] = function( fn ) {
 		return this.on( type, fn );
 	};
 });
@@ -10016,8 +10034,8 @@ PanLi.each( [ "ajaxStart", "ajaxStop", "ajaxComplete", "ajaxError", "ajaxSuccess
 
 
 
-PanLi.expr.filters.animated = function( elem ) {
-	return PanLi.grep(PanLi.timers, function( fn ) {
+jQuery.expr.filters.animated = function( elem ) {
+	return jQuery.grep(jQuery.timers, function( fn ) {
 		return elem === fn.elem;
 	}).length;
 };
@@ -10032,18 +10050,18 @@ var docElem = window.document.documentElement;
  * Gets a window from an element
  */
 function getWindow( elem ) {
-	return PanLi.isWindow( elem ) ?
+	return jQuery.isWindow( elem ) ?
 		elem :
 		elem.nodeType === 9 ?
 			elem.defaultView || elem.parentWindow :
 			false;
 }
 
-PanLi.offset = {
+jQuery.offset = {
 	setOffset: function( elem, options, i ) {
 		var curPosition, curLeft, curCSSTop, curTop, curOffset, curCSSLeft, calculatePosition,
-			position = PanLi.css( elem, "position" ),
-			curElem = PanLi( elem ),
+			position = jQuery.css( elem, "position" ),
+			curElem = jQuery( elem ),
 			props = {};
 
 		// set position first, in-case top/left are set even on static elem
@@ -10052,10 +10070,10 @@ PanLi.offset = {
 		}
 
 		curOffset = curElem.offset();
-		curCSSTop = PanLi.css( elem, "top" );
-		curCSSLeft = PanLi.css( elem, "left" );
+		curCSSTop = jQuery.css( elem, "top" );
+		curCSSLeft = jQuery.css( elem, "left" );
 		calculatePosition = ( position === "absolute" || position === "fixed" ) &&
-			PanLi.inArray("auto", [ curCSSTop, curCSSLeft ] ) > -1;
+			jQuery.inArray("auto", [ curCSSTop, curCSSLeft ] ) > -1;
 
 		// need to be able to calculate position if either top or left is auto and position is either absolute or fixed
 		if ( calculatePosition ) {
@@ -10067,7 +10085,7 @@ PanLi.offset = {
 			curLeft = parseFloat( curCSSLeft ) || 0;
 		}
 
-		if ( PanLi.isFunction( options ) ) {
+		if ( jQuery.isFunction( options ) ) {
 			options = options.call( elem, i, curOffset );
 		}
 
@@ -10086,13 +10104,13 @@ PanLi.offset = {
 	}
 };
 
-PanLi.fn.extend({
+jQuery.fn.extend({
 	offset: function( options ) {
 		if ( arguments.length ) {
 			return options === undefined ?
 				this :
 				this.each(function( i ) {
-					PanLi.offset.setOffset( this, options, i );
+					jQuery.offset.setOffset( this, options, i );
 				});
 		}
 
@@ -10108,7 +10126,7 @@ PanLi.fn.extend({
 		docElem = doc.documentElement;
 
 		// Make sure it's not a disconnected DOM node
-		if ( !PanLi.contains( docElem, elem ) ) {
+		if ( !jQuery.contains( docElem, elem ) ) {
 			return box;
 		}
 
@@ -10134,7 +10152,7 @@ PanLi.fn.extend({
 			elem = this[ 0 ];
 
 		// fixed elements are offset from window (parentOffset = {top:0, left: 0}, because it is its only offset parent
-		if ( PanLi.css( elem, "position" ) === "fixed" ) {
+		if ( jQuery.css( elem, "position" ) === "fixed" ) {
 			// we assume that getBoundingClientRect is available when computed position is fixed
 			offset = elem.getBoundingClientRect();
 		} else {
@@ -10143,21 +10161,21 @@ PanLi.fn.extend({
 
 			// Get correct offsets
 			offset = this.offset();
-			if ( !PanLi.nodeName( offsetParent[ 0 ], "html" ) ) {
+			if ( !jQuery.nodeName( offsetParent[ 0 ], "html" ) ) {
 				parentOffset = offsetParent.offset();
 			}
 
 			// Add offsetParent borders
-			parentOffset.top  += PanLi.css( offsetParent[ 0 ], "borderTopWidth", true );
-			parentOffset.left += PanLi.css( offsetParent[ 0 ], "borderLeftWidth", true );
+			parentOffset.top  += jQuery.css( offsetParent[ 0 ], "borderTopWidth", true );
+			parentOffset.left += jQuery.css( offsetParent[ 0 ], "borderLeftWidth", true );
 		}
 
 		// Subtract parent offsets and element margins
 		// note: when an element has margin: auto the offsetLeft and marginLeft
 		// are the same in Safari causing offset.left to incorrectly be 0
 		return {
-			top:  offset.top  - parentOffset.top - PanLi.css( elem, "marginTop", true ),
-			left: offset.left - parentOffset.left - PanLi.css( elem, "marginLeft", true)
+			top:  offset.top  - parentOffset.top - jQuery.css( elem, "marginTop", true ),
+			left: offset.left - parentOffset.left - jQuery.css( elem, "marginLeft", true)
 		};
 	},
 
@@ -10165,7 +10183,7 @@ PanLi.fn.extend({
 		return this.map(function() {
 			var offsetParent = this.offsetParent || docElem;
 
-			while ( offsetParent && ( !PanLi.nodeName( offsetParent, "html" ) && PanLi.css( offsetParent, "position" ) === "static" ) ) {
+			while ( offsetParent && ( !jQuery.nodeName( offsetParent, "html" ) && jQuery.css( offsetParent, "position" ) === "static" ) ) {
 				offsetParent = offsetParent.offsetParent;
 			}
 			return offsetParent || docElem;
@@ -10174,10 +10192,10 @@ PanLi.fn.extend({
 });
 
 // Create scrollLeft and scrollTop methods
-PanLi.each( { scrollLeft: "pageXOffset", scrollTop: "pageYOffset" }, function( method, prop ) {
+jQuery.each( { scrollLeft: "pageXOffset", scrollTop: "pageYOffset" }, function( method, prop ) {
 	var top = /Y/.test( prop );
 
-	PanLi.fn[ method ] = function( val ) {
+	jQuery.fn[ method ] = function( val ) {
 		return access( this, function( elem, method, val ) {
 			var win = getWindow( elem );
 
@@ -10189,8 +10207,8 @@ PanLi.each( { scrollLeft: "pageXOffset", scrollTop: "pageYOffset" }, function( m
 
 			if ( win ) {
 				win.scrollTo(
-					!top ? val : PanLi( win ).scrollLeft(),
-					top ? val : PanLi( win ).scrollTop()
+					!top ? val : jQuery( win ).scrollLeft(),
+					top ? val : jQuery( win ).scrollTop()
 				);
 
 			} else {
@@ -10200,18 +10218,18 @@ PanLi.each( { scrollLeft: "pageXOffset", scrollTop: "pageYOffset" }, function( m
 	};
 });
 
-// Add the top/left cssHooks using PanLi.fn.position
+// Add the top/left cssHooks using jQuery.fn.position
 // Webkit bug: https://bugs.webkit.org/show_bug.cgi?id=29084
 // getComputedStyle returns percent when specified for top/left/bottom/right
 // rather than make the css module depend on the offset module, we just check for it here
-PanLi.each( [ "top", "left" ], function( i, prop ) {
-	PanLi.cssHooks[ prop ] = addGetHookIf( support.pixelPosition,
+jQuery.each( [ "top", "left" ], function( i, prop ) {
+	jQuery.cssHooks[ prop ] = addGetHookIf( support.pixelPosition,
 		function( elem, computed ) {
 			if ( computed ) {
 				computed = curCSS( elem, prop );
 				// if curCSS returns percentage, fallback to offset
 				return rnumnonpx.test( computed ) ?
-					PanLi( elem ).position()[ prop ] + "px" :
+					jQuery( elem ).position()[ prop ] + "px" :
 					computed;
 			}
 		}
@@ -10220,20 +10238,20 @@ PanLi.each( [ "top", "left" ], function( i, prop ) {
 
 
 // Create innerHeight, innerWidth, height, width, outerHeight and outerWidth methods
-PanLi.each( { Height: "height", Width: "width" }, function( name, type ) {
-	PanLi.each( { padding: "inner" + name, content: type, "": "outer" + name }, function( defaultExtra, funcName ) {
+jQuery.each( { Height: "height", Width: "width" }, function( name, type ) {
+	jQuery.each( { padding: "inner" + name, content: type, "": "outer" + name }, function( defaultExtra, funcName ) {
 		// margin is only for outerHeight, outerWidth
-		PanLi.fn[ funcName ] = function( margin, value ) {
+		jQuery.fn[ funcName ] = function( margin, value ) {
 			var chainable = arguments.length && ( defaultExtra || typeof margin !== "boolean" ),
 				extra = defaultExtra || ( margin === true || value === true ? "margin" : "border" );
 
 			return access( this, function( elem, type, value ) {
 				var doc;
 
-				if ( PanLi.isWindow( elem ) ) {
+				if ( jQuery.isWindow( elem ) ) {
 					// As of 5/8/2012 this will yield incorrect results for Mobile Safari, but there
 					// isn't a whole lot we can do. See pull request at this URL for discussion:
-					// https://github.com/PanLi/PanLi/pull/764
+					// https://github.com/jquery/jquery/pull/764
 					return elem.document.documentElement[ "client" + name ];
 				}
 
@@ -10252,1034 +10270,77 @@ PanLi.each( { Height: "height", Width: "width" }, function( name, type ) {
 
 				return value === undefined ?
 					// Get width or height on the element, requesting but not forcing parseFloat
-					PanLi.css( elem, type, extra ) :
+					jQuery.css( elem, type, extra ) :
 
 					// Set width or height on the element
-					PanLi.style( elem, type, value, extra );
+					jQuery.style( elem, type, value, extra );
 			}, type, chainable ? margin : undefined, chainable, null );
 		};
 	});
 });
 
 
-
-PanLi.fn.size = function() {
+// The number of elements contained in the matched element set
+jQuery.fn.size = function() {
 	return this.length;
 };
 
-PanLi.fn.andSelf = PanLi.fn.addBack;
+jQuery.fn.andSelf = jQuery.fn.addBack;
 
 
 
 
+// Register as a named AMD module, since jQuery can be concatenated with other
+// files that may use define, but not via a proper concatenation script that
+// understands anonymous AMD modules. A named AMD is safest and most robust
+// way to register. Lowercase jquery is used because AMD module names are
+// derived from file names, and jQuery is normally delivered in a lowercase
+// file name. Do this after creating the global so that if an AMD module wants
+// to call noConflict to hide this version of jQuery, it will work.
+
+// Note that for maximum portability, libraries that are not jQuery should
+// declare themselves as anonymous modules, and avoid setting a global if an
+// AMD loader is present. jQuery is a special case. For more information, see
+// https://github.com/jrburke/requirejs/wiki/Updating-existing-libraries#wiki-anon
 
 if ( typeof define === "function" && define.amd ) {
-	define( "PanLi", [], function() {
-		return PanLi;
+	define( "jquery", [], function() {
+		return jQuery;
 	});
 }
 
 
 
 
-var	_PanLi = window.PanLi,
+var
+	// Map over jQuery in case of overwrite
+	_jQuery = window.jQuery,
 
-	_P = window.P;
+	// Map over the $ in case of overwrite
+	_$ = window.$;
 
-PanLi.noConflict = function( deep ) {
-	if ( window.P === PanLi ) {
-		window.P = _P;
+jQuery.noConflict = function( deep ) {
+	if ( window.$ === jQuery ) {
+		window.$ = _$;
 	}
 
-	if ( deep && window.PanLi === PanLi ) {
-		window.PanLi = _PanLi;
+	if ( deep && window.jQuery === jQuery ) {
+		window.jQuery = _jQuery;
 	}
 
-	return PanLi;
+	return jQuery;
 };
 
+// Expose jQuery and $ identifiers, even in
+// AMD (#7102#comment:10, https://github.com/jquery/jquery/pull/557)
+// and CommonJS for browser emulators (#13566)
 if ( typeof noGlobal === strundefined ) {
-	window.PanLi = window.PD = PanLi;
+	window.jQuery = window.$ = jQuery;
 }
 
 
 
 
-return PanLi;
+return jQuery;
 
 }));
-
-// 这里是一些常用的函数
-// 2015年9月25日 11:38:51
-
-/*
-* 判断是否是pc
-* */
-
-function is_pc(){
-    var os = new Array("Android","iPhone","Windows Phone","iPod","BlackBerry","MeeGo","SymbianOS");  // 其他类型的移动操作系统类型，自行添加
-    var info = navigator.userAgent;
-    var len = os.length;
-    for (var i = 0; i < len; i++) {
-        if (info.indexOf(os[i]) > 0){
-            return false;
-        }
-    }
-    return true;
-};
-
-// 获取服务器时间
-function getServerTime(callback){
-  $.ajax({
-       type: "POST",
-       cache: false,
-       async: false,
-       url: "/App_Services/wsDefault.asmx/GetDateTime",
-       dataType: "json",
-       contentType: "application/json;utf-8",
-       timeout: 10000,
-       error: function () {
-       },
-       success: function (data) {
-           if(data){
-             callback(parseInt(data.d));
-           }
-       }
-    });
-}
-// 获取服务器时间
-function getServerTimeStamp(callback){
-  $.ajax({
-       type: "POST",
-       cache: false,
-       async: false,
-       url: "/App_Services/wsDefault.asmx/GetDateTimeStamp",
-       dataType: "json",
-       contentType: "application/json;utf-8",
-       timeout: 10000,
-       error: function () {
-       },
-       success: function (data) {
-           if(data){
-             callback(parseInt(data.d * 1000));
-           }
-       }
-    });
-}
-
-function get_Cookie(name)
-{
-    var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)");
-    if(arr=document.cookie.match(reg))
-        return unescape(arr[2]);
-    else
-        return null;
-};
-function del_Cookie(name)
-{
-    var exp = new Date();
-    exp.setTime(exp.getTime() - 1);
-    var cval=getCookie(name);
-    if(cval!=null)
-        document.cookie= name + "="+cval+";expires="+exp.toGMTString();
-};
-
-function set_Cookie(name,value,time)
-{
-
-    var exp = new Date();
-    exp.setTime(time);
-    document.cookie = name + "="+ escape (value) + ";expires=" + exp.toGMTString();
-};
-function getsec(str)
-{
-
-    var str1=str.substring(1,str.length)*1;
-    var str2=str.substring(0,1);
-    if (str2=="s")
-    {
-        return str1*1000;
-    }
-    else if (str2=="h")
-    {
-        return str1*60*60*1000;
-    }
-    else if (str2=="d")
-    {
-        return str1*24*60*60*1000;
-    }
-};
-// 今日 结束时间
-function getDateEnd(date) {
-    var _date = new Date(date);
-    var year = _date.getFullYear(),
-       month = _date.getMonth(),
-       day = _date.getDate();
-    return new Date(year, month, day, 23, 59, 59);
-}
-//这是有设定过期时间的使用示例：
-//s20是代表20秒
-//s20是代表20秒
-//h是指小时，如12小时则是：h12
-//d是天数，30天则：d30
-
-function Log(data){
-  return console.log(data);
-}
-
-
-//var username=document.cookie.split(";")[0].split("=")[1];
-////JS操作cookies方法!
-////写cookies
-//function setCookie(name,value)
-//{
-//    var Days = 30;
-//    var exp = new Date();
-//    exp.setTime(exp.getTime() + Days*24*60*60*1000);
-//    document.cookie = name + "="+ escape (value) + ";expires=" + exp.toGMTString();
-//}
-/*  myDate.getYear();        //获取当前年份(2位)
- myDate.getFullYear();    //获取完整的年份(4位,1970-????)
- myDate.getMonth();       //获取当前月份(0-11,0代表1月)
- myDate.getDate();        //获取当前日(1-31)
- myDate.getDay();         //获取当前星期X(0-6,0代表星期天)
- myDate.getTime();        //获取当前时间(从1970.1.1开始的毫秒数)
- myDate.getHours();       //获取当前小时数(0-23)
- myDate.getMinutes();     //获取当前分钟数(0-59)
- myDate.getSeconds();     //获取当前秒数(0-59)
- myDate.getMilliseconds();    //获取当前毫秒数(0-999)
- myDate.toLocaleDateString();     //获取当前日期
- var mytime=myDate.toLocaleTimeString();     //获取当前时间
- myDate.toLocaleString( );        //获取日期与时间*/
-
-function removeEle(removeObj) {
-    removeObj.parentNode.removeChild(removeObj);
-};
-
-/*
-* 需要先引入 dom.js
-* */
-
-
-;!function(window, undefined){
-    "use strict";
-
-    var P, win, ready = {
-        getPath: function(){
-            var js = document.scripts, script = js[js.length - 1], jsPath = script.src;
-            if(script.getAttribute('merge')) return;
-            return jsPath.substring(0, jsPath.lastIndexOf("/") + 1);
-        }(),
-
-        //屏蔽Enter触发弹层
-        enter: function(e){
-            if(e.keyCode === 13) e.preventDefault();
-        },
-        config: {}, end: {},
-        btn: ['&#x786E;&#x5B9A;','&#x53D6;&#x6D88;'],
-
-        //五种原始层模式
-        type: ['dialog', 'page', 'iframe', 'loading', 'tips']
-    };
-
-//默认内置方法。
-    var Pan = {
-        v: '0.0.1',
-        ie6: !!window.ActiveXObject&&!window.XMLHttpRequest,
-        index: 0,
-        path: ready.getPath,
-        config: function(options, fn){
-            var item = 0;
-            options = options || {};
-            Pan.cache = ready.config = P.extend(ready.config, options);
-            Pan.path = ready.config.path || Pan.path;
-            typeof options.extend === 'string' && (options.extend = [options.extend]);
-            Pan.use('skin/layer2.css', (options.extend && options.extend.length > 0) ? (function loop(){
-
-
-
-                var ext = options.extend;
-                Pan.use(ext[ext[item] ? item : item-1], item < ext.length ? function(){
-                    ++item;
-                    return loop;
-                }() : fn);
-            }()) : fn);
-            return this;
-        },
-
-        //载入配件
-        use: function(module, fn, readyMethod){
-
-
-            var i = 0, head = P('head')[0];
-            var module = module.replace(/\s/g, '');
-            var iscss = /\.css$/.test(module);
-            var node = document.createElement(iscss ? 'link' : 'script');
-            var id = 'layui_layer_' + module.replace(/\.|\//g, '');
-            if(!Pan.path) return;
-            if(iscss){
-                node.rel = 'stylesheet';
-            }
-            node[iscss ? 'href' : 'src'] = /^http:\/\//.test(module) ? module : Pan.path + module;
-            node.id = id;
-            if(!P('#'+ id)[0]){
-                head.appendChild(node);
-            }
-
-
-            //轮询加载就绪
-            ;(function poll() {
-                ;(iscss ? parseInt(P('#'+id).css('width')) === 1989 : Pan[readyMethod||id]) ? function(){
-                    fn && fn();
-                    try { iscss || head.removeChild(node); } catch(e){};
-                }() : setTimeout(poll, 100);
-            }());
-            return this;
-        },
-
-        ready: function(path, fn){
-            var type = typeof path === 'function';
-            if(type) fn = path;
-            Pan.config(P.extend(ready.config, function(){
-                return type ? {} : {path: path};
-            }()), fn);
-            return this;
-        },
-        /* 谷歌统计代码 */
-        googleCount:function(){
-            (function (i, s, o, g, r, a, m) {
-                i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
-                        (i[r].q = i[r].q || []).push(arguments)
-                    }, i[r].l = 1 * new Date(); a = s.createElement(o),
-                    m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
-            })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
-
-            ga('create', 'UA-436090-2', 'auto');ga('require', 'displayfeatures');
-            ga('send', 'pageview');
-        },
-        /* rem 字体转换 */
-        remFontSize:function(){
-            var fontsize = function () {
-                var W = document.body.getBoundingClientRect().width, defaultW = 720, defaultSize = 40;
-                W = W > defaultW ? defaultW : W < 320 ? 320 : W;
-                window.W = W; document.documentElement.style.fontSize = (W / defaultW * defaultSize).toFixed(2) + 'px';
-            };
-            var fontset = setTimeout(fontsize, 300);
-            window.addEventListener('resize', function () { clearTimeout(fontset); fontset = setTimeout(fontsize, 300) });
-            window.addEventListener("DOMContentLoaded", fontsize);
-            setTimeout(fontsize, 300);
-
-        },
-        //各种快捷引用
-        alert: function(content, options, yes){
-            var type = typeof options === 'function';
-            if(type) yes = options;
-            return Pan.open(P.extend({
-                content: content,
-                yes: yes
-            }, type ? {} : options));
-        },
-
-        confirm: function(content, options, yes, cancel){
-            var type = typeof options === 'function';
-            if(type){
-                cancel = yes;
-                yes = options;
-            }
-            return Pan.open(P.extend({
-                content: content,
-                btn: ready.btn,
-                yes: yes,
-                cancel: cancel
-            }, type ? {} : options));
-        },
-
-        msg: function(content, options, end){ //最常用提示层
-            var type = typeof options === 'function', rskin = ready.config.skin;
-            var skin = (rskin ? rskin + ' ' + rskin + '-msg' : '')||'layui-layer-msg';
-            var shift = doms.anim.length - 1;
-            if(type) end = options;
-            return Pan.open(P.extend({
-                content: content,
-                time: 3000,
-                shade: false,
-                skin: skin,
-                title: false,
-                closeBtn: false,
-                btn: false,
-                end: end
-            }, (type && !ready.config.skin) ? {
-                skin: skin + ' layui-layer-hui',
-                shift: shift
-            } : function(){
-                options = options || {};
-                if(options.icon === -1 || options.icon === undefined && !ready.config.skin){
-                    options.skin = skin + ' ' + (options.skin||'layui-layer-hui');
-                }
-                return options;
-            }()));
-        },
-
-        load: function(icon, options){
-            return Pan.open(P.extend({
-                type: 3,
-                icon: icon || 0,
-                shade: 0.01
-            }, options));
-        },
-
-        tips: function(content, follow, options){
-            return Pan.open(P.extend({
-                type: 4,
-                content: [content, follow],
-                closeBtn: false,
-                time: 3000,
-                maxWidth: 210
-            }, options));
-        }
-    };
-
-    var Class = function(setings){
-        var that = this;
-        that.index = ++Pan.index;
-        that.config = P.extend({}, that.config, ready.config, setings);
-        that.creat();
-    };
-
-    Class.pt = Class.prototype;
-
-//缓存常用字符
-    var doms = ['layui-layer', '.layui-layer-title', '.layui-layer-main', '.layui-layer-dialog', 'layui-layer-iframe', 'layui-layer-content', 'layui-layer-btn', 'layui-layer-close'];
-    doms.anim = ['layui-anim', 'layui-anim-01', 'layui-anim-02', 'layui-anim-03', 'layui-anim-04', 'layui-anim-05', 'layui-anim-06'];
-
-//默认配置
-    Class.pt.config = {
-        type: 0,
-        shade: 0.3,
-        fix: true,
-        move: doms[1],
-        title: '&#x4FE1;&#x606F;',
-        offset: 'auto',
-        area: 'auto',
-        closeBtn: 1,
-        time: 0, //0表示不自动关闭
-        zIndex: 19891014,
-        maxWidth: 360,
-        shift: 0,
-        icon: -1,
-        scrollbar: true, //是否允许浏览器滚动条
-        tips: 2
-    };
-
-//容器
-    Class.pt.vessel = function(conType, callback){
-        var that = this, times = that.index, config = that.config;
-        var zIndex = config.zIndex + times, titype = typeof config.title === 'object';
-        var ismax = config.maxmin && (config.type === 1 || config.type === 2);
-        var titleHTML = (config.title ? '<div class="layui-layer-title" style="'+ (titype ? config.title[1] : '') +'">'
-        + (titype ? config.title[0] : config.title)
-        + '</div>' : '');
-
-        config.zIndex = zIndex;
-        callback([
-            //遮罩
-            config.shade ? ('<div class="layui-layer-shade" id="layui-layer-shade'+ times +'" times="'+ times +'" style="'+ ('z-index:'+ (zIndex-1) +'; background-color:'+ (config.shade[1]||'#000') +'; opacity:'+ (config.shade[0]||config.shade) +'; filter:alpha(opacity='+ (config.shade[0]*100||config.shade*100) +');') +'"></div>') : '',
-
-            //主体
-            '<div class="'+ doms[0] +' '+ (doms.anim[config.shift]||'') + (' layui-layer-'+ready.type[config.type]) + (((config.type == 0 || config.type == 2) && !config.shade) ? ' layui-layer-border' : '') + ' ' + (config.skin||'') +'" id="'+ doms[0] + times +'" type="'+ ready.type[config.type] +'" times="'+ times +'" showtime="'+ config.time +'" conType="'+ (conType ? 'object' : 'string') +'" style="z-index: '+ zIndex +'; width:'+ config.area[0] + ';height:' + config.area[1] + (config.fix ? '' : ';position:absolute;') +'">'
-            + (conType && config.type != 2 ? '' : titleHTML)
-            +'<div class="layui-layer-content'+ ((config.type == 0 && config.icon !== -1) ? ' layui-layer-padding' :'') + (config.type == 3 ? ' layui-layer-loading'+config.icon : '') +'">'
-            + (config.type == 0 && config.icon !== -1 ? '<i class="layui-layer-ico layui-layer-ico'+ config.icon +'"></i>' : '')
-            + (config.type == 1 && conType ? '' : (config.content||''))
-            +'</div>'
-            + '<span class="layui-layer-setwin">'+ function(){
-                var closebtn = ismax ? '<a class="layui-layer-min" href="javascript:;"><cite></cite></a><a class="layui-layer-ico layui-layer-max" href="javascript:;"></a>' : '';
-                config.closeBtn && (closebtn += '<a class="layui-layer-ico '+ doms[7] +' '+ doms[7] + (config.title ? config.closeBtn : (config.type == 4 ? '1' : '2')) +'" href="javascript:;"></a>');
-                return closebtn;
-            }() + '</span>'
-            + (config.btn ? function(){
-                var button = '';
-                typeof config.btn === 'string' && (config.btn = [config.btn]);
-                for(var i = 0, len = config.btn.length; i < len; i++){
-                    button += '<a class="'+ doms[6] +''+ i +'">'+ config.btn[i] +'</a>'
-                }
-                return '<div class="'+ doms[6] +'">'+ button +'</div>'
-            }() : '')
-            +'</div>'
-        ], titleHTML);
-        return that;
-    };
-
-//创建骨架
-    Class.pt.creat = function(){
-        var that = this, config = that.config, times = that.index, nodeIndex;
-        var content = config.content, conType = typeof content === 'object';
-
-        if(typeof config.area === 'string'){
-            config.area = config.area === 'auto' ? ['', ''] : [config.area, ''];
-        }
-
-        switch(config.type){
-            case 0:
-                config.btn = ('btn' in config) ? config.btn : ready.btn[0];
-                Pan.closeAll('dialog');
-                break;
-            case 2:
-                var content = config.content = conType ? config.content : [config.content||'http://sentsin.com?from=Pan', 'auto'];
-                config.content = '<iframe scrolling="'+ (config.content[1]||'auto') +'" allowtransparency="true" id="'+ doms[4] +''+ times +'" name="'+ doms[4] +''+ times +'" onload="this.className=\'\';" class="layui-layer-load" frameborder="0" src="' + config.content[0] + '"></iframe>';
-                break;
-            case 3:
-                config.title = false;
-                config.closeBtn = false;
-                config.icon === -1 && (config.icon === 0);
-                Pan.closeAll('loading');
-                break;
-            case 4:
-                conType || (config.content = [config.content, 'body']);
-                config.follow = config.content[1];
-                config.content = config.content[0] + '<i class="layui-layer-TipsG"></i>';
-                config.title = false;
-                config.shade = false;
-                config.fix = false;
-                config.tips = typeof config.tips === 'object' ? config.tips : [config.tips, true];
-                config.tipsMore || Pan.closeAll('tips');
-                break;
-        }
-
-        //建立容器
-        that.vessel(conType, function(html, titleHTML){
-            P('body').append(html[0]);
-            conType ? function(){
-                (config.type == 2 || config.type == 4) ? function(){
-                    P('body').append(html[1]);
-                }() : function(){
-                    if(!content.parents('.'+doms[0])[0]){
-                        content.show().addClass('layui-layer-wrap').wrap(html[1]);
-                        P('#'+ doms[0] + times).find('.'+doms[5]).before(titleHTML);
-                    }
-                }();
-            }() : P('body').append(html[1]);
-            that.layero = P('#'+ doms[0] + times);
-            config.scrollbar || doms.html.css('overflow', 'hidden').attr('layer-full', times);
-        }).auto(times);
-
-        config.type == 2 && Pan.ie6 && that.layero.find('iframe').attr('src', content[0]);
-        P(document).off('keydown', ready.enter).on('keydown', ready.enter);
-
-        //坐标自适应浏览器窗口尺寸
-        config.type == 4 ? that.tips() : that.offset();
-        if(config.fix){
-            win.on('resize', function(){
-                that.offset();
-                (/^\d+%$/.test(config.area[0]) || /^\d+%$/.test(config.area[1])) && that.auto(times);
-                config.type == 4 && that.tips();
-            });
-        }
-
-        config.time <= 0 || setTimeout(function(){
-            Pan.close(that.index)
-        }, config.time);
-        that.move().callback();
-    };
-
-//自适应
-    Class.pt.auto = function(index){
-        var that = this, config = that.config, layero = P('#'+ doms[0] + index);
-        if(config.area[0] === '' && config.maxWidth > 0){
-            //为了修复IE7下一个让人难以理解的bug
-            if(/MSIE 7/.test(navigator.userAgent) && config.btn){
-                layero.width(layero.innerWidth());
-            }
-            layero.outerWidth() > config.maxWidth && layero.width(config.maxWidth);
-        }
-        var area = [layero.innerWidth(), layero.innerHeight()];
-        var titHeight = layero.find(doms[1]).outerHeight() || 0;
-        var btnHeight = layero.find('.'+doms[6]).outerHeight() || 0;
-        function setHeight(elem){
-            elem = layero.find(elem);
-            elem.height(area[1] - titHeight - btnHeight - 2*(parseFloat(elem.css('padding'))|0));
-        }
-        switch(config.type){
-            case 2:
-                setHeight('iframe');
-                break;
-            default:
-                if(config.area[1] === ''){
-                    if(config.fix && area[1] >= win.height()){
-                        area[1] = win.height();
-                        setHeight('.'+doms[5]);
-                    }
-                } else {
-                    setHeight('.'+doms[5]);
-                }
-                break;
-        }
-        return that;
-    };
-
-//计算坐标
-    Class.pt.offset = function(){
-        var that = this, config = that.config, layero = that.layero;
-        var area = [layero.outerWidth(), layero.outerHeight()];
-        var type = typeof config.offset === 'object';
-        that.offsetTop = (win.height() - area[1])/2;
-        that.offsetLeft = (win.width() - area[0])/2;
-        if(type){
-            that.offsetTop = config.offset[0];
-            that.offsetLeft = config.offset[1]||that.offsetLeft;
-        } else if(config.offset !== 'auto'){
-            that.offsetTop = config.offset;
-            if(config.offset === 'rb'){ //右下角
-                that.offsetTop = win.height() - area[1];
-                that.offsetLeft = win.width() - area[0];
-            }
-        }
-        if(!config.fix){
-            that.offsetTop = /%$/.test(that.offsetTop) ?
-            win.height()*parseFloat(that.offsetTop)/100
-                : parseFloat(that.offsetTop);
-            that.offsetLeft = /%$/.test(that.offsetLeft) ?
-            win.width()*parseFloat(that.offsetLeft)/100
-                : parseFloat(that.offsetLeft);
-            that.offsetTop += win.scrollTop();
-            that.offsetLeft += win.scrollLeft();
-        }
-        layero.css({top: that.offsetTop, left: that.offsetLeft});
-    };
-
-//Tips
-    Class.pt.tips = function(){
-        var that = this, config = that.config, layero = that.layero;
-        var layArea = [layero.outerWidth(), layero.outerHeight()], follow = P(config.follow);
-        if(!follow[0]) follow = P('body');
-        var goal = {
-            width: follow.outerWidth(),
-            height: follow.outerHeight(),
-            top: follow.offset().top,
-            left: follow.offset().left
-        }, tipsG = layero.find('.layui-layer-TipsG');
-
-        var guide = config.tips[0];
-        config.tips[1] || tipsG.remove();
-
-        goal.autoLeft = function(){
-            if(goal.left + layArea[0] - win.width() > 0){
-                goal.tipLeft = goal.left + goal.width - layArea[0];
-                tipsG.css({right: 12, left: 'auto'});
-            } else {
-                goal.tipLeft = goal.left;
-            };
-        };
-
-        //辨别tips的方位
-        goal.where = [function(){ //上
-            goal.autoLeft();
-            goal.tipTop = goal.top - layArea[1] - 10;
-            tipsG.removeClass('layui-layer-TipsB').addClass('layui-layer-TipsT').css('border-right-color', config.tips[1]);
-        }, function(){ //右
-            goal.tipLeft = goal.left + goal.width + 10;
-            goal.tipTop = goal.top;
-            tipsG.removeClass('layui-layer-TipsL').addClass('layui-layer-TipsR').css('border-bottom-color', config.tips[1]);
-        }, function(){ //下
-            goal.autoLeft();
-            goal.tipTop = goal.top + goal.height + 10;
-            tipsG.removeClass('layui-layer-TipsT').addClass('layui-layer-TipsB').css('border-right-color', config.tips[1]);
-        }, function(){ //左
-            goal.tipLeft = goal.left - layArea[0] - 10;
-            goal.tipTop = goal.top;
-            tipsG.removeClass('layui-layer-TipsR').addClass('layui-layer-TipsL').css('border-bottom-color', config.tips[1]);
-        }];
-        goal.where[guide-1]();
-
-        /* 8*2为小三角形占据的空间 */
-        if(guide === 1){
-            goal.top - (win.scrollTop() + layArea[1] + 8*2) < 0 && goal.where[2]();
-        } else if(guide === 2){
-            win.width() - (goal.left + goal.width + layArea[0] + 8*2) > 0 || goal.where[3]()
-        } else if(guide === 3){
-            (goal.top - win.scrollTop() + goal.height + layArea[1] + 8*2) - win.height() > 0 && goal.where[0]();
-        } else if(guide === 4){
-            layArea[0] + 8*2 - goal.left > 0 && goal.where[1]()
-        }
-
-        layero.find('.'+doms[5]).css({
-            'background-color': config.tips[1],
-            'padding-right': (config.closeBtn ? '30px' : '')
-        });
-        layero.css({left: goal.tipLeft, top: goal.tipTop});
-    }
-
-//拖拽层
-    Class.pt.move = function(){
-        var that = this, config = that.config, conf = {
-            setY: 0,
-            moveLayer: function(){
-                var layero = conf.layero, mgleft = parseInt(layero.css('margin-left'));
-                var lefts = parseInt(conf.move.css('left'));
-                mgleft === 0 || (lefts = lefts - mgleft);
-                if(layero.css('position') !== 'fixed'){
-                    lefts = lefts - layero.parent().offset().left;
-                    conf.setY = 0;
-                }
-                layero.css({left: lefts, top: parseInt(conf.move.css('top')) - conf.setY});
-            }
-        };
-
-        var movedom = that.layero.find(config.move);
-        config.move && movedom.attr('move', 'ok');
-        movedom.css({cursor: config.move ? 'move' : 'auto'});
-
-        P(config.move).on('mousedown', function(M){
-            M.preventDefault();
-            if(P(this).attr('move') === 'ok'){
-                conf.ismove = true;
-                conf.layero = P(this).parents('.'+ doms[0]);
-                var xx = conf.layero.offset().left, yy = conf.layero.offset().top, ww = conf.layero.outerWidth() - 6, hh = conf.layero.outerHeight() - 6;
-                if(!P('#layui-layer-moves')[0]){
-                    P('body').append('<div id="layui-layer-moves" class="layui-layer-moves" style="left:'+ xx +'px; top:'+ yy +'px; width:'+ ww +'px; height:'+ hh +'px; z-index:2147483584"></div>');
-                }
-                conf.move = P('#layui-layer-moves');
-                config.moveType && conf.move.css({visibility: 'hidden'});
-
-                conf.moveX = M.pageX - conf.move.position().left;
-                conf.moveY = M.pageY - conf.move.position().top;
-                conf.layero.css('position') !== 'fixed' || (conf.setY = win.scrollTop());
-            }
-        });
-
-        P(document).mousemove(function(M){
-            if(conf.ismove){
-                var offsetX = M.pageX - conf.moveX, offsetY = M.pageY - conf.moveY;
-                M.preventDefault();
-
-                //控制元素不被拖出窗口外
-                if(!config.moveOut){
-                    conf.setY = win.scrollTop();
-                    var setRig = win.width() - conf.move.outerWidth(), setTop = conf.setY;
-                    offsetX < 0 && (offsetX = 0);
-                    offsetX > setRig && (offsetX = setRig);
-                    offsetY < setTop && (offsetY = setTop);
-                    offsetY > win.height() - conf.move.outerHeight() + conf.setY && (offsetY = win.height() - conf.move.outerHeight() + conf.setY);
-                }
-
-                conf.move.css({left: offsetX, top: offsetY});
-                config.moveType && conf.moveLayer();
-
-                offsetX = offsetY = setRig = setTop = null;
-            }
-        }).mouseup(function(){
-            try{
-                if(conf.ismove){
-                    conf.moveLayer();
-                    conf.move.remove();
-                    config.moveEnd && config.moveEnd();
-                }
-                conf.ismove = false;
-            }catch(e){
-                conf.ismove = false;
-            }
-        });
-        return that;
-    };
-
-    Class.pt.callback = function(){
-        var that = this, layero = that.layero, config = that.config;
-        that.openLayer();
-        if(config.success){
-            if(config.type == 2){
-                layero.find('iframe')[0].onload = function(){
-                    this.className = '';
-                    config.success(layero, that.index);
-                };
-            } else {
-                config.success(layero, that.index);
-            }
-        }
-        Pan.ie6 && that.IE6(layero);
-
-        //按钮
-        layero.find('.'+ doms[6]).children('a').on('click', function(){
-            var index = P(this).index();
-            config['btn'+(index+1)] && config['btn'+(index+1)](that.index, layero);
-            if(index === 0){
-                config.yes ? config.yes(that.index, layero) : Pan.close(that.index);
-            } else if(index === 1){
-                cancel();
-            } else {
-                config['btn'+(index+1)] || Pan.close(that.index);
-            }
-        });
-
-        //取消
-        function cancel(){
-            var close = config.cancel && config.cancel(that.index);
-            close === false || Pan.close(that.index);
-        }
-
-        //右上角关闭回调
-        layero.find('.'+ doms[7]).on('click', cancel);
-
-        //点遮罩关闭
-        if(config.shadeClose){
-            P('#layui-layer-shade'+ that.index).on('click', function(){
-                Pan.close(that.index);
-            });
-        }
-
-        //最小化
-        layero.find('.layui-layer-min').on('click', function(){
-            Pan.min(that.index, config);
-            config.min && config.min(layero);
-        });
-
-        //全屏/还原
-        layero.find('.layui-layer-max').on('click', function(){
-            if(P(this).hasClass('layui-layer-maxmin')){
-                Pan.restore(that.index);
-                config.restore && config.restore(layero);
-            } else {
-                Pan.full(that.index, config);
-                config.full && config.full(layero);
-            }
-        });
-
-        config.end && (ready.end[that.index] = config.end);
-    };
-
-//for ie6 恢复select
-    ready.reselect = function(){
-        P.each(P('select'), function(index , value){
-            var sthis = P(this);
-            if(!sthis.parents('.'+doms[0])[0]){
-                (sthis.attr('pan') == 1 && P('.'+doms[0]).length < 1) && sthis.removeAttr('pan').show();
-            }
-            sthis = null;
-        });
-    };
-
-    Class.pt.IE6 = function(layero){
-        var that = this, _ieTop = layero.offset().top;
-
-        //ie6的固定与相对定位
-        function ie6Fix(){
-            layero.css({top : _ieTop + (that.config.fix ? win.scrollTop() : 0)});
-        };
-        ie6Fix();
-        win.scroll(ie6Fix);
-
-        //隐藏select
-        P('select').each(function(index , value){
-            var sthis = P(this);
-            if(!sthis.parents('.'+doms[0])[0]){
-                sthis.css('display') === 'none' || sthis.attr({'pan' : '1'}).hide();
-            }
-            sthis = null;
-        });
-    };
-
-//需依赖原型的对外方法
-    Class.pt.openLayer = function(){
-        var that = this;
-
-        //置顶当前窗口
-        Pan.zIndex = that.config.zIndex;
-        Pan.setTop = function(layero){
-            var setZindex = function(){
-                Pan.zIndex++;
-                layero.css('z-index', Pan.zIndex + 1);
-            };
-            Pan.zIndex = parseInt(layero[0].style.zIndex);
-            layero.on('mousedown', setZindex);
-            return Pan.zIndex;
-        };
-    };
-
-    ready.record = function(layero){
-        var area = [
-            layero.outerWidth(),
-            layero.outerHeight(),
-            layero.position().top,
-            layero.position().left + parseFloat(layero.css('margin-left'))
-        ];
-        layero.find('.layui-layer-max').addClass('layui-layer-maxmin');
-        layero.attr({area: area});
-    };
-
-    ready.rescollbar = function(index){
-        if(doms.html.attr('layer-full') == index){
-            if(doms.html[0].style.removeProperty){
-                doms.html[0].style.removeProperty('overflow');
-            } else {
-                doms.html[0].style.removeAttribute('overflow');
-            }
-            doms.html.removeAttr('layer-full');
-        }
-    };
-
-    /*! 内置成员 */
-
-//获取子iframe的DOM
-    Pan.getChildFrame = function(selector, index){
-        index = index || P('.'+doms[4]).attr('times');
-        return P('#'+ doms[0] + index).find('iframe').contents().find(selector);
-    };
-
-//得到当前iframe层的索引，子iframe时使用
-    Pan.getFrameIndex = function(name){
-        return P('#'+ name).parents('.'+doms[4]).attr('times');
-    };
-
-//iframe层自适应宽高
-    Pan.iframeAuto = function(index){
-        if(!index) return;
-        var heg = Pan.getChildFrame('body', index).outerHeight();
-        var layero = P('#'+ doms[0] + index);
-        var titHeight = layero.find(doms[1]).outerHeight() || 0;
-        var btnHeight = layero.find('.'+doms[6]).outerHeight() || 0;
-        layero.css({height: heg + titHeight + btnHeight});
-        layero.find('iframe').css({height: heg});
-    };
-
-//重置iframe url
-    Pan.iframeSrc = function(index, url){
-        P('#'+ doms[0] + index).find('iframe').attr('src', url);
-    };
-
-//设定层的样式
-    Pan.style = function(index, options){
-        var layero = P('#'+ doms[0] + index), type = layero.attr('type');
-        var titHeight = layero.find(doms[1]).outerHeight() || 0;
-        var btnHeight = layero.find('.'+doms[6]).outerHeight() || 0;
-        if(type === ready.type[1] || type === ready.type[2]){
-            layero.css(options);
-            if(type === ready.type[2]){
-                layero.find('iframe').css({
-                    height: parseFloat(options.height) - titHeight - btnHeight
-                });
-            }
-        }
-    };
-
-//最小化
-    Pan.min = function(index, options){
-        var layero = P('#'+ doms[0] + index);
-        var titHeight = layero.find(doms[1]).outerHeight() || 0;
-        ready.record(layero);
-        Pan.style(index, {width: 180, height: titHeight, overflow: 'hidden'});
-        layero.find('.layui-layer-min').hide();
-        layero.attr('type') === 'page' && layero.find(doms[4]).hide();
-        ready.rescollbar(index);
-    };
-
-//还原
-    Pan.restore = function(index){
-        var layero = P('#'+ doms[0] + index), area = layero.attr('area').split(',');
-        var type = layero.attr('type');
-        Pan.style(index, {
-            width: parseFloat(area[0]),
-            height: parseFloat(area[1]),
-            top: parseFloat(area[2]),
-            left: parseFloat(area[3]),
-            overflow: 'visible'
-        });
-        layero.find('.layui-layer-max').removeClass('layui-layer-maxmin');
-        layero.find('.layui-layer-min').show();
-        layero.attr('type') === 'page' && layero.find(doms[4]).show();
-        ready.rescollbar(index);
-    };
-
-//全屏
-    Pan.full = function(index){
-        var layero = P('#'+ doms[0] + index), timer;
-        ready.record(layero);
-        if(!doms.html.attr('layer-full')){
-            doms.html.css('overflow','hidden').attr('layer-full', index);
-        }
-        clearTimeout(timer);
-        timer = setTimeout(function(){
-            var isfix = layero.css('position') === 'fixed';
-            Pan.style(index, {
-                top: isfix ? 0 : win.scrollTop(),
-                left: isfix ? 0 : win.scrollLeft(),
-                width: win.width(),
-                height: win.height()
-            });
-            layero.find('.layui-layer-min').hide();
-        }, 100);
-    };
-
-//改变title
-    Pan.title = function(name, index){
-        var title = P('#'+ doms[0] + (index||Pan.index)).find(doms[1]);
-        title.html(name);
-    };
-
-//关闭layer总方法
-    Pan.close = function(index){
-        var layero = P('#'+ doms[0] + index), type = layero.attr('type');
-        if(!layero[0]) return;
-        if(type === ready.type[1] && layero.attr('conType') === 'object'){
-            layero.children(':not(.'+ doms[5] +')').remove();
-            for(var i = 0; i < 2; i++){
-                layero.find('.layui-layer-wrap').unwrap().hide();
-            }
-        } else {
-            //低版本IE 回收 iframe
-            if(type === ready.type[2]){
-                try {
-                    var iframe = P('#'+doms[4]+index)[0];
-                    iframe.contentWindow.document.write('');
-                    iframe.contentWindow.close();
-                    layero.find('.'+doms[5])[0].removeChild(iframe);
-                } catch(e){}
-            }
-            layero[0].innerHTML = '';
-            layero.remove();
-        }
-        P('#layui-layer-moves, #layui-layer-shade' + index).remove();
-        Pan.ie6 && ready.reselect();
-        ready.rescollbar(index);
-        P(document).off('keydown', ready.enter);
-        typeof ready.end[index] === 'function' && ready.end[index]();
-        delete ready.end[index];
-    };
-
-//关闭所有层
-    Pan.closeAll = function(type){
-        P.each(P('.'+doms[0]), function(){
-            var othis = P(this);
-            var is = type ? (othis.attr('type') === type) : 1;
-            is && Pan.close(othis.attr('times'));
-            is = null;
-        });
-    };
-
-//主入口
-    ready.run = function(){
-        P = PanLi;
-        win = P(window);
-        doms.html = P('html');
-        Pan.open = function(deliver){
-            var o = new Class(deliver);
-            return o.index;
-        };
-    };
-
-    'function' === typeof define ? define(function(){
-        ready.run();
-        return Pan;
-    }) : function(){
-        window.PL = Pan;
-        ready.run();
-        Pan.use('skin/pan.css');
-    }();
-
-}(window);
-
-/**
- * Created by Administrator on 2015/9/11.
- */
-/*
-* 2015年9月14日15:29:04
-* 
-* */
