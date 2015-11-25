@@ -10347,7 +10347,7 @@ function getServerTime(callback){
        }
     });
 }
-// 获取服务器时间
+// 获取服务器时间 
 function getServerTimeStamp(callback){
   $.ajax({
        type: "POST",
@@ -10379,7 +10379,7 @@ function del_Cookie(name)
 {
     var exp = new Date();
     exp.setTime(exp.getTime() - 1);
-    var cval=getCookie(name);
+    var cval=get_Cookie(name);
     if(cval!=null)
         document.cookie= name + "="+cval+";expires="+exp.toGMTString();
 };
@@ -10484,6 +10484,26 @@ function removeEle(removeObj) {
     removeObj.parentNode.removeChild(removeObj);
 };
 
+
+// JavaScript Document
+function loadjscssfile(filename,filetype){
+
+    if(filetype == "js"){
+        var fileref = document.createElement('script');
+        fileref.setAttribute("type","text/javascript");
+        fileref.setAttribute("src",filename);
+    }else if(filetype == "css"){
+    
+        var fileref = document.createElement('link');
+        fileref.setAttribute("rel","stylesheet");
+        fileref.setAttribute("type","text/css");
+        fileref.setAttribute("href",filename);
+    }
+   if(typeof fileref != "undefined"){
+        document.getElementsByTagName("head")[0].appendChild(fileref);
+    }
+    
+}
 /*
 * 需要先引入 dom.js
 * */
@@ -10512,7 +10532,7 @@ function removeEle(removeObj) {
 
 //默认内置方法。
     var Pan = {
-        v: '0.0.1',
+        v: '0.0.3',
         ie6: !!window.ActiveXObject&&!window.XMLHttpRequest,
         index: 0,
         path: ready.getPath,
@@ -10523,9 +10543,6 @@ function removeEle(removeObj) {
             Pan.path = ready.config.path || Pan.path;
             typeof options.extend === 'string' && (options.extend = [options.extend]);
             Pan.use('skin/layer2.css', (options.extend && options.extend.length > 0) ? (function loop(){
-
-
-
                 var ext = options.extend;
                 Pan.use(ext[ext[item] ? item : item-1], item < ext.length ? function(){
                     ++item;
@@ -10575,6 +10592,11 @@ function removeEle(removeObj) {
         },
         /* 谷歌统计代码 */
         googleCount:function(){
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            
+            loadjscssfile(gaJsHost+'google-analytics.com/ga.js','js');
+            try { var pageTracker = _gat._getTracker("UA-436090-1"); pageTracker._trackPageview(); } catch (err) { };
+            
             (function (i, s, o, g, r, a, m) {
                 i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
                         (i[r].q = i[r].q || []).push(arguments)
@@ -10584,6 +10606,9 @@ function removeEle(removeObj) {
 
             ga('create', 'UA-436090-2', 'auto');ga('require', 'displayfeatures');
             ga('send', 'pageview');
+        },
+        googleCountBall:function () {
+            try { var pageTracker = _gat._getTracker("UA-436090-1"); pageTracker._trackPageview(); } catch (err) { };
         },
         /* rem 字体转换 */
         remFontSize:function(){

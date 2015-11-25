@@ -36,7 +36,7 @@ function getServerTime(callback){
        }
     });
 }
-// 获取服务器时间
+// 获取服务器时间 
 function getServerTimeStamp(callback){
   $.ajax({
        type: "POST",
@@ -68,7 +68,7 @@ function del_Cookie(name)
 {
     var exp = new Date();
     exp.setTime(exp.getTime() - 1);
-    var cval=getCookie(name);
+    var cval=get_Cookie(name);
     if(cval!=null)
         document.cookie= name + "="+cval+";expires="+exp.toGMTString();
 };
@@ -172,3 +172,24 @@ function PLCountdown(end,sta,i){
 function removeEle(removeObj) {
     removeObj.parentNode.removeChild(removeObj);
 };
+
+
+// JavaScript Document
+function loadjscssfile(filename,filetype){
+
+    if(filetype == "js"){
+        var fileref = document.createElement('script');
+        fileref.setAttribute("type","text/javascript");
+        fileref.setAttribute("src",filename);
+    }else if(filetype == "css"){
+    
+        var fileref = document.createElement('link');
+        fileref.setAttribute("rel","stylesheet");
+        fileref.setAttribute("type","text/css");
+        fileref.setAttribute("href",filename);
+    }
+   if(typeof fileref != "undefined"){
+        document.getElementsByTagName("head")[0].appendChild(fileref);
+    }
+    
+}
