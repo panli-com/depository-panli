@@ -11,7 +11,11 @@
 
 ### 2015年11月26日12:52:16
 
-新增 loadjscssfile(file,type)
+新增 
+
+```
+loadjscssfile(file,type)
+```
 
 file -> 文件地址
 type -> 文件类型 js or css
