@@ -10624,11 +10624,15 @@ function loadjscssfile(filename,filetype){
 
         },
         //各种快捷引用
-        alert: function(content, options, yes){
+        alert: function(content, bt , options, yes){
             var type = typeof options === 'function';
+            var btnText = "确定";
             if(type) yes = options;
+            if(bt) btnText = bt;
+            console.log(content );
             return Pan.open(P.extend({
                 content: content,
+                btn:btnText,
                 yes: yes
             }, type ? {} : options));
         },
@@ -10778,7 +10782,7 @@ function loadjscssfile(filename,filetype){
                 Pan.closeAll('dialog');
                 break;
             case 2:
-                var content = config.content = conType ? config.content : [config.content||'http://sentsin.com?from=Pan', 'auto'];
+                var content = config.content = conType ? config.content : [config.content||'http://zanjs.com?from=Pan', 'auto'];
                 config.content = '<iframe scrolling="'+ (config.content[1]||'auto') +'" allowtransparency="true" id="'+ doms[4] +''+ times +'" name="'+ doms[4] +''+ times +'" onload="this.className=\'\';" class="layui-layer-load" frameborder="0" src="' + config.content[0] + '"></iframe>';
                 break;
             case 3:
