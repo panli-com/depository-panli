@@ -13,6 +13,8 @@
 
 新增 
 
+> 加载文件函数
+
 ```
 loadjscssfile(file,type)
 ```
