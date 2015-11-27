@@ -26,7 +26,7 @@
 
 //默认内置方法。
     var Pan = {
-        v: '0.0.3',
+        v: '0.0.10',
         ie6: !!window.ActiveXObject&&!window.XMLHttpRequest,
         index: 0,
         path: ready.getPath,
