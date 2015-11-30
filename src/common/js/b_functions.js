@@ -116,7 +116,7 @@ function Log(data){
   return console.log(data);
 }
 
-//倒计时
+//倒计时 PLCountdown(1451404800000)
 function PLCountdown(end,sta,i){
   if(!i){
     i = 1
