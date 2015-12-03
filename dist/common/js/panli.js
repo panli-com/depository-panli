@@ -10532,7 +10532,7 @@ function loadjscssfile(filename,filetype){
 
 //默认内置方法。
     var Pan = {
-        v: '0.0.11',
+        v: '0.0.12',
         ie6: !!window.ActiveXObject&&!window.XMLHttpRequest,
         index: 0,
         path: ready.getPath,
@@ -10629,7 +10629,7 @@ function loadjscssfile(filename,filetype){
             var btnText = "确定";
             if(type) yes = options;
             if(bt) btnText = bt;
-            console.log(content );
+            
             return Pan.open(P.extend({
                 content: content,
                 btn:btnText,
