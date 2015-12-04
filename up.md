@@ -19,7 +19,9 @@ http://localhost:45419/Panli.Site.Static/Ued/Pc/common/js/
 ###　新增封装 ajax 获取数据 getSeverData(url,obj,callback)
 
 >** url ajax 服务器地址
+
 >** obj 传入的 data 数据 是一个对象 在传入前 请先 `JSON.stringify(obj)` 一下
+
 >** callback 回调方法
 
 demo
@@ -38,9 +40,13 @@ getSeverData(url,JSON.stringify(obj),function(d){
 #### 新增 randomWord(randomFlag, min, max) 方法 
 
 >** randomWord 产生任意长度随机字母数字组合
+
 >** randomFlag-是否任意长度 min-任意长度最小位[固定位数] max-任意长度最大位
+
 >使用方法
+
 >生成3-32位随机串：randomWord(true, 3, 32)
+
 >生成88位随机串：randomWord(false, 88)
 
 
